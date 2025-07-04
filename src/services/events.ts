@@ -4,10 +4,19 @@ import type { Event } from '@/lib/types';
 
 function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
     const data = doc.data();
-    if (!data || !(data.date instanceof Timestamp)) {
-        console.error("Invalid event data:", data);
+    // Validate required fields
+    if (
+        !data ||
+        !(data.date instanceof Timestamp) ||
+        typeof data.title !== 'string' ||
+        typeof data.time !== 'string' ||
+        typeof data.location !== 'string' ||
+        typeof data.description !== 'string'
+    ) {
+        console.error("Invalid or incomplete event data for doc ID:", doc.id);
         return null;
     }
+
     return {
         id: doc.id,
         title: data.title,
@@ -15,7 +24,7 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         time: data.time,
         location: data.location,
         description: data.description,
-    } as Event;
+    };
 }
 
 export async function getEvents(): Promise<Event[]> {

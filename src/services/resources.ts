@@ -4,15 +4,26 @@ import type { Resource } from '@/lib/types';
 
 function docToResource(doc: DocumentSnapshot<DocumentData>): Resource | null {
     const data = doc.data();
-    if (!data) {
+    const category = data?.category;
+    const isValidCategory = category === 'Tool' || category === 'Template' || category === 'Learning';
+    
+    // Validate required fields
+    if (
+        !data ||
+        typeof data.name !== 'string' ||
+        typeof data.url !== 'string' ||
+        !isValidCategory
+    ) {
+        console.error("Invalid or incomplete resource data for doc ID:", doc.id);
         return null;
     }
+
     return {
         id: doc.id,
         name: data.name,
         url: data.url,
         category: data.category,
-    } as Resource;
+    };
 }
 
 export async function getResources(): Promise<Resource[]> {

@@ -4,18 +4,28 @@ import type { Member } from '@/lib/types';
 
 function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
     const data = doc.data();
-    if (!data) {
+    // Validate required fields
+    if (
+        !data ||
+        typeof data.name !== 'string' ||
+        typeof data.role !== 'string' ||
+        typeof data.avatarUrl !== 'string' ||
+        typeof data.fallback !== 'string' ||
+        !Array.isArray(data.skills)
+    ) {
+        console.error("Invalid or incomplete member data for doc ID:", doc.id);
         return null;
     }
+
     return {
         id: doc.id,
         name: data.name,
         role: data.role,
         avatarUrl: data.avatarUrl,
-        avatarHint: data.avatarHint,
+        avatarHint: data.avatarHint, // Optional
         fallback: data.fallback,
         skills: data.skills,
-    } as Member;
+    };
 }
 
 export async function getMembers(): Promise<Member[]> {

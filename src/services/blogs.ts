@@ -4,8 +4,19 @@ import type { BlogPost } from '@/lib/types';
 
 function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
     const data = doc.data();
-    if (!data || !(data.date instanceof Timestamp)) {
-        console.error("Invalid blog post data:", data);
+    // Validate required fields
+    if (
+        !data || 
+        !(data.date instanceof Timestamp) ||
+        typeof data.title !== 'string' ||
+        typeof data.slug !== 'string' ||
+        typeof data.author !== 'string' ||
+        typeof data.category !== 'string' ||
+        typeof data.content !== 'string' ||
+        typeof data.excerpt !== 'string' ||
+        typeof data.imageUrl !== 'string'
+    ) {
+        console.error("Invalid or incomplete blog post data for doc ID:", doc.id);
         return null;
     }
 
@@ -18,9 +29,9 @@ function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
         date: data.date.toDate().toISOString(),
         category: data.category,
         imageUrl: data.imageUrl,
-        imageHint: data.imageHint,
+        imageHint: data.imageHint, // Optional field
         slug: data.slug,
-    } as BlogPost;
+    };
 }
 
 
