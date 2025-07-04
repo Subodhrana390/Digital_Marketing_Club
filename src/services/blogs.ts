@@ -27,6 +27,7 @@ function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
         content: data.content,
         author: data.author,
         date: data.date.toDate().toISOString(),
+        updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : undefined,
         category: data.category,
         imageUrl: data.imageUrl,
         imageHint: data.imageHint, // Optional field
@@ -62,17 +63,23 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
     return docToBlogPost(docSnap);
 }
 
-export async function addBlogPost(post: Omit<BlogPost, 'id' | 'date'>) {
+export async function addBlogPost(post: Omit<BlogPost, 'id' | 'date' | 'updatedAt'>) {
+    const now = Timestamp.fromDate(new Date());
     const newPost = {
         ...post,
-        date: Timestamp.fromDate(new Date()),
+        date: now,
+        updatedAt: now,
     };
     const docRef = await addDoc(collection(db, 'blogPosts'), newPost);
     return docRef.id;
 }
 
 export async function updateBlogPost(id: string, post: Partial<Omit<BlogPost, 'id'>>) {
-    await updateDoc(doc(db, 'blogPosts', id), post);
+    const updateData = {
+        ...post,
+        updatedAt: Timestamp.fromDate(new Date()),
+    };
+    await updateDoc(doc(db, 'blogPosts', id), updateData);
 }
 
 export async function deleteBlogPost(id: string) {
