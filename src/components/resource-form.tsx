@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import type { Resource } from "@/lib/types";
 import { addResourceAction, updateResourceAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function ResourceForm({ resource }: ResourceFormProps) {
   const isUpdate = !!resource;
   const action = isUpdate ? updateResourceAction.bind(null, resource.id) : addResourceAction;
-  const [state, formAction] = useFormState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "" });
 
   return (
     <form action={formAction} className="space-y-6">

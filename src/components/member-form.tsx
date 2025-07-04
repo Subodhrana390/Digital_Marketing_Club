@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import type { Member } from "@/lib/types";
 import { addMemberAction, updateMemberAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function MemberForm({ member }: MemberFormProps) {
   const isUpdate = !!member;
   const action = isUpdate ? updateMemberAction.bind(null, member.id) : addMemberAction;
-  const [state, formAction] = useFormState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "" });
   
   const skills = member?.skills?.join(', ') || '';
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { useEffect, useState, useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import type { BlogPost } from "@/lib/types";
 import { addBlogPostAction, generateBlogPostContentAction, updateBlogPostAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function BlogForm({ post }: BlogFormProps) {
   const isUpdate = !!post;
   const action = isUpdate ? updateBlogPostAction.bind(null, post.id) : addBlogPostAction;
-  const [state, formAction] = useFormState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "" });
   
   const [title, setTitle] = useState(post?.title || "");
   const [excerpt, setExcerpt] = useState(post?.excerpt || "");

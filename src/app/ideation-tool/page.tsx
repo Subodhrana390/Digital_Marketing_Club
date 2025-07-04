@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +33,7 @@ function SubmitButton() {
 }
 
 export default function IdeationToolPage() {
-  const [state, formAction] = useFormState(getSuggestedTitles, initialState);
+  const [state, formAction] = useActionState(getSuggestedTitles, initialState);
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">

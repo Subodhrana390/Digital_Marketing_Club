@@ -1,7 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { useState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
+import { useActionState, useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function EventForm({ event }: EventFormProps) {
   const isUpdate = !!event;
   const action = isUpdate ? updateEventAction.bind(null, event.id) : addEventAction;
-  const [state, formAction] = useFormState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "" });
 
   const [date, setDate] = useState<Date | undefined>(
     event ? new Date(event.date) : undefined
