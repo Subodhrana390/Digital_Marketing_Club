@@ -10,6 +10,7 @@ import {
   Menu,
   Library,
   Users,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +28,7 @@ const navLinks = [
   { href: '/blog', label: 'Blog', icon: BookOpen },
   { href: '/resources', label: 'Resources', icon: Library },
   { href: '/members', label: 'Members', icon: Users },
+  { href: '/admin', label: 'Admin', icon: Shield },
   { href: '/contact', label: 'Contact', icon: Contact },
   { href: '/ideation-tool', label: 'Ideation Tool', icon: Lightbulb },
 ];
