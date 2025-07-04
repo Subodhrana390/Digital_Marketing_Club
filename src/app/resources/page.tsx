@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FileText, GraduationCap, Link as LinkIcon, Tool } from "lucide-react";
+import { FileText, GraduationCap, Link as LinkIcon, Wrench } from "lucide-react";
 
 const resources = {
   tools: [
@@ -41,7 +41,7 @@ export default function ResourcesPage() {
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-lg font-medium hover:no-underline">
               <div className="flex items-center gap-3">
-                <Tool className="h-5 w-5 text-primary" />
+                <Wrench className="h-5 w-5 text-primary" />
                 Marketing Tools
               </div>
             </AccordionTrigger>
