@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOutUser } from "@/services/auth";
-import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +18,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AdminHeader() {
   const { user } = useAuth();
-  const router = useRouter();
 
   const handleSignOut = async () => {
     await signOutUser();
-    router.push('/login');
-  }
+    // The AuthGuard component will handle redirecting the user to the login page.
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
