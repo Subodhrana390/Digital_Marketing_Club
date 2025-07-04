@@ -34,20 +34,27 @@ export async function getEvent(id: string): Promise<Event | null> {
     } as Event;
 }
 
+type EventInput = {
+    title: string;
+    date: Date;
+    time: string;
+    location: string;
+    description: string;
+}
 
-export async function addEvent(event: Omit<Event, 'id'>) {
+export async function addEvent(event: EventInput) {
     const newEvent = {
         ...event,
-        date: Timestamp.fromDate(new Date(event.date)),
+        date: Timestamp.fromDate(event.date),
     };
     const docRef = await addDoc(collection(db, 'events'), newEvent);
     return docRef.id;
 }
 
-export async function updateEvent(id: string, event: Partial<Omit<Event, 'id'>>) {
+export async function updateEvent(id: string, event: Partial<EventInput>) {
     const eventData: Partial<any> = {...event};
     if (event.date) {
-        eventData.date = Timestamp.fromDate(new Date(event.date));
+        eventData.date = Timestamp.fromDate(event.date);
     }
     await updateDoc(doc(db, 'events', id), eventData);
 }
