@@ -1,3 +1,4 @@
+
 "use server";
 
 import { z } from "zod";
@@ -15,7 +16,10 @@ import {
   type GenerateBlogContentOutput,
 } from "@/ai/flows/generate-blog-content";
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
-import type { BlogPost } from "@/lib/types";
+import { addEvent, deleteEvent, updateEvent } from "@/services/events";
+import { addResource, deleteResource, updateResource } from "@/services/resources";
+import { addMember, deleteMember, updateMember } from "@/services/members";
+import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
 
 const contactFormSchema = z.object({
@@ -110,6 +114,11 @@ export async function generateBlogPostContentAction(
   }
 }
 
+type FormState = {
+  message: string;
+  errors?: Record<string, string[] | undefined>;
+}
+
 const blogPostSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters."),
   slug: z.string().regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens."),
@@ -121,12 +130,7 @@ const blogPostSchema = z.object({
   imageHint: z.string().optional(),
 });
 
-type BlogFormState = {
-  message: string;
-  errors?: Record<string, string[] | undefined>;
-}
-
-export async function addBlogPostAction(prevState: BlogFormState, formData: FormData): Promise<BlogFormState> {
+export async function addBlogPostAction(prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = blogPostSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -148,7 +152,7 @@ export async function addBlogPostAction(prevState: BlogFormState, formData: Form
   redirect("/admin/blogs");
 }
 
-export async function updateBlogPostAction(id: string, prevState: BlogFormState, formData: FormData): Promise<BlogFormState> {
+export async function updateBlogPostAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = blogPostSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -179,5 +183,211 @@ export async function deleteBlogPostAction(id: string) {
     } catch (e) {
         console.error(e);
         return { message: "Failed to delete blog post." };
+    }
+}
+
+// Event Actions
+const eventSchema = z.object({
+    title: z.string().min(5, "Title is required."),
+    date: z.string().min(1, "Date is required."),
+    time: z.string().min(1, "Time is required."),
+    location: z.string().min(3, "Location is required."),
+    description: z.string().min(10, "Description must be at least 10 characters."),
+});
+
+export async function addEventAction(prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = eventSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+    
+    try {
+        await addEvent(validatedFields.data as Omit<Event, 'id'>);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to create event." };
+    }
+
+    revalidatePath("/admin/events");
+    revalidatePath("/events");
+    redirect("/admin/events");
+}
+
+export async function updateEventAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = eventSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        await updateEvent(id, validatedFields.data);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to update event." };
+    }
+
+    revalidatePath("/admin/events");
+    revalidatePath("/events");
+    redirect("/admin/events");
+}
+
+export async function deleteEventAction(id: string) {
+    try {
+        await deleteEvent(id);
+        revalidatePath("/admin/events");
+        revalidatePath("/events");
+        return { message: "Event deleted successfully." };
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to delete event." };
+    }
+}
+
+
+// Resource Actions
+const resourceSchema = z.object({
+    name: z.string().min(3, "Name is required."),
+    url: z.string().url("Please enter a valid URL."),
+    category: z.enum(["Tool", "Template", "Learning"], { required_error: "Category is required." }),
+});
+
+export async function addResourceAction(prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = resourceSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        await addResource(validatedFields.data as Omit<Resource, 'id'>);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to create resource." };
+    }
+
+    revalidatePath("/admin/resources");
+    revalidatePath("/resources");
+    redirect("/admin/resources");
+}
+
+export async function updateResourceAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = resourceSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        await updateResource(id, validatedFields.data);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to update resource." };
+    }
+
+    revalidatePath("/admin/resources");
+    revalidatePath("/resources");
+    redirect("/admin/resources");
+}
+
+export async function deleteResourceAction(id: string) {
+    try {
+        await deleteResource(id);
+        revalidatePath("/admin/resources");
+        revalidatePath("/resources");
+        return { message: "Resource deleted successfully." };
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to delete resource." };
+    }
+}
+
+// Member Actions
+const memberSchema = z.object({
+    name: z.string().min(2, "Name is required."),
+    role: z.string().min(2, "Role is required."),
+    avatarUrl: z.string().url("Please enter a valid avatar URL."),
+    avatarHint: z.string().optional(),
+    skills: z.string().min(1, "At least one skill is required."),
+});
+
+export async function addMemberAction(prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = memberSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    const { skills, ...rest } = validatedFields.data;
+    const memberData: Omit<Member, 'id' | 'fallback'> = {
+        ...rest,
+        skills: skills.split(',').map(s => s.trim()),
+    };
+    
+    try {
+        await addMember(memberData);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to add member." };
+    }
+
+    revalidatePath("/admin/members");
+    revalidatePath("/members");
+    redirect("/admin/members");
+}
+
+export async function updateMemberAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+    const validatedFields = memberSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return {
+            message: "Please correct the errors below.",
+            errors: validatedFields.error.flatten().fieldErrors,
+        };
+    }
+
+    const { skills, ...rest } = validatedFields.data;
+    const memberData = {
+        ...rest,
+        skills: skills.split(',').map(s => s.trim()),
+    };
+
+    try {
+        await updateMember(id, memberData);
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to update member." };
+    }
+
+    revalidatePath("/admin/members");
+    revalidatePath("/members");
+    redirect("/admin/members");
+}
+
+export async function deleteMemberAction(id: string) {
+    try {
+        await deleteMember(id);
+        revalidatePath("/admin/members");
+        revalidatePath("/members");
+        return { message: "Member removed successfully." };
+    } catch (e) {
+        console.error(e);
+        return { message: "Failed to remove member." };
     }
 }

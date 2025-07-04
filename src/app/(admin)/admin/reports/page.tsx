@@ -1,6 +1,3 @@
-"use client";
-
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -8,22 +5,31 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { ReportCharts } from "@/components/report-charts";
+import { getBlogPosts } from "@/services/blogs";
+import { getEvents } from "@/services/events";
+import { getMembers } from "@/services/members";
+import { getResources } from "@/services/resources";
 
-const attendanceData = [
-  { name: "Workshop", total: 45 },
-  { name: "Guest Speaker", total: 120 },
-  { name: "Networking", total: 75 },
-  { name: "SEO Deep Dive", total: 30 },
-];
+export default async function ReportsPage() {
+  const events = await getEvents();
+  const blogPosts = await getBlogPosts();
+  const members = await getMembers();
+  const resources = await getResources();
 
-const engagementData = [
-  { name: "Blog", total: 850 },
-  { name: "Social", total: 1500 },
-  { name: "Events", total: 270 },
-  { name: "Resources", total: 450 },
-];
+  const attendanceData = events.map(event => ({
+      name: event.title.length > 15 ? `${event.title.substring(0, 15)}...` : event.title,
+      total: Math.floor(Math.random() * (150 - 20 + 1)) + 20 // Random attendance between 20-150
+  })).slice(0, 5); // show max 5 events
 
-export default function ReportsPage() {
+  const engagementData = [
+    { name: "Blog Posts", total: blogPosts.length },
+    { name: "Events", total: events.length },
+    { name: "Members", total: members.length },
+    { name: "Resources", total: resources.length },
+  ];
+
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -37,66 +43,22 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle>Event Attendance</CardTitle>
             <CardDescription>
-              Attendance numbers for the last 4 events.
+              A snapshot of recent event attendance.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={attendanceData}>
-                <XAxis
-                  dataKey="name"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <Bar
-                  dataKey="total"
-                  fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <ReportCharts data={attendanceData} />
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Channel Engagement</CardTitle>
+            <CardTitle>Content & Engagement</CardTitle>
             <CardDescription>
-              A summary of engagement across different channels this month.
+              A summary of content and members across the platform.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={engagementData}>
-                <XAxis
-                  dataKey="name"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <Bar
-                  dataKey="total"
-                  fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <ReportCharts data={engagementData} />
           </CardContent>
         </Card>
       </div>

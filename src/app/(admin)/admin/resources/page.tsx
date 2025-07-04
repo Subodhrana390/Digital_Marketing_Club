@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,15 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { PlusCircle } from "lucide-react";
 import { getResources } from "@/services/resources";
+import ResourceActions from "@/components/admin/resource-actions";
 
 
 export default async function AdminResourcesPage() {
@@ -38,11 +33,13 @@ export default async function AdminResourcesPage() {
               Manage your club's resource library.
             </CardDescription>
           </div>
-          <Button size="sm" className="gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Add Resource
-            </span>
+          <Button asChild size="sm" className="gap-1">
+            <Link href="/admin/resources/new">
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Add Resource
+              </span>
+            </Link>
           </Button>
         </div>
       </CardHeader>
@@ -69,19 +66,7 @@ export default async function AdminResourcesPage() {
                   {resource.url}
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <ResourceActions resourceId={resource.id} />
                 </TableCell>
               </TableRow>
             ))}
