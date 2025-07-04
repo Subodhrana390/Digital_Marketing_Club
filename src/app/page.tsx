@@ -13,7 +13,7 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                  Welcome to MarketVerse
+                  Welcome to the Digital Marketing Club
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
                   Your launchpad into the universe of digital marketing. Connect,
@@ -115,7 +115,7 @@ export default function Home() {
         <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
           <div className="space-y-3">
             <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
-              Ready to Explore the MarketVerse?
+              Ready to Join the Digital Marketing Club?
             </h2>
             <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
               Check out our latest blog posts for insights and trends in the

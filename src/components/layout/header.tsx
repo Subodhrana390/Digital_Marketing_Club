@@ -80,7 +80,7 @@ export function Header() {
               <path d="M2 17l10 5 10-5"></path>
               <path d="M2 12l10 5 10-5"></path>
             </svg>
-            <span className="font-headline">MarketVerse</span>
+            <span className="font-headline">Digital Marketing Club</span>
           </Link>
         </div>
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 ml-auto">

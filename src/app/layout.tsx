@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'MarketVerse - Digital Marketing Club',
+  title: 'Digital Marketing Club',
   description:
     'The official website for the Digital Marketing Club. Explore events, articles, and resources.',
 };
