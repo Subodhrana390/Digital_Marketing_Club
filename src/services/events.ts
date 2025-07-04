@@ -1,23 +1,29 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, Timestamp, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Event } from '@/lib/types';
+
+function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
+    const data = doc.data();
+    if (!data || !(data.date instanceof Timestamp)) {
+        console.error("Invalid event data:", data);
+        return null;
+    }
+    return {
+        id: doc.id,
+        title: data.title,
+        date: data.date.toDate().toISOString(),
+        time: data.time,
+        location: data.location,
+        description: data.description,
+    } as Event;
+}
 
 export async function getEvents(): Promise<Event[]> {
     const eventsCollection = collection(db, 'events');
     const q = query(eventsCollection, orderBy('date', 'asc'));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            title: data.title,
-            date: data.date.toDate().toISOString(),
-            time: data.time,
-            location: data.location,
-            description: data.description,
-        } as Event
-    });
+    return querySnapshot.docs.map(docToEvent).filter((event): event is Event => event !== null);
 }
 
 export async function getEvent(id: string): Promise<Event | null> {
@@ -26,12 +32,7 @@ export async function getEvent(id: string): Promise<Event | null> {
     if (!docSnap.exists()) {
         return null;
     }
-    const data = docSnap.data();
-    return {
-        id: docSnap.id,
-        ...data,
-        date: data.date.toDate().toISOString(),
-    } as Event;
+    return docToEvent(docSnap);
 }
 
 type EventInput = {

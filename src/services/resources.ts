@@ -1,21 +1,26 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Resource } from '@/lib/types';
+
+function docToResource(doc: DocumentSnapshot<DocumentData>): Resource | null {
+    const data = doc.data();
+    if (!data) {
+        return null;
+    }
+    return {
+        id: doc.id,
+        name: data.name,
+        url: data.url,
+        category: data.category,
+    } as Resource;
+}
 
 export async function getResources(): Promise<Resource[]> {
     const resourcesCollection = collection(db, 'resources');
      const q = query(resourcesCollection, orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            name: data.name,
-            url: data.url,
-            category: data.category,
-        } as Resource
-    });
+    return querySnapshot.docs.map(docToResource).filter((resource): resource is Resource => resource !== null);
 }
 
 export async function getResource(id: string): Promise<Resource | null> {
@@ -24,10 +29,7 @@ export async function getResource(id: string): Promise<Resource | null> {
     if (!docSnap.exists()) {
         return null;
     }
-    return {
-        id: docSnap.id,
-        ...docSnap.data()
-    } as Resource;
+    return docToResource(docSnap);
 }
 
 export async function addResource(resource: Omit<Resource, 'id'>) {

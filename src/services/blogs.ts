@@ -1,27 +1,35 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, where, Timestamp, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { BlogPost } from '@/lib/types';
+
+function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
+    const data = doc.data();
+    if (!data || !(data.date instanceof Timestamp)) {
+        console.error("Invalid blog post data:", data);
+        return null;
+    }
+
+    return {
+        id: doc.id,
+        title: data.title,
+        excerpt: data.excerpt,
+        content: data.content,
+        author: data.author,
+        date: data.date.toDate().toISOString(),
+        category: data.category,
+        imageUrl: data.imageUrl,
+        imageHint: data.imageHint,
+        slug: data.slug,
+    } as BlogPost;
+}
+
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
     const postsCollection = collection(db, 'blogPosts');
     const q = query(postsCollection, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            title: data.title,
-            excerpt: data.excerpt,
-            content: data.content,
-            author: data.author,
-            date: data.date.toDate().toISOString(),
-            category: data.category,
-            imageUrl: data.imageUrl,
-            imageHint: data.imageHint,
-            slug: data.slug,
-        } as BlogPost
-    });
+    return querySnapshot.docs.map(docToBlogPost).filter((post): post is BlogPost => post !== null);
 }
 
 export async function getBlogPost(id: string): Promise<BlogPost | null> {
@@ -30,12 +38,7 @@ export async function getBlogPost(id: string): Promise<BlogPost | null> {
     if (!docSnap.exists()) {
         return null;
     }
-    const data = docSnap.data();
-    return {
-        id: docSnap.id,
-        ...data,
-        date: data.date.toDate().toISOString(),
-    } as BlogPost;
+    return docToBlogPost(docSnap);
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -45,12 +48,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         return null;
     }
     const docSnap = querySnapshot.docs[0];
-    const data = docSnap.data();
-    return {
-        id: docSnap.id,
-        ...data,
-        date: data.date.toDate().toISOString(),
-    } as BlogPost;
+    return docToBlogPost(docSnap);
 }
 
 export async function addBlogPost(post: Omit<BlogPost, 'id' | 'date'>) {

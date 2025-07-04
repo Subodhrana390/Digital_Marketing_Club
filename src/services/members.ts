@@ -1,24 +1,29 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Member } from '@/lib/types';
+
+function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
+    const data = doc.data();
+    if (!data) {
+        return null;
+    }
+    return {
+        id: doc.id,
+        name: data.name,
+        role: data.role,
+        avatarUrl: data.avatarUrl,
+        avatarHint: data.avatarHint,
+        fallback: data.fallback,
+        skills: data.skills,
+    } as Member;
+}
 
 export async function getMembers(): Promise<Member[]> {
     const membersCollection = collection(db, 'members');
     const q = query(membersCollection, orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            name: data.name,
-            role: data.role,
-            avatarUrl: data.avatarUrl,
-            avatarHint: data.avatarHint,
-            fallback: data.fallback,
-            skills: data.skills,
-        } as Member
-    });
+    return querySnapshot.docs.map(docToMember).filter((member): member is Member => member !== null);
 }
 
 export async function getMember(id: string): Promise<Member | null> {
@@ -27,12 +32,8 @@ export async function getMember(id: string): Promise<Member | null> {
     if (!docSnap.exists()) {
         return null;
     }
-    return {
-        id: docSnap.id,
-        ...docSnap.data()
-    } as Member;
+    return docToMember(docSnap);
 }
-
 
 export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
     const newMember = {
