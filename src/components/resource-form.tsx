@@ -27,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function ResourceForm({ resource }: ResourceFormProps) {
   const isUpdate = !!resource;
   const action = isUpdate ? updateResourceAction.bind(null, resource.id) : addResourceAction;
-  const [state, formAction] = useActionState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "", errors: {} });
 
   return (
     <form action={formAction} className="space-y-6">
@@ -62,7 +62,7 @@ export function ResourceForm({ resource }: ResourceFormProps) {
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />
       </div>
-       {state.message && !state.errors && <p className="text-sm font-medium text-destructive">{state.message}</p>}
+       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
   );
 }

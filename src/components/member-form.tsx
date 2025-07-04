@@ -27,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function MemberForm({ member }: MemberFormProps) {
   const isUpdate = !!member;
   const action = isUpdate ? updateMemberAction.bind(null, member.id) : addMemberAction;
-  const [state, formAction] = useActionState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "", errors: {} });
   
   const skills = member?.skills?.join(', ') || '';
 
@@ -68,7 +68,7 @@ export function MemberForm({ member }: MemberFormProps) {
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />
       </div>
-       {state.message && !state.errors && <p className="text-sm font-medium text-destructive">{state.message}</p>}
+       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
   );
 }

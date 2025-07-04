@@ -31,7 +31,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function EventForm({ event }: EventFormProps) {
   const isUpdate = !!event;
   const action = isUpdate ? updateEventAction.bind(null, event.id) : addEventAction;
-  const [state, formAction] = useActionState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "", errors: {} });
 
   const [date, setDate] = useState<Date | undefined>(
     event ? new Date(event.date) : undefined
@@ -101,7 +101,7 @@ export function EventForm({ event }: EventFormProps) {
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />
       </div>
-      {state.message && !state.errors && <p className="text-sm font-medium text-destructive">{state.message}</p>}
+      {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
   );
 }

@@ -32,7 +32,7 @@ export default function ContactPage() {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.message && !state.errors.email && !state.errors.message && !state.errors.name) {
+    if (state.message && (!state.errors || Object.keys(state.errors).length === 0)) {
       toast({
         title: "Success!",
         description: state.message,
@@ -40,7 +40,7 @@ export default function ContactPage() {
       if (state.reset && formRef.current) {
         formRef.current.reset();
       }
-    } else if (state.message) {
+    } else if (state.message && state.errors && Object.keys(state.errors).length > 0) {
       toast({
         title: "Error",
         description: state.message,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import type { BlogPost } from "@/lib/types";
 import { addBlogPostAction, generateBlogPostContentAction, updateBlogPostAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
 export function BlogForm({ post }: BlogFormProps) {
   const isUpdate = !!post;
   const action = isUpdate ? updateBlogPostAction.bind(null, post.id) : addBlogPostAction;
-  const [state, formAction] = useActionState(action, { message: "" });
+  const [state, formAction] = useActionState(action, { message: "", errors: {} });
   
   const [title, setTitle] = useState(post?.title || "");
   const [excerpt, setExcerpt] = useState(post?.excerpt || "");
@@ -112,7 +112,7 @@ export function BlogForm({ post }: BlogFormProps) {
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />
       </div>
-       {state.message && !state.errors && <p className="text-sm font-medium text-destructive">{state.message}</p>}
+       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
   );
 }
