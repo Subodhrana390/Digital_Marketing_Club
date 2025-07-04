@@ -26,7 +26,7 @@ export default function AdminRootLayout({
             </Sidebar>
             <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
                 <AdminHeader />
-                <main className="p-4 sm:px-6 sm:py-0">{children}</main>
+                <div className="p-4 sm:px-6 sm:py-0">{children}</div>
             </div>
         </SidebarProvider>
       </AuthGuard>
