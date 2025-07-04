@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,17 +16,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { PlusCircle } from "lucide-react";
 import Image from "next/image";
 import { getBlogPosts } from "@/services/blogs";
-
+import BlogActions from "@/components/admin/blog-actions";
 
 export default async function AdminBlogsPage() {
   const blogPosts = await getBlogPosts();
@@ -39,11 +33,13 @@ export default async function AdminBlogsPage() {
               Manage your blog posts and content.
             </CardDescription>
           </div>
-          <Button size="sm" className="gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Add Post
-            </span>
+          <Button size="sm" className="gap-1" asChild>
+            <Link href="/admin/blogs/new">
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Add Post
+              </span>
+            </Link>
           </Button>
         </div>
       </CardHeader>
@@ -90,19 +86,7 @@ export default async function AdminBlogsPage() {
                   })}
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <BlogActions postId={post.id} />
                 </TableCell>
               </TableRow>
             ))}
