@@ -144,7 +144,7 @@ export async function addBlogPostAction(prevState: FormState, formData: FormData
     await addBlogPost(validatedFields.data as Omit<BlogPost, 'id' | 'date'>);
   } catch (e) {
     console.error(e);
-    return { message: "Failed to create blog post." };
+    return { message: "Failed to create blog post.", errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -166,7 +166,7 @@ export async function updateBlogPostAction(id: string, prevState: FormState, for
     await updateBlogPost(id, validatedFields.data);
   } catch (e) {
     console.error(e);
-    return { message: "Failed to update blog post." };
+    return { message: "Failed to update blog post.", errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -209,7 +209,7 @@ export async function addEventAction(prevState: FormState, formData: FormData): 
         await addEvent(validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to create event." };
+        return { message: "Failed to create event.", errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -231,7 +231,7 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
         await updateEvent(id, validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update event." };
+        return { message: "Failed to update event.", errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -273,7 +273,7 @@ export async function addResourceAction(prevState: FormState, formData: FormData
         await addResource(validatedFields.data as Omit<Resource, 'id'>);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to create resource." };
+        return { message: "Failed to create resource.", errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -295,7 +295,7 @@ export async function updateResourceAction(id: string, prevState: FormState, for
         await updateResource(id, validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update resource." };
+        return { message: "Failed to update resource.", errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -344,7 +344,7 @@ export async function addMemberAction(prevState: FormState, formData: FormData):
         await addMember(memberData);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to add member." };
+        return { message: "Failed to add member.", errors: {} };
     }
 
     revalidatePath("/admin/members");
@@ -372,7 +372,7 @@ export async function updateMemberAction(id: string, prevState: FormState, formD
         await updateMember(id, memberData);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update member." };
+        return { message: "Failed to update member.", errors: {} };
     }
 
     revalidatePath("/admin/members");
