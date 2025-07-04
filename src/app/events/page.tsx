@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 import React, { useState } from "react";
 import {
@@ -14,6 +15,13 @@ import {
   TrendingUp,
   Globe,
 } from "lucide-react";
+=======
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, MapPin } from "lucide-react";
+import { getEvents } from "@/services/events";
+>>>>>>> 24ff1a9 (in register now i add registration link)
 
 export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -373,6 +381,7 @@ export default function EventsPage() {
                   Try adjusting your search or filter criteria
                 </p>
               </div>
+<<<<<<< HEAD
             )}
           </div>
         </section>
@@ -415,6 +424,24 @@ export default function EventsPage() {
             </div>
           </div>
         </section>
+=======
+            </CardContent>
+            <CardFooter>
+                {event.registrationLink ? (
+                    <Button asChild className="w-full bg-primary/90 hover:bg-primary">
+                        <Link href={event.registrationLink} target="_blank" rel="noopener noreferrer">
+                            Register Now
+                        </Link>
+                    </Button>
+                ) : (
+                    <Button className="w-full" disabled>
+                        Registration Closed
+                    </Button>
+                )}
+            </CardFooter>
+          </Card>
+        ))}
+>>>>>>> 24ff1a9 (in register now i add registration link)
       </div>
     </div>
   );

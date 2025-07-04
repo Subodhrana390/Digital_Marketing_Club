@@ -24,6 +24,7 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         time: data.time,
         location: data.location,
         description: data.description,
+        registrationLink: data.registrationLink,
     };
 }
 
@@ -50,6 +51,7 @@ type EventInput = {
     time: string;
     location: string;
     description: string;
+    registrationLink?: string;
 }
 
 export async function addEvent(event: EventInput) {

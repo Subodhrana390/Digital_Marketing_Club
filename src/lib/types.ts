@@ -19,6 +19,7 @@ export interface Event {
   time: string;
   location: string;
   description: string;
+  registrationLink?: string;
 }
 
 export interface Member {

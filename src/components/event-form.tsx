@@ -1,6 +1,5 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { useActionState, useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
@@ -96,6 +95,12 @@ export function EventForm({ event }: EventFormProps) {
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" name="description" defaultValue={event?.description} rows={5} required />
         {state.errors?.description && <p className="text-sm font-medium text-destructive">{state.errors.description[0]}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="registrationLink">Registration Link</Label>
+        <Input id="registrationLink" name="registrationLink" defaultValue={event?.registrationLink} placeholder="https://example.com/register" />
+        {state.errors?.registrationLink && <p className="text-sm font-medium text-destructive">{state.errors.registrationLink[0]}</p>}
       </div>
 
       <div className="flex justify-end">

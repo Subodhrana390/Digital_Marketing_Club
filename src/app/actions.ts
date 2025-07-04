@@ -141,10 +141,10 @@ export async function addBlogPostAction(prevState: FormState, formData: FormData
   }
 
   try {
-    await addBlogPost(validatedFields.data as Omit<BlogPost, 'id' | 'date'>);
+    await addBlogPost(validatedFields.data as Omit<BlogPost, 'id' | 'date' | 'updatedAt'>);
   } catch (e) {
     console.error(e);
-    return { message: "Failed to create blog post.", errors: {} };
+    return { message: "Failed to create blog post. Please try again.", errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -166,7 +166,7 @@ export async function updateBlogPostAction(id: string, prevState: FormState, for
     await updateBlogPost(id, validatedFields.data);
   } catch (e) {
     console.error(e);
-    return { message: "Failed to update blog post.", errors: {} };
+    return { message: "Failed to update blog post. Please try again.", errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -189,11 +189,12 @@ export async function deleteBlogPostAction(id: string) {
 // Event Actions
 const eventSchema = z.object({
     title: z.string().min(5, "Title is required."),
-    date: z.coerce.date({ invalid_type_error: "Invalid date format.", required_error: "Date is required." })
+    date: z.coerce.date({ required_error: "Date is required." })
       .refine(d => !isNaN(d.getTime()), { message: "Please enter a valid date." }),
     time: z.string().min(1, "Time is required."),
     location: z.string().min(3, "Location is required."),
     description: z.string().min(10, "Description must be at least 10 characters."),
+    registrationLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
 });
 
 export async function addEventAction(prevState: FormState, formData: FormData): Promise<FormState> {
@@ -210,7 +211,7 @@ export async function addEventAction(prevState: FormState, formData: FormData): 
         await addEvent(validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to create event.", errors: {} };
+        return { message: "Failed to create event. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -232,7 +233,7 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
         await updateEvent(id, validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update event.", errors: {} };
+        return { message: "Failed to update event. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -274,7 +275,7 @@ export async function addResourceAction(prevState: FormState, formData: FormData
         await addResource(validatedFields.data as Omit<Resource, 'id'>);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to create resource.", errors: {} };
+        return { message: "Failed to create resource. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -296,7 +297,7 @@ export async function updateResourceAction(id: string, prevState: FormState, for
         await updateResource(id, validatedFields.data);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update resource.", errors: {} };
+        return { message: "Failed to update resource. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -345,7 +346,7 @@ export async function addMemberAction(prevState: FormState, formData: FormData):
         await addMember(memberData);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to add member.", errors: {} };
+        return { message: "Failed to add member. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/members");
@@ -373,7 +374,7 @@ export async function updateMemberAction(id: string, prevState: FormState, formD
         await updateMember(id, memberData);
     } catch (e) {
         console.error(e);
-        return { message: "Failed to update member.", errors: {} };
+        return { message: "Failed to update member. Please try again.", errors: {} };
     }
 
     revalidatePath("/admin/members");
