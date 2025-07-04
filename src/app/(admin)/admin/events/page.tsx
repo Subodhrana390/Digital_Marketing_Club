@@ -22,43 +22,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getEvents } from "@/services/events";
 
-const events = [
-  {
-    title: "Digital Marketing 101 Workshop",
-    date: "2024-10-15",
-    time: "2:00 PM - 4:00 PM",
-    location: "Business Building, Room 301",
-    description:
-      "An introductory workshop covering the fundamentals of digital marketing, from SEO to social media.",
-  },
-  {
-    title: "Guest Speaker: CMO of TechCorp",
-    date: "2024-11-02",
-    time: "6:00 PM - 7:30 PM",
-    location: "Main Auditorium",
-    description:
-      "Join us for an inspiring talk from the Chief Marketing Officer of TechCorp on the future of AI in marketing.",
-  },
-  {
-    title: "Networking Night & Social",
-    date: "2024-11-20",
-    time: "7:00 PM onwards",
-    location: "Campus Pub",
-    description:
-      "A casual evening to connect with fellow club members, alumni, and marketing professionals.",
-  },
-  {
-    title: "Advanced SEO Strategies",
-    date: "2024-12-05",
-    time: "3:00 PM - 5:00 PM",
-    location: "Library, Room C",
-    description:
-      "A deep dive into advanced SEO techniques, including technical SEO, link building, and content strategy.",
-  },
-];
 
-export default function AdminEventsPage() {
+export default async function AdminEventsPage() {
+    const events = await getEvents();
+
   return (
     <Card>
       <CardHeader>
@@ -90,7 +59,7 @@ export default function AdminEventsPage() {
           </TableHeader>
           <TableBody>
             {events.map((event) => (
-              <TableRow key={event.title}>
+              <TableRow key={event.id}>
                 <TableCell className="font-medium">{event.title}</TableCell>
                 <TableCell>
                   {new Date(event.date).toLocaleDateString("en-US", {

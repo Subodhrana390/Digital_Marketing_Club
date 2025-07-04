@@ -24,51 +24,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import { getBlogPosts } from "@/services/blogs";
 
-const blogPosts = [
-  {
-    title: "5 SEO Trends to Watch in 2024",
-    excerpt:
-      "The world of SEO is ever-evolving. Stay ahead of the curve with these 5 key trends that will dominate the digital landscape this year.",
-    author: "Jane Doe",
-    date: "2024-09-01",
-    category: "SEO",
-    imageUrl: "https://placehold.co/600x400.png",
-    slug: "/blog/seo-trends-2024",
-  },
-  {
-    title: "The Art of Storytelling in Social Media Marketing",
-    excerpt:
-      "Learn how to craft compelling narratives that resonate with your audience and build a loyal community around your brand.",
-    author: "John Smith",
-    date: "2024-08-25",
-    category: "Social Media",
-    imageUrl: "https://placehold.co/600x400.png",
-    slug: "/blog/social-media-storytelling",
-  },
-  {
-    title: "A Student's Guide to Acing Your First Marketing Internship",
-    excerpt:
-      "Our club president shares their top tips and experiences to help you make the most of your first marketing internship.",
-    author: "Alice Johnson",
-    date: "2024-08-12",
-    category: "Career",
-    imageUrl: "https://placehold.co/600x400.png",
-    slug: "/blog/marketing-internship-guide",
-  },
-  {
-    title: "Unpacking the Power of Email Marketing Automation",
-    excerpt:
-      "Discover how to set up effective email automation workflows that nurture leads and drive conversions while you sleep.",
-    author: "Mike Brown",
-    date: "2024-07-30",
-    category: "Email Marketing",
-    imageUrl: "https://placehold.co/600x400.png",
-    slug: "/blog/email-automation-power",
-  },
-];
 
-export default function AdminBlogsPage() {
+export default async function AdminBlogsPage() {
+  const blogPosts = await getBlogPosts();
   return (
     <Card>
       <CardHeader>
@@ -105,7 +65,7 @@ export default function AdminBlogsPage() {
           </TableHeader>
           <TableBody>
             {blogPosts.map((post) => (
-              <TableRow key={post.title}>
+              <TableRow key={post.id}>
                 <TableCell className="hidden sm:table-cell">
                   <Image
                     alt={post.title}

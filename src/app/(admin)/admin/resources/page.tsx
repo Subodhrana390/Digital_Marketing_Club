@@ -23,36 +23,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getResources } from "@/services/resources";
 
-const resources = {
-  tools: [
-    { name: "Google Analytics", url: "https://analytics.google.com/" },
-    { name: "HubSpot", url: "https://www.hubspot.com/" },
-    { name: "Canva", url: "https://www.canva.com/" },
-    { name: "SEMrush", url: "https://www.semrush.com/" },
-  ],
-  templates: [
-    { name: "Social Media Calendar Template", url: "#" },
-    { name: "Marketing Report Template", url: "#" },
-    { name: "Email Campaign Template", url: "#" },
-  ],
-  learning: [
-    {
-      name: "Google Digital Garage",
-      url: "https://learndigital.withgoogle.com/digitalgarage/",
-    },
-    { name: "HubSpot Academy", url: "https://academy.hubspot.com/" },
-    { name: "Neil Patel's Blog", url: "https://neilpatel.com/blog/" },
-  ],
-};
 
-const allResources = [
-  ...resources.tools.map((r) => ({ ...r, category: "Tool" })),
-  ...resources.templates.map((r) => ({ ...r, category: "Template" })),
-  ...resources.learning.map((r) => ({ ...r, category: "Learning" })),
-];
-
-export default function AdminResourcesPage() {
+export default async function AdminResourcesPage() {
+  const allResources = await getResources();
   return (
     <Card>
       <CardHeader>
@@ -85,7 +60,7 @@ export default function AdminResourcesPage() {
           </TableHeader>
           <TableBody>
             {allResources.map((resource) => (
-              <TableRow key={resource.name}>
+              <TableRow key={resource.id}>
                 <TableCell className="font-medium">{resource.name}</TableCell>
                 <TableCell>
                   <Badge variant="outline">{resource.category}</Badge>

@@ -24,53 +24,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getMembers } from "@/services/members";
 
-const members = [
-  {
-    name: "Alex Morgan",
-    role: "President",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "AM",
-    skills: ["Leadership", "Public Speaking", "Strategy"],
-  },
-  {
-    name: "Brenda Chen",
-    role: "Vice President, Events",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "BC",
-    skills: ["Event Planning", "Content Creation", "SEO"],
-  },
-  {
-    name: "Carlos Rodriguez",
-    role: "Vice President, Marketing",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "CR",
-    skills: ["Social Media", "Graphic Design", "PPC"],
-  },
-  {
-    name: "Diana Wells",
-    role: "Treasurer",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "DW",
-    skills: ["Finance", "Analytics", "Email Marketing"],
-  },
-  {
-    name: "Ethan Hunt",
-    role: "Member",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "EH",
-    skills: ["Content Writing", "SEO", "WordPress"],
-  },
-  {
-    name: "Fiona Gallagher",
-    role: "Member",
-    avatarUrl: "https://placehold.co/100x100.png",
-    fallback: "FG",
-    skills: ["Videography", "Community Management"],
-  },
-];
 
-export default function AdminMembersPage() {
+export default async function AdminMembersPage() {
+  const members = await getMembers();
+
   return (
     <Card>
       <CardHeader>
@@ -103,7 +62,7 @@ export default function AdminMembersPage() {
           </TableHeader>
           <TableBody>
             {members.map((member) => (
-              <TableRow key={member.name}>
+              <TableRow key={member.id}>
                 <TableCell>
                   <div className="flex items-center gap-4">
                     <Avatar className="hidden h-9 w-9 sm:flex">

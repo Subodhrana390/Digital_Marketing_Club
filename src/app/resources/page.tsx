@@ -5,28 +5,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { FileText, GraduationCap, Link as LinkIcon, Wrench } from "lucide-react";
+import { getResources } from "@/services/resources";
 
-const resources = {
-  tools: [
-    { name: "Google Analytics", url: "https://analytics.google.com/" },
-    { name: "HubSpot", url: "https://www.hubspot.com/" },
-    { name: "Canva", url: "https://www.canva.com/" },
-    { name: "SEMrush", url: "https://www.semrush.com/" },
-  ],
-  templates: [
-    { name: "Social Media Calendar Template", url: "#" },
-    { name: "Marketing Report Template", url: "#" },
-    { name: "Email Campaign Template", url: "#" },
-  ],
-  learning: [
-    { name: "Google Digital Garage", url: "https://learndigital.withgoogle.com/digitalgarage/" },
-    { name: "HubSpot Academy", url: "https://academy.hubspot.com/" },
-    { name: "Neil Patel's Blog", url: "https://neilpatel.com/blog/" },
-  ],
-};
+export default async function ResourcesPage() {
+  const allResources = await getResources();
+  const resources = {
+    tools: allResources.filter((r) => r.category === "Tool"),
+    templates: allResources.filter((r) => r.category === "Template"),
+    learning: allResources.filter((r) => r.category === "Learning"),
+  };
 
-
-export default function ResourcesPage() {
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="space-y-4 mb-8">
@@ -48,7 +36,7 @@ export default function ResourcesPage() {
             <AccordionContent>
               <ul className="space-y-3 pl-6 pt-2">
                 {resources.tools.map((tool) => (
-                  <li key={tool.name}>
+                  <li key={tool.id}>
                     <a href={tool.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group">
                        <LinkIcon className="h-4 w-4 text-accent group-hover:text-primary transition-colors" />
                       {tool.name}
@@ -68,7 +56,7 @@ export default function ResourcesPage() {
             <AccordionContent>
                <ul className="space-y-3 pl-6 pt-2">
                 {resources.templates.map((template) => (
-                  <li key={template.name}>
+                  <li key={template.id}>
                     <a href={template.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group">
                        <LinkIcon className="h-4 w-4 text-accent group-hover:text-primary transition-colors" />
                       {template.name}
@@ -88,7 +76,7 @@ export default function ResourcesPage() {
             <AccordionContent>
                <ul className="space-y-3 pl-6 pt-2">
                 {resources.learning.map((resource) => (
-                  <li key={resource.name}>
+                  <li key={resource.id}>
                     <a href={resource.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group">
                       <LinkIcon className="h-4 w-4 text-accent group-hover:text-primary transition-colors" />
                       {resource.name}

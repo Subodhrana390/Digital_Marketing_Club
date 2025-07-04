@@ -5,9 +5,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getBlogPosts } from "@/services/blogs";
+import { getEvents } from "@/services/events";
+import { getMembers } from "@/services/members";
+import { getResources } from "@/services/resources";
 import { Users, Calendar, Newspaper, Library } from "lucide-react";
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const members = await getMembers();
+  const events = await getEvents();
+  const blogPosts = await getBlogPosts();
+  const resources = await getResources();
+
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -17,8 +27,7 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">6</div>
-            <p className="text-xs text-muted-foreground">+2 since last month</p>
+            <div className="text-2xl font-bold">{members.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -27,8 +36,7 @@ export default function AdminDashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground">Next one in 3 days</p>
+            <div className="text-2xl font-bold">{events.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -37,8 +45,7 @@ export default function AdminDashboardPage() {
             <Newspaper className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground">1 new this week</p>
+            <div className="text-2xl font-bold">{blogPosts.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -49,8 +56,7 @@ export default function AdminDashboardPage() {
             <Library className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">10</div>
-            <p className="text-xs text-muted-foreground">+3 new links</p>
+            <div className="text-2xl font-bold">{resources.length}</div>
           </CardContent>
         </Card>
       </div>
