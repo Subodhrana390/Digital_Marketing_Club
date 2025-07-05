@@ -48,12 +48,12 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
   const response = await drive.files.create({
       requestBody: fileMetadata,
       media: media,
-      fields: 'id, webViewLink',
+      fields: 'id',
   });
 
   const fileId = response.data.id;
-  if (!fileId || !response.data.webViewLink) {
-      throw new Error('File upload to Google Drive failed, no file ID or link returned.');
+  if (!fileId) {
+      throw new Error('File upload to Google Drive failed, no file ID returned.');
   }
   
   await drive.permissions.create({
@@ -64,8 +64,10 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
       },
   });
 
+  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
   return {
-      downloadUrl: response.data.webViewLink,
+      downloadUrl: downloadUrl,
       fileName: file.name
   };
 }
@@ -96,12 +98,12 @@ export async function uploadCertificate(
   const response = await drive.files.create({
     requestBody: fileMetadata,
     media: media,
-    fields: 'id, webViewLink',
+    fields: 'id',
   });
 
   const fileId = response.data.id;
-  if (!fileId || !response.data.webViewLink) {
-      throw new Error('Certificate upload to Google Drive failed, no file ID or link returned.');
+  if (!fileId) {
+      throw new Error('Certificate upload to Google Drive failed, no file ID returned.');
   }
 
   await drive.permissions.create({
@@ -111,8 +113,10 @@ export async function uploadCertificate(
           type: 'anyone',
       },
   });
+  
+  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
 
   return {
-    downloadUrl: response.data.webViewLink,
+    downloadUrl: downloadUrl,
   };
 }
