@@ -22,7 +22,7 @@ import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember } from "@/services/members";
-import { uploadCertificate } from "@/services/storage";
+import { uploadCertificate, uploadEventReport } from "@/services/storage";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
 
@@ -254,6 +254,22 @@ export async function deleteEventAction(id: string) {
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to delete event: " + e.message };
+    }
+}
+
+export async function uploadEventReportAction(formData: FormData): Promise<{ downloadUrl: string; fileName: string; error?: string }> {
+    const file = formData.get('file') as File | null;
+
+    if (!file) {
+        return { downloadUrl: '', fileName: '', error: 'No file provided.' };
+    }
+    
+    try {
+        const { downloadUrl, fileName } = await uploadEventReport(file);
+        return { downloadUrl, fileName };
+    } catch (e: any) {
+        console.error("File upload failed:", e);
+        return { downloadUrl: '', fileName: '', error: "Failed to upload file to Google Drive: " + e.message };
     }
 }
 

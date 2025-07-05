@@ -7,8 +7,7 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Event } from "@/lib/types";
-import { addEventAction, updateEventAction, updateEventWithReport } from "@/app/actions";
-import { uploadEventReport } from "@/services/storage";
+import { addEventAction, updateEventAction, updateEventWithReport, uploadEventReportAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,8 +52,18 @@ function EventReportUploader({ event }: { event: Event }) {
       return;
     }
     setIsUploading(true);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const { downloadUrl, fileName } = await uploadEventReport(file, event.id);
+      const uploadResult = await uploadEventReportAction(formData);
+
+      if (uploadResult.error) {
+        throw new Error(uploadResult.error);
+      }
+
+      const { downloadUrl, fileName } = uploadResult;
       const result = await updateEventWithReport(event.id, downloadUrl, fileName);
 
       if (result.success) {
