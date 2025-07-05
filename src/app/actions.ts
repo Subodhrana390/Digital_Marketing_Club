@@ -20,6 +20,7 @@ import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegis
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember } from "@/services/members";
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay } from "@/services/storage";
+import { sendCertificateEmail } from "@/services/email";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
 
@@ -358,6 +359,7 @@ export async function generateCertificateAction(
   eventId: string,
   registrationId: string,
   studentName: string,
+  studentEmail: string,
   eventTitle: string
 ) {
     try {
@@ -375,12 +377,19 @@ export async function generateCertificateAction(
         
         await updateRegistrationForEvent(eventId, registrationId, { certificateUrl });
         
+        await sendCertificateEmail({
+            to: studentEmail,
+            studentName,
+            eventTitle,
+            certificateUrl,
+        });
+
         revalidatePath(`/admin/events/edit/${eventId}`);
-        return { success: true, message: 'Certificate generated successfully.', certificateUrl };
+        return { success: true, message: 'Certificate generated and sent successfully.', certificateUrl };
 
     } catch (e: any) {
-        console.error("Certificate generation failed:", e);
-        return { success: false, message: 'Failed to generate certificate: ' + e.message };
+        console.error("Certificate generation and/or sending failed:", e);
+        return { success: false, message: 'Failed to generate or send certificate: ' + e.message };
     }
 }
 

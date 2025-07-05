@@ -80,7 +80,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
   const handleGenerateCertificate = (registration: Registration) => {
     startTransition(async () => {
       setGeneratingCertId(registration.id);
-      const result = await generateCertificateAction(event.id, registration.id, registration.studentName, event.title);
+      const result = await generateCertificateAction(event.id, registration.id, registration.studentName, registration.studentEmail, event.title);
       if (result.success) {
         setRegistrations(regs => regs.map(r => r.id === registration.id ? { ...r, certificateUrl: result.certificateUrl } : r));
         toast({ title: "Success", description: result.message });
@@ -164,7 +164,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                           ) : (
                             <Award className="mr-2 h-4 w-4" />
                           )}
-                          Generate
+                          Generate & Send
                         </Button>
                       )}
                     </TableCell>
