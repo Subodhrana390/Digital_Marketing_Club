@@ -44,15 +44,13 @@ export function Header() {
     return (
       <Link
         href={href}
-        className={`relative transition-all duration-300 group ${
-          isActive 
-            ? "text-white font-semibold" 
-            : "text-gray-300 hover:text-white"
-        } ${
-          isMobile 
-            ? "flex items-center gap-4 text-lg py-3 px-4 rounded-xl hover:bg-white/10 backdrop-blur-sm" 
+        className={`relative transition-all duration-300 group ${isActive
+          ? "text-white font-semibold"
+          : "text-gray-300 hover:text-white"
+          } ${isMobile
+            ? "flex items-center gap-4 text-lg py-3 px-4 rounded-xl hover:bg-white/10 backdrop-blur-sm"
             : "text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
-        }`}
+          }`}
         onClick={() => isMobile && setIsOpen(false)}
       >
         <div className="flex items-center gap-2">
@@ -60,9 +58,8 @@ export function Header() {
           <span>{label}</span>
         </div>
         {!isMobile && (
-          <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300 ${
-            isActive ? "w-full" : "w-0 group-hover:w-full"
-          }`} />
+          <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+            }`} />
         )}
       </Link>
     );
@@ -73,10 +70,10 @@ export function Header() {
       {/* Glassmorphism background with gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/90 via-purple-900/90 to-pink-900/90 backdrop-blur-xl"></div>
       <div className="absolute inset-0 bg-black/20"></div>
-      
+
       {/* Animated gradient border */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-      
+
       <div className="relative container mx-auto flex h-20 items-center px-4">
         {/* Logo Section */}
         <div className="mr-8 hidden md:flex">
@@ -91,7 +88,7 @@ export function Header() {
               </span>
             </div>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="flex items-center space-x-2">
             {navLinks.map((link) => (
@@ -99,7 +96,7 @@ export function Header() {
             ))}
           </nav>
         </div>
-        
+
         {/* Mobile Menu */}
         <div className="flex md:hidden w-full justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
@@ -137,7 +134,7 @@ export function Header() {
                       </span>
                     </div>
                   </Link>
-                  
+
                   <button
                     onClick={() => setIsOpen(false)}
                     className="text-white hover:bg-white/10 backdrop-blur-sm rounded-full p-2"
@@ -145,41 +142,20 @@ export function Header() {
                     <X className="h-6 w-6" />
                   </button>
                 </div>
-                
+
                 {/* Mobile Navigation */}
                 <nav className="flex-1 p-6 space-y-2">
                   {navLinks.map((link) => (
                     <NavLink key={link.href} {...link} isMobile />
                   ))}
-                  
-                  <div className="pt-6 border-t border-white/10">
-                    <Link 
-                      href="/market-verse-admin-login" 
-                      className="flex items-center gap-4 text-lg py-3 px-4 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <Shield className="h-5 w-5" />
-                      <span>Admin Login</span>
-                    </Link>
-                  </div>
+
                 </nav>
               </div>
             </div>
           </div>
         )}
 
-        {/* Desktop Admin Login */}
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="hidden md:flex items-center space-x-2">
-            <Link 
-              href="/market-verse-admin-login"
-              className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
-            >
-              <Shield className="h-4 w-4" />
-              Admin Login
-            </Link>
-          </nav>
-        </div>
+
       </div>
     </header>
   );
