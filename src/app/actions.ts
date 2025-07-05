@@ -253,6 +253,18 @@ export async function deleteEventAction(id: string) {
     }
 }
 
+export async function updateEventWithReport(eventId: string, reportUrl: string, reportName: string) {
+    try {
+        await updateEvent(eventId, { reportUrl, reportName });
+        revalidatePath(`/admin/events/edit/${eventId}`);
+        revalidatePath('/admin/events');
+        return { success: true, message: "Report uploaded successfully." };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, message: "Failed to update event with report: " + e.message };
+    }
+}
+
 
 // Resource Actions
 const resourceSchema = z.object({

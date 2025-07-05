@@ -1,17 +1,21 @@
 "use client";
 
 import { useActionState, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Event } from "@/lib/types";
-import { addEventAction, updateEventAction } from "@/app/actions";
+import { addEventAction, updateEventAction, updateEventWithReport } from "@/app/actions";
+import { uploadEventReport } from "@/services/storage";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EventFormProps {
   event?: Event | null;
@@ -24,6 +28,81 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       {isUpdate ? "Update Event" : "Create Event"}
     </Button>
+  );
+}
+
+function EventReportUploader({ event }: { event: Event }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    } else {
+      setFile(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast({ title: "No file selected", description: "Please select a file to upload.", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const { downloadUrl, fileName } = await uploadEventReport(file, event.id);
+      const result = await updateEventWithReport(event.id, downloadUrl, fileName);
+
+      if (result.success) {
+        toast({ title: "Success", description: result.message });
+        router.refresh();
+      } else {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setFile(null);
+      // Reset the file input visually
+      const fileInput = document.getElementById('report-file') as HTMLInputElement;
+      if(fileInput) fileInput.value = "";
+    }
+  };
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Event Report</CardTitle>
+        <CardDescription>Upload a report for this event (e.g., PDF, DOCX).</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {event.reportUrl ? (
+          <div className="text-sm font-medium">
+            Current report:{" "}
+            <a href={event.reportUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+              {event.reportName || 'View Report'}
+            </a>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No report uploaded yet.</p>
+        )}
+        <div className="space-y-2">
+          <Label htmlFor="report-file">{event.reportUrl ? "Upload New/Replace Report" : "Upload Report"}</Label>
+          <Input id="report-file" type="file" onChange={handleFileChange} />
+        </div>
+        <Button onClick={handleUpload} disabled={!file || isUploading}>
+          {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isUploading ? "Uploading..." : "Upload Report"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -43,6 +122,7 @@ export function EventForm({ event }: EventFormProps) {
   }, [event]);
 
   return (
+    <>
     <form action={formAction} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="title">Title</Label>
@@ -108,5 +188,7 @@ export function EventForm({ event }: EventFormProps) {
       </div>
       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
+    {isUpdate && event && <EventReportUploader event={event} />}
+    </>
   );
 }

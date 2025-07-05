@@ -25,6 +25,8 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         location: data.location,
         description: data.description,
         registrationLink: data.registrationLink,
+        reportUrl: data.reportUrl,
+        reportName: data.reportName,
     };
 }
 
@@ -52,9 +54,11 @@ type EventInput = {
     location: string;
     description: string;
     registrationLink?: string;
+    reportUrl?: string;
+    reportName?: string;
 }
 
-export async function addEvent(event: EventInput) {
+export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName'>) {
     const newEvent = {
         ...event,
         date: Timestamp.fromDate(event.date),

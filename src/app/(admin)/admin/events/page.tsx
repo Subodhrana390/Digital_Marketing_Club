@@ -49,6 +49,7 @@ export default async function AdminEventsPage() {
               <TableHead>Date</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead>Report</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -67,6 +68,20 @@ export default async function AdminEventsPage() {
                 </TableCell>
                 <TableCell>{event.time}</TableCell>
                 <TableCell>{event.location}</TableCell>
+                <TableCell>
+                  {event.reportUrl ? (
+                    <a
+                      href={event.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-primary/80"
+                    >
+                      View
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">None</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <EventActions eventId={event.id} />
                 </TableCell>

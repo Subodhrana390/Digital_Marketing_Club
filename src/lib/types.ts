@@ -20,6 +20,8 @@ export interface Event {
   location: string;
   description: string;
   registrationLink?: string;
+  reportUrl?: string;
+  reportName?: string;
 }
 
 export interface Member {
