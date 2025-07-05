@@ -18,6 +18,9 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -102,6 +105,12 @@ export function Header() {
                 </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-sm">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Menu</SheetTitle>
+                    <SheetDescription>
+                      A list of links to navigate the website.
+                    </SheetDescription>
+                  </SheetHeader>
                 <Link href="/" className="mb-8 flex items-center space-x-2">
                     <svg
                     xmlns="http://www.w3.org/2000/svg"
