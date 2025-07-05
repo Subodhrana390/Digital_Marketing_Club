@@ -32,7 +32,7 @@ const augmentEventData = (event: EventType, index: number): AugmentedEvent => {
   return {
     ...event,
     category: category,
-    attendees: Math.floor(Math.random() * (100 - 20 + 1)) + 20, // Random attendees between 20-100
+    attendees: event.registrationCount ?? 0, // Use real registration count
     featured: index < 3, // Feature the first 3 events
     icon: categoryMap[category].icon,
     gradient: categoryMap[category].gradient,
