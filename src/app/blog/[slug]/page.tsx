@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { getBlogPostBySlug } from '@/services/blogs';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface BlogPostPageProps {
   params: {
@@ -47,7 +49,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
       <div className="prose prose-lg dark:prose-invert max-w-none mx-auto">
         <p className="lead text-xl text-muted-foreground mb-8">{post.excerpt}</p>
-        <div className="whitespace-pre-wrap">{post.content}</div>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
       </div>
     </article>
   );
