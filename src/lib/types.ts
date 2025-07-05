@@ -24,6 +24,14 @@ export interface Event {
   reportName?: string;
 }
 
+export interface Registration {
+  id: string;
+  studentName: string;
+  studentEmail: string;
+  attended: boolean;
+  certificateUrl?: string;
+}
+
 export interface Member {
   id: string;
   name: string;

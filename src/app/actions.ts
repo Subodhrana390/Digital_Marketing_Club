@@ -15,10 +15,14 @@ import {
   type GenerateBlogContentInput,
   type GenerateBlogContentOutput,
 } from "@/ai/flows/generate-blog-content";
+import {
+  generateCertificate,
+} from "@/ai/flows/generate-certificate";
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
-import { addEvent, deleteEvent, updateEvent } from "@/services/events";
+import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember } from "@/services/members";
+import { uploadCertificate } from "@/services/storage";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
 
@@ -142,9 +146,9 @@ export async function addBlogPostAction(prevState: FormState, formData: FormData
 
   try {
     await addBlogPost(validatedFields.data as Omit<BlogPost, 'id' | 'date' | 'updatedAt'>);
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return { message: "Failed to create blog post. Please try again.", errors: {} };
+    return { message: "Failed to create blog post: " + e.message, errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -164,9 +168,9 @@ export async function updateBlogPostAction(id: string, prevState: FormState, for
   
   try {
     await updateBlogPost(id, validatedFields.data);
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return { message: "Failed to update blog post. Please try again.", errors: {} };
+    return { message: "Failed to update blog post: " + e.message, errors: {} };
   }
 
   revalidatePath("/admin/blogs");
@@ -180,9 +184,9 @@ export async function deleteBlogPostAction(id: string) {
         revalidatePath("/admin/blogs");
         revalidatePath("/blog");
         return { message: "Blog post deleted successfully." };
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to delete blog post." };
+        return { message: "Failed to delete blog post: " + e.message };
     }
 }
 
@@ -190,7 +194,7 @@ export async function deleteBlogPostAction(id: string) {
 const eventSchema = z.object({
     title: z.string().min(5, "Title is required."),
     date: z.coerce.date({ required_error: "Date is required." })
-      .refine(d => !isNaN(d.getTime()), { message: "Please enter a valid date." }),
+      .refine(d => d instanceof Date && !isNaN(d.getTime()), { message: "Please enter a valid date." }),
     time: z.string().min(1, "Time is required."),
     location: z.string().min(3, "Location is required."),
     description: z.string().min(10, "Description must be at least 10 characters."),
@@ -209,9 +213,9 @@ export async function addEventAction(prevState: FormState, formData: FormData): 
     
     try {
         await addEvent(validatedFields.data);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to create event. Please try again.", errors: {} };
+        return { message: "Failed to create event: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -231,9 +235,9 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
 
     try {
         await updateEvent(id, validatedFields.data);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to update event. Please try again.", errors: {} };
+        return { message: "Failed to update event: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/events");
@@ -247,9 +251,9 @@ export async function deleteEventAction(id: string) {
         revalidatePath("/admin/events");
         revalidatePath("/events");
         return { message: "Event deleted successfully." };
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to delete event." };
+        return { message: "Failed to delete event: " + e.message };
     }
 }
 
@@ -262,6 +266,71 @@ export async function updateEventWithReport(eventId: string, reportUrl: string, 
     } catch (e: any) {
         console.error(e);
         return { success: false, message: "Failed to update event with report: " + e.message };
+    }
+}
+
+// Event Registration Actions
+const registrationSchema = z.object({
+  studentName: z.string().min(2, "Name is required."),
+  studentEmail: z.string().email("A valid email is required."),
+});
+
+export async function addRegistrationAction(eventId: string, prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = registrationSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors.",
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await addRegistrationToEvent(eventId, validatedFields.data);
+    revalidatePath(`/admin/events/edit/${eventId}`);
+    return { message: "Student registered successfully.", errors: {} };
+  } catch (e: any) {
+    return { message: "Failed to register student: " + e.message, errors: {} };
+  }
+}
+
+export async function updateAttendanceAction(eventId: string, registrationId: string, attended: boolean) {
+  try {
+    await updateRegistrationForEvent(eventId, registrationId, { attended });
+    revalidatePath(`/admin/events/edit/${eventId}`);
+    return { success: true, message: "Attendance updated." };
+  } catch (e: any) {
+    return { success: false, message: "Failed to update attendance: " + e.message };
+  }
+}
+
+export async function deleteRegistrationAction(eventId: string, registrationId: string) {
+    try {
+        await deleteRegistrationFromEvent(eventId, registrationId);
+        revalidatePath(`/admin/events/edit/${eventId}`);
+        return { success: true, message: "Registration removed." };
+    } catch (e: any) {
+        return { success: false, message: "Failed to remove registration: " + e.message };
+    }
+}
+
+export async function generateCertificateAction(
+  eventId: string,
+  registrationId: string,
+  studentName: string,
+  eventTitle: string
+) {
+    try {
+        const { certificateDataUri } = await generateCertificate({ studentName, eventTitle });
+        const { downloadUrl } = await uploadCertificate(certificateDataUri, eventId, registrationId);
+        await updateRegistrationForEvent(eventId, registrationId, { certificateUrl: downloadUrl });
+        
+        revalidatePath(`/admin/events/edit/${eventId}`);
+        return { success: true, message: 'Certificate generated successfully.', certificateUrl: downloadUrl };
+
+    } catch (e: any) {
+        console.error("Certificate generation failed:", e);
+        return { success: false, message: 'Failed to generate certificate: ' + e.message };
     }
 }
 
@@ -285,9 +354,9 @@ export async function addResourceAction(prevState: FormState, formData: FormData
 
     try {
         await addResource(validatedFields.data as Omit<Resource, 'id'>);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to create resource. Please try again.", errors: {} };
+        return { message: "Failed to create resource: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -307,9 +376,9 @@ export async function updateResourceAction(id: string, prevState: FormState, for
 
     try {
         await updateResource(id, validatedFields.data);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to update resource. Please try again.", errors: {} };
+        return { message: "Failed to update resource: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/resources");
@@ -323,9 +392,9 @@ export async function deleteResourceAction(id: string) {
         revalidatePath("/admin/resources");
         revalidatePath("/resources");
         return { message: "Resource deleted successfully." };
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to delete resource." };
+        return { message: "Failed to delete resource: " + e.message };
     }
 }
 
@@ -356,9 +425,9 @@ export async function addMemberAction(prevState: FormState, formData: FormData):
     
     try {
         await addMember(memberData);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to add member. Please try again.", errors: {} };
+        return { message: "Failed to add member: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/members");
@@ -384,9 +453,9 @@ export async function updateMemberAction(id: string, prevState: FormState, formD
 
     try {
         await updateMember(id, memberData);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to update member. Please try again.", errors: {} };
+        return { message: "Failed to update member: " + e.message, errors: {} };
     }
 
     revalidatePath("/admin/members");
@@ -400,8 +469,8 @@ export async function deleteMemberAction(id: string) {
         revalidatePath("/admin/members");
         revalidatePath("/members");
         return { message: "Member removed successfully." };
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { message: "Failed to remove member." };
+        return { message: "Failed to remove member: " + e.message };
     }
 }

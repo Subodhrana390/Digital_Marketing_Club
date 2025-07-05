@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AttendeeManager } from "./attendee-manager";
 
 interface EventFormProps {
   event?: Event | null;
@@ -190,6 +191,7 @@ export function EventForm({ event }: EventFormProps) {
       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
     {isUpdate && event && <EventReportUploader event={event} />}
+    {isUpdate && event && <AttendeeManager event={event} />}
     </>
   );
 }

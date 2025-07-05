@@ -1,6 +1,6 @@
 import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, Timestamp, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Event } from '@/lib/types';
+import type { Event, Registration } from '@/lib/types';
 
 function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
     const data = doc.data();
@@ -77,4 +77,42 @@ export async function updateEvent(id: string, event: Partial<EventInput>) {
 
 export async function deleteEvent(id: string) {
     await deleteDoc(doc(db, 'events', id));
+}
+
+// Registration functions
+function docToRegistration(doc: DocumentSnapshot<DocumentData>): Registration {
+    const data = doc.data()!;
+    return {
+        id: doc.id,
+        studentName: data.studentName,
+        studentEmail: data.studentEmail,
+        attended: data.attended || false,
+        certificateUrl: data.certificateUrl,
+    };
+}
+
+
+export async function getRegistrationsForEvent(eventId: string): Promise<Registration[]> {
+    const registrationsCollection = collection(db, 'events', eventId, 'registrations');
+    const q = query(registrationsCollection, orderBy('studentName', 'asc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(docToRegistration);
+}
+
+export async function addRegistrationToEvent(eventId: string, registration: { studentName: string; studentEmail: string }) {
+    const registrationsCollection = collection(db, 'events', eventId, 'registrations');
+    await addDoc(registrationsCollection, {
+        ...registration,
+        attended: false,
+    });
+}
+
+export async function updateRegistrationForEvent(eventId: string, registrationId: string, data: Partial<Omit<Registration, 'id'>>) {
+    const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
+    await updateDoc(registrationRef, data);
+}
+
+export async function deleteRegistrationFromEvent(eventId: string, registrationId: string) {
+    const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
+    await deleteDoc(registrationRef);
 }
