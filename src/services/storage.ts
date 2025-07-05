@@ -8,7 +8,15 @@ function getDriveService() {
         throw new Error("Google Drive is not configured. Please set GCP_PRIVATE_KEY, GCP_CLIENT_EMAIL, and GOOGLE_DRIVE_FOLDER_ID environment variables.");
     }
 
-    const privateKey = process.env.GCP_PRIVATE_KEY.replace(/\\n/g, '\n');
+    let rawKey = process.env.GCP_PRIVATE_KEY;
+    // Some systems can add extra quotes to environment variables, which breaks the key.
+    // This removes them if they exist.
+    if (typeof rawKey === 'string' && rawKey.startsWith('"') && rawKey.endsWith('"')) {
+      rawKey = rawKey.slice(1, -1);
+    }
+    // Restore the newlines that are escaped in the environment variable.
+    const privateKey = rawKey.replace(/\\n/g, '\n');
+
 
     const auth = new google.auth.GoogleAuth({
         credentials: {
