@@ -10,6 +10,7 @@ import {
   Menu,
   Library,
   Users,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,21 +52,23 @@ export function Header() {
         href={href}
         className={cn(
           "transition-colors hover:text-foreground",
-          isActive ? "text-foreground" : "text-muted-foreground",
-          isMobile ? "flex items-center gap-2 text-lg" : "text-sm font-medium"
+          isActive ? "text-foreground font-semibold" : "text-muted-foreground",
+          isMobile ? "flex items-center gap-4 text-lg" : "text-sm font-medium"
         )}
       >
-        {isMobile && <Icon className="h-5 w-5" />}
-        {label}
+        <div className="flex items-center gap-2">
+            {isMobile && <Icon className="h-5 w-5" />}
+            <span>{label}</span>
+        </div>
       </Link>
     );
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 flex items-center">
-          <Link href="/" className="flex items-center gap-2 font-bold">
+      <div className="container flex h-16 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -80,32 +83,71 @@ export function Header() {
               <path d="M2 17l10 5 10-5"></path>
               <path d="M2 12l10 5 10-5"></path>
             </svg>
-            <span className="font-headline">Digital Marketing Club</span>
+            <span className="font-bold sm:inline-block font-headline">Digital Marketing Club</span>
           </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+             {navLinks.map((link) => (
+              <NavLink key={link.href} {...link} />
+            ))}
+          </nav>
         </div>
-        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 ml-auto">
-          {navLinks.map((link) => (
-            <NavLink key={link.href} {...link} />
-          ))}
-        </nav>
-        <div className="flex md:hidden items-center ml-auto">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <nav className="grid gap-6 text-lg font-medium mt-6">
-                {navLinks.map((link) => (
-                  <SheetClose asChild key={link.href}>
-                    <NavLink {...link} isMobile />
-                  </SheetClose>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+        
+        {/* Mobile Menu Trigger */}
+        <div className="flex md:hidden">
+            <Sheet>
+                <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Toggle navigation menu</span>
+                </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-full max-w-sm">
+                <Link href="/" className="mb-8 flex items-center space-x-2">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6 text-primary"
+                    >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span className="font-bold font-headline">Digital Marketing Club</span>
+                </Link>
+                <nav className="grid gap-6 text-lg font-medium">
+                    {navLinks.map((link) => (
+                    <SheetClose asChild key={link.href}>
+                        <NavLink {...link} isMobile />
+                    </SheetClose>
+                    ))}
+                    <SheetClose asChild>
+                        <Link href="/market-verse-admin-login" className="flex items-center gap-4 text-lg text-muted-foreground hover:text-foreground">
+                            <div className="flex items-center gap-2">
+                                <Shield className="h-5 w-5" />
+                                <span>Admin Login</span>
+                            </div>
+                        </Link>
+                    </SheetClose>
+                </nav>
+                </SheetContent>
+            </Sheet>
+        </div>
+
+        {/* Desktop Login Button */}
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <nav className="hidden md:flex items-center space-x-2">
+            <Button asChild>
+              <Link href="/market-verse-admin-login">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Login
+              </Link>
+            </Button>
+          </nav>
         </div>
       </div>
     </header>
