@@ -1,81 +1,55 @@
 'use server';
 
-import { google } from 'googleapis';
+import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
-function getDriveService() {
-    if (!process.env.GCP_PRIVATE_KEY || !process.env.GCP_CLIENT_EMAIL || !process.env.GOOGLE_DRIVE_FOLDER_ID) {
-        throw new Error("Google Drive is not configured. Please set GCP_PRIVATE_KEY, GCP_CLIENT_EMAIL, and GOOGLE_DRIVE_FOLDER_ID environment variables.");
-    }
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
-    let rawKey = process.env.GCP_PRIVATE_KEY;
-    // Some systems can add extra quotes to environment variables, which breaks the key.
-    // This removes them if they exist.
-    if (typeof rawKey === 'string' && rawKey.startsWith('"') && rawKey.endsWith('"')) {
-      rawKey = rawKey.slice(1, -1);
-    }
-    // Restore the newlines that are escaped in the environment variable.
-    const privateKey = rawKey.replace(/\\n/g, '\n');
-
-
-    const auth = new google.auth.GoogleAuth({
-        credentials: {
-            client_email: process.env.GCP_CLIENT_EMAIL,
-            private_key: privateKey,
-        },
-        scopes: ['https://www.googleapis.com/auth/drive.file'],
+async function uploadStream(buffer: Buffer, options: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(result);
     });
-
-    return google.drive({ version: 'v3', auth });
+    const readable = new Readable();
+    readable._read = () => {};
+    readable.push(buffer);
+    readable.push(null);
+    readable.pipe(stream);
+  });
 }
 
-async function bufferToStream(buffer: Buffer) {
-    const stream = new Readable();
-    stream.push(buffer);
-    stream.push(null);
-    return stream;
+function checkConfiguration() {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        throw new Error("Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.");
+    }
 }
 
 export async function uploadEventReport(file: File): Promise<{ downloadUrl: string, fileName: string }> {
-  const drive = getDriveService();
-  const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const stream = await bufferToStream(buffer);
-
-  const fileMetadata = {
-      name: file.name,
-      parents: [FOLDER_ID],
-  };
-
-  const media = {
-      mimeType: file.type,
-      body: stream,
-  };
-
-  const response = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id',
-  });
-
-  const fileId = response.data.id;
-  if (!fileId) {
-      throw new Error('File upload to Google Drive failed, no file ID returned.');
-  }
+  checkConfiguration();
   
-  await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-          role: 'reader',
-          type: 'anyone',
-      },
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const response = await uploadStream(buffer, {
+    folder: 'event-reports',
+    resource_type: 'auto',
+    public_id: file.name.split('.')[0] + '_' + Date.now(),
   });
 
-  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  if (!response || !response.secure_url) {
+      throw new Error('File upload to Cloudinary failed, no secure URL returned.');
+  }
 
   return {
-      downloadUrl: downloadUrl,
+      downloadUrl: response.secure_url,
       fileName: file.name
   };
 }
@@ -86,45 +60,20 @@ export async function uploadCertificate(
   eventId: string,
   registrationId: string
 ): Promise<{ downloadUrl: string }> {
-  const drive = getDriveService();
-  const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
-  
-  const buffer = Buffer.from(dataUri.split(',')[1], 'base64');
-  const stream = await bufferToStream(buffer);
+  checkConfiguration();
 
-  const fileName = `${registrationId}.png`;
-  const fileMetadata = {
-    name: fileName,
-    parents: [FOLDER_ID],
-  };
-
-  const media = {
-    mimeType: 'image/png',
-    body: stream,
-  };
-
-  const response = await drive.files.create({
-    requestBody: fileMetadata,
-    media: media,
-    fields: 'id',
+  const response = await cloudinary.uploader.upload(dataUri, {
+    folder: `certificates/${eventId}`,
+    public_id: registrationId,
+    overwrite: true,
+    resource_type: 'image',
   });
-
-  const fileId = response.data.id;
-  if (!fileId) {
-      throw new Error('Certificate upload to Google Drive failed, no file ID returned.');
+  
+  if (!response || !response.secure_url) {
+      throw new Error('Certificate upload to Cloudinary failed, no secure URL returned.');
   }
 
-  await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-          role: 'reader',
-          type: 'anyone',
-      },
-  });
-  
-  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
   return {
-    downloadUrl: downloadUrl,
+    downloadUrl: response.secure_url,
   };
 }
