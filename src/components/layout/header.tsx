@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   Calendar,
@@ -80,25 +81,7 @@ export function Header() {
         {/* Logo Section */}
         <div className="mr-8 hidden md:flex">
           <Link href="/" className="mr-8 flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative bg-gradient-to-r from-cyan-400 to-purple-400 p-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6 text-white"
-                >
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                  <path d="M2 17l10 5 10-5"></path>
-                  <path d="M2 12l10 5 10-5"></path>
-                </svg>
-              </div>
-            </div>
+            <Image src="/images/Logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
             <div className="flex flex-col">
               <span className="font-bold text-white text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                 Digital Marketing Club
@@ -120,25 +103,7 @@ export function Header() {
         {/* Mobile Menu */}
         <div className="flex md:hidden w-full justify-between items-center">
           <Link href="/" className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full blur-lg opacity-75"></div>
-              <div className="relative bg-gradient-to-r from-cyan-400 to-purple-400 p-2 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-white"
-                >
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                  <path d="M2 17l10 5 10-5"></path>
-                  <path d="M2 12l10 5 10-5"></path>
-                </svg>
-              </div>
-            </div>
+            <Image src="/images/Logo.png" alt="Digital Marketing Club Logo" width={40} height={40} />
             <span className="font-bold text-white text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               DMC
             </span>
@@ -162,25 +127,7 @@ export function Header() {
                 {/* Mobile Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/10">
                   <Link href="/" className="flex items-center space-x-3" onClick={() => setIsOpen(false)}>
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full blur-lg opacity-75"></div>
-                      <div className="relative bg-gradient-to-r from-cyan-400 to-purple-400 p-2 rounded-full">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-6 w-6 text-white"
-                        >
-                          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                          <path d="M2 17l10 5 10-5"></path>
-                          <path d="M2 12l10 5 10-5"></path>
-                        </svg>
-                      </div>
-                    </div>
+                    <Image src="/images/Logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
                     <div className="flex flex-col">
                       <span className="font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                         Digital Marketing Club
