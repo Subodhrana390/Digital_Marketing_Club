@@ -54,26 +54,102 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
   };
 }
 
+export async function uploadCertificateTemplate(file: File): Promise<{ downloadUrl: string, publicId: string }> {
+    checkConfiguration();
 
-export async function uploadCertificate(
-  dataUri: string,
-  eventId: string,
-  registrationId: string
-): Promise<{ downloadUrl: string }> {
-  checkConfiguration();
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const response = await uploadStream(buffer, {
+        folder: 'certificate-templates',
+        resource_type: 'image',
+    });
 
-  const response = await cloudinary.uploader.upload(dataUri, {
-    folder: `certificates/${eventId}`,
-    public_id: registrationId,
-    overwrite: true,
-    resource_type: 'image',
-  });
-  
-  if (!response || !response.secure_url) {
-      throw new Error('Certificate upload to Cloudinary failed, no secure URL returned.');
-  }
+    if (!response || !response.secure_url || !response.public_id) {
+        throw new Error('Template upload to Cloudinary failed.');
+    }
 
-  return {
-    downloadUrl: response.secure_url,
-  };
+    return {
+        downloadUrl: response.secure_url,
+        publicId: response.public_id,
+    };
+}
+
+
+export async function generateCertificateWithOverlay({
+  templatePublicId,
+  studentName,
+  eventTitle,
+  eventDate,
+}: {
+  templatePublicId: string;
+  studentName:string;
+  eventTitle: string;
+  eventDate: string; // ISO String
+}): Promise<{ certificateUrl: string }> {
+    checkConfiguration();
+    
+    // Sanitize text for URL transformations
+    const sanitize = (text: string) => encodeURIComponent(text.replace(/,/g, '\\,').replace(/\//g, '\\/'));
+
+    const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    // These are example transformations. You may need to adjust the x, y, font, and size
+    // based on your certificate template's design. The 'y' values are offsets from the center.
+    const transformations = [
+        // Student Name Overlay (centered horizontally, y offset from center)
+        {
+            overlay: {
+                font_family: 'Arial',
+                font_size: 80,
+                font_weight: 'bold',
+                text: sanitize(studentName),
+            },
+            color: '#374151', // gray-700
+            y: 50,
+        },
+        // Event Title Overlay
+        {
+            overlay: {
+                font_family: 'Arial',
+                font_size: 30,
+                text: sanitize(`For successfully participating in`),
+            },
+            color: '#6B7280', // gray-500
+            y: 130,
+        },
+        {
+            overlay: {
+                font_family: 'Arial',
+                font_size: 40,
+                font_weight: 'bold',
+                text: sanitize(eventTitle),
+            },
+            color: '#374151', // gray-700
+            y: 180,
+        },
+        // Date Overlay
+        {
+            overlay: {
+                font_family: 'Arial',
+                font_size: 25,
+                text: sanitize(`Awarded on ${formattedDate}`),
+            },
+            color: '#6B7280', // gray-500
+            y: 250,
+        },
+    ];
+
+    const certificateUrl = cloudinary.url(templatePublicId, {
+        transformation: transformations,
+        secure: true,
+    });
+
+    if (!certificateUrl) {
+        throw new Error('Failed to generate certificate URL from Cloudinary.');
+    }
+
+    return { certificateUrl };
 }

@@ -15,14 +15,11 @@ import {
   type GenerateBlogContentInput,
   type GenerateBlogContentOutput,
 } from "@/ai/flows/generate-blog-content";
-import {
-  generateCertificate,
-} from "@/ai/flows/generate-certificate";
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
-import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent } from "@/services/events";
+import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember } from "@/services/members";
-import { uploadCertificate, uploadEventReport } from "@/services/storage";
+import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay } from "@/services/storage";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
 
@@ -269,7 +266,7 @@ export async function uploadEventReportAction(formData: FormData): Promise<{ dow
         return { downloadUrl, fileName };
     } catch (e: any) {
         console.error("File upload failed:", e);
-        return { downloadUrl: '', fileName: '', error: "Failed to upload file to Google Drive: " + e.message };
+        return { downloadUrl: '', fileName: '', error: "Failed to upload file: " + e.message };
     }
 }
 
@@ -330,6 +327,33 @@ export async function deleteRegistrationAction(eventId: string, registrationId: 
     }
 }
 
+export async function uploadCertificateTemplateAction(formData: FormData): Promise<{ downloadUrl: string; publicId: string; error?: string }> {
+    const file = formData.get('file') as File | null;
+
+    if (!file) {
+        return { downloadUrl: '', publicId: '', error: 'No file provided.' };
+    }
+    
+    try {
+        const { downloadUrl, publicId } = await uploadCertificateTemplate(file);
+        return { downloadUrl, publicId };
+    } catch (e: any) {
+        console.error("Template upload failed:", e);
+        return { downloadUrl: '', publicId: '', error: "Failed to upload template: " + e.message };
+    }
+}
+
+export async function updateEventWithTemplate(eventId: string, templateUrl: string, templatePublicId: string) {
+    try {
+        await updateEvent(eventId, { certificateTemplateUrl: templateUrl, certificateTemplatePublicId: templatePublicId });
+        revalidatePath(`/admin/events/edit/${eventId}`);
+        return { success: true, message: "Template uploaded successfully." };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, message: "Failed to update event with template: " + e.message };
+    }
+}
+
 export async function generateCertificateAction(
   eventId: string,
   registrationId: string,
@@ -337,12 +361,22 @@ export async function generateCertificateAction(
   eventTitle: string
 ) {
     try {
-        const { certificateDataUri } = await generateCertificate({ studentName, eventTitle });
-        const { downloadUrl } = await uploadCertificate(certificateDataUri, eventId, registrationId);
-        await updateRegistrationForEvent(eventId, registrationId, { certificateUrl: downloadUrl });
+        const event = await getEvent(eventId);
+        if (!event || !event.certificateTemplatePublicId) {
+            throw new Error('Certificate template not found for this event. Please upload a template first.');
+        }
+
+        const { certificateUrl } = await generateCertificateWithOverlay({
+            templatePublicId: event.certificateTemplatePublicId,
+            studentName: studentName,
+            eventTitle: eventTitle,
+            eventDate: event.date,
+        });
+        
+        await updateRegistrationForEvent(eventId, registrationId, { certificateUrl });
         
         revalidatePath(`/admin/events/edit/${eventId}`);
-        return { success: true, message: 'Certificate generated successfully.', certificateUrl: downloadUrl };
+        return { success: true, message: 'Certificate generated successfully.', certificateUrl };
 
     } catch (e: any) {
         console.error("Certificate generation failed:", e);

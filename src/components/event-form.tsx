@@ -3,11 +3,12 @@
 import { useActionState, useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, FileImage } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Event } from "@/lib/types";
-import { addEventAction, updateEventAction, updateEventWithReport, uploadEventReportAction } from "@/app/actions";
+import { addEventAction, updateEventAction, updateEventWithReport, uploadEventReportAction, uploadCertificateTemplateAction, updateEventWithTemplate } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,89 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
     </Button>
   );
 }
+
+function CertificateTemplateUploader({ event }: { event: Event }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    } else {
+      setFile(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      toast({ title: "No file selected", description: "Please select a template image to upload.", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const uploadResult = await uploadCertificateTemplateAction(formData);
+
+      if (uploadResult.error) {
+        throw new Error(uploadResult.error);
+      }
+
+      const { downloadUrl, publicId } = uploadResult;
+      const result = await updateEventWithTemplate(event.id, downloadUrl, publicId);
+
+      if (result.success) {
+        toast({ title: "Success", description: result.message });
+      } else {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setFile(null);
+      const fileInput = document.getElementById('template-file') as HTMLInputElement;
+      if(fileInput) fileInput.value = "";
+    }
+  };
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Certificate Template</CardTitle>
+        <CardDescription>Upload a template image (e.g., PNG, JPG) for the certificate. The student's name, event title, and date will be overlaid on this image.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {event.certificateTemplateUrl ? (
+          <div className="space-y-2">
+            <Label>Current Template</Label>
+            <div className="relative w-48 h-auto border rounded-md overflow-hidden">
+                <Image src={event.certificateTemplateUrl} alt="Certificate Template" width={200} height={140} className="object-contain" />
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No certificate template uploaded yet.</p>
+        )}
+        <div className="space-y-2">
+          <Label htmlFor="template-file">{event.certificateTemplateUrl ? "Upload New/Replace Template" : "Upload Template"}</Label>
+          <Input id="template-file" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} />
+        </div>
+        <Button onClick={handleUpload} disabled={!file || isUploading}>
+          {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isUploading ? "Uploading..." : "Upload Template"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function EventReportUploader({ event }: { event: Event }) {
   const [file, setFile] = useState<File | null>(null);
@@ -199,6 +283,7 @@ export function EventForm({ event }: EventFormProps) {
       </div>
       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
+    {isUpdate && event && <CertificateTemplateUploader event={event} />}
     {isUpdate && event && <EventReportUploader event={event} />}
     {isUpdate && event && <AttendeeManager event={event} />}
     </>

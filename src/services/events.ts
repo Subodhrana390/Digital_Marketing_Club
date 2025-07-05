@@ -27,6 +27,8 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         registrationLink: data.registrationLink,
         reportUrl: data.reportUrl,
         reportName: data.reportName,
+        certificateTemplateUrl: data.certificateTemplateUrl,
+        certificateTemplatePublicId: data.certificateTemplatePublicId,
     };
 }
 
@@ -56,9 +58,11 @@ type EventInput = {
     registrationLink?: string;
     reportUrl?: string;
     reportName?: string;
+    certificateTemplateUrl?: string;
+    certificateTemplatePublicId?: string;
 }
 
-export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName'>) {
+export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName' | 'certificateTemplateUrl' | 'certificateTemplatePublicId'>) {
     const newEvent = {
         ...event,
         date: Timestamp.fromDate(event.date),

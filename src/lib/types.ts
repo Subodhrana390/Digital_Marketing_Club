@@ -22,6 +22,8 @@ export interface Event {
   registrationLink?: string;
   reportUrl?: string;
   reportName?: string;
+  certificateTemplateUrl?: string;
+  certificateTemplatePublicId?: string;
 }
 
 export interface Registration {
