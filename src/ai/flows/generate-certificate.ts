@@ -10,13 +10,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GenerateCertificateInputSchema = z.object({
+const GenerateCertificateInputSchema = z.object({
   studentName: z.string().describe('The name of the student receiving the certificate.'),
   eventTitle: z.string().describe('The title of the event.'),
 });
 export type GenerateCertificateInput = z.infer<typeof GenerateCertificateInputSchema>;
 
-export const GenerateCertificateOutputSchema = z.object({
+const GenerateCertificateOutputSchema = z.object({
   certificateDataUri: z.string().describe('The generated certificate image as a data URI.'),
 });
 export type GenerateCertificateOutput = z.infer<typeof GenerateCertificateOutputSchema>;
