@@ -34,10 +34,21 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
 
 export async function getEvents(): Promise<Event[]> {
     const eventsCollection = collection(db, 'events');
-    const q = query(eventsCollection, orderBy('date', 'asc'));
+    const q = query(eventsCollection, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(docToEvent).filter((event): event is Event => event !== null);
+    const eventsPromises = querySnapshot.docs.map(async (eventDoc) => {
+        const event = docToEvent(eventDoc);
+        if (event) {
+            const registrationsCollection = collection(db, 'events', event.id, 'registrations');
+            const registrationsSnapshot = await getDocs(registrationsCollection);
+            return { ...event, registrationCount: registrationsSnapshot.size };
+        }
+        return null;
+    });
+
+    const eventsWithCount = await Promise.all(eventsPromises);
+    return eventsWithCount.filter((event): event is Event => event !== null);
 }
 
 export async function getEvent(id: string): Promise<Event | null> {

@@ -15,13 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Users } from "lucide-react";
 import { getEvents } from "@/services/events";
 import EventActions from "@/components/admin/event-actions";
+import { Badge } from "@/components/ui/badge";
 
 
 export default async function AdminEventsPage() {
     const events = await getEvents();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
   return (
     <Card>
@@ -46,19 +49,29 @@ export default async function AdminEventsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Report</TableHead>
+              <TableHead className="hidden md:table-cell">Location</TableHead>
+              <TableHead className="hidden md:table-cell">Registrations</TableHead>
+              <TableHead className="hidden md:table-cell">Report</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {events.map((event) => (
+            {events.map((event) => {
+              const eventDate = new Date(event.date);
+              const isPast = eventDate < today;
+              
+              return (
               <TableRow key={event.id}>
                 <TableCell className="font-medium">{event.title}</TableCell>
+                <TableCell>
+                    <Badge variant={isPast ? "secondary" : "default"}>
+                        {isPast ? "Past" : "Upcoming"}
+                    </Badge>
+                </TableCell>
                 <TableCell>
                   {new Date(event.date).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -66,9 +79,14 @@ export default async function AdminEventsPage() {
                     day: "numeric",
                   })}
                 </TableCell>
-                <TableCell>{event.time}</TableCell>
-                <TableCell>{event.location}</TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">{event.location}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                    <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{event.registrationCount ?? 0}</span>
+                    </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
                   {event.reportUrl ? (
                     <a
                       href={event.reportUrl}
@@ -86,7 +104,7 @@ export default async function AdminEventsPage() {
                   <EventActions eventId={event.id} />
                 </TableCell>
               </TableRow>
-            ))}
+            )})}
           </TableBody>
         </Table>
       </CardContent>
