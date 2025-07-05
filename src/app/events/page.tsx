@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getEvents } from "@/services/events";
 import type { Event as EventType } from "@/lib/types";
-import { Calendar, Clock, MapPin, Users, Star, ArrowRight, Filter, Search, Zap, Award, TrendingUp, Globe } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Star, ArrowRight, Filter, Search, Zap, Award, TrendingUp, Globe, XCircle } from 'lucide-react';
 
 // Helper to add UI-specific properties to the event data
 const categoryMap: { [key: string]: { icon: React.ElementType; gradient: string } } = {
@@ -46,12 +46,15 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   useEffect(() => {
     async function fetchEvents() {
       setIsLoading(true);
       try {
         const fetchedEvents = await getEvents();
+        fetchedEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         const augmentedEvents = fetchedEvents.map(augmentEventData);
         setAllEvents(augmentedEvents);
       } catch (error) {
@@ -80,22 +83,6 @@ export default function EventsPage() {
   });
 
   const featuredEvents = allEvents.filter(event => event.featured);
-  
-  const renderRegisterButton = (event: AugmentedEvent) => (
-    <button className="w-full group/btn relative px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-      <span className="flex items-center justify-center">
-        Register Now
-        <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
-      </span>
-    </button>
-  );
-
-  const renderRegisterLink = (event: AugmentedEvent) => (
-    <Link href={event.registrationLink!} target="_blank" rel="noopener noreferrer" className="w-full block">
-      {renderRegisterButton(event)}
-    </Link>
-  );
-
 
   if (isLoading) {
       return (
@@ -175,7 +162,9 @@ export default function EventsPage() {
                 </div>
                 
                 <div className="grid lg:grid-cols-3 gap-8 mb-16">
-                {featuredEvents.map((event) => (
+                {featuredEvents.map((event) => {
+                  const isPast = new Date(event.date) < today;
+                  return (
                     <div
                     key={event.id}
                     className="group relative"
@@ -213,10 +202,26 @@ export default function EventsPage() {
                             {event.location}
                         </div>
                         </div>
-                         {event.registrationLink ? renderRegisterLink(event) : renderRegisterButton(event)}
+                         {isPast ? (
+                             <button disabled className="w-full group/btn relative px-6 py-3 bg-gray-600/50 rounded-2xl font-semibold text-gray-300 cursor-not-allowed">
+                                <span className="flex items-center justify-center">
+                                <XCircle className="mr-2 w-5 h-5" />
+                                Registration Closed
+                                </span>
+                            </button>
+                        ) : (
+                            <Link href={event.registrationLink || '#'} target={event.registrationLink ? "_blank" : "_self"} rel="noopener noreferrer" className="w-full block">
+                                <button className="w-full group/btn relative px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                    <span className="flex items-center justify-center">
+                                    Register Now
+                                    <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
+                                    </span>
+                                </button>
+                            </Link>
+                        )}
                     </div>
                     </div>
-                ))}
+                )})}
                 </div>
             </div>
             </section>
@@ -227,7 +232,9 @@ export default function EventsPage() {
             <h2 className="text-3xl font-bold text-white mb-8">All Events</h2>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredEvents.map((event) => (
+              {filteredEvents.map((event) => {
+                const isPast = new Date(event.date) < today;
+                return (
                 <div
                   key={event.id}
                   className="group relative"
@@ -271,17 +278,26 @@ export default function EventsPage() {
                         {event.location}
                       </div>
                     </div>
-                     <Link href={event.registrationLink || '#'} target="_blank" rel="noopener noreferrer" className="w-full mt-auto block">
-                        <button className="w-full group/btn px-4 py-2 bg-gradient-to-r from-purple-600/80 to-pink-600/80 rounded-xl font-medium text-white text-sm hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
-                        <span className="flex items-center justify-center">
-                            Register
-                            <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                        </span>
+                     {isPast ? (
+                        <button disabled className="w-full mt-auto group/btn px-4 py-2 bg-gray-600/50 rounded-xl font-medium text-gray-300 text-sm cursor-not-allowed">
+                             <span className="flex items-center justify-center">
+                                <XCircle className="mr-2 w-4 h-4" />
+                                Closed
+                            </span>
                         </button>
-                    </Link>
+                    ) : (
+                        <Link href={event.registrationLink || '#'} target="_blank" rel="noopener noreferrer" className="w-full mt-auto block">
+                            <button className="w-full group/btn px-4 py-2 bg-gradient-to-r from-purple-600/80 to-pink-600/80 rounded-xl font-medium text-white text-sm hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
+                            <span className="flex items-center justify-center">
+                                Register
+                                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                            </span>
+                            </button>
+                        </Link>
+                    )}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
             
             {filteredEvents.length === 0 && (
@@ -336,3 +352,4 @@ export default function EventsPage() {
     </div>
   );
 }
+
