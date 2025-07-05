@@ -43,7 +43,7 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/login');
+            router.push('/market-verse-admin-login');
         }
     }, [user, loading, router]);
 
