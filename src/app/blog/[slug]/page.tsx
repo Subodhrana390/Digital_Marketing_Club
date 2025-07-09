@@ -245,7 +245,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4" />
-                  <span>8 min read</span>
+                  <span>{post.readTime} min read</span>
                 </div>
                 <ShareButton title={post.title} text={post.excerpt} />
             </div>

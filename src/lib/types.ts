@@ -10,6 +10,7 @@ export interface BlogPost {
   imageUrl: string;
   imageHint?: string;
   slug: string;
+  readTime: number;
 }
 
 export interface Event {

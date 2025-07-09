@@ -94,7 +94,7 @@ export default async function BlogPage() {
                   <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center space-x-1 text-sm text-slate-500 dark:text-slate-400">
                       <Clock className="h-4 w-4" />
-                      <span>5 min read</span>
+                      <span>{post.readTime} min read</span>
                     </div>
                     <div className="flex items-center text-blue-600 dark:text-blue-400 font-medium group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                       <span>Read More</span>

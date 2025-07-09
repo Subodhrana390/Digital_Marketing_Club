@@ -132,6 +132,13 @@ const blogPostSchema = z.object({
   imageHint: z.string().optional(),
 });
 
+function calculateReadTime(content: string): number {
+    if (!content) return 0;
+    const wordsPerMinute = 200;
+    const wordCount = content.split(/\s+/).length;
+    return Math.ceil(wordCount / wordsPerMinute);
+}
+
 export async function addBlogPostAction(prevState: FormState, formData: FormData): Promise<FormState> {
   const validatedFields = blogPostSchema.safeParse(Object.fromEntries(formData.entries()));
 
@@ -143,7 +150,8 @@ export async function addBlogPostAction(prevState: FormState, formData: FormData
   }
 
   try {
-    await addBlogPost(validatedFields.data as Omit<BlogPost, 'id' | 'date' | 'updatedAt'>);
+    const readTime = calculateReadTime(validatedFields.data.content);
+    await addBlogPost({ ...validatedFields.data, readTime });
   } catch (e: any) {
     console.error(e);
     return { message: "Failed to create blog post: " + e.message, errors: {} };
@@ -165,7 +173,8 @@ export async function updateBlogPostAction(id: string, prevState: FormState, for
   }
   
   try {
-    await updateBlogPost(id, validatedFields.data);
+    const readTime = calculateReadTime(validatedFields.data.content);
+    await updateBlogPost(id, { ...validatedFields.data, readTime });
   } catch (e: any) {
     console.error(e);
     return { message: "Failed to update blog post: " + e.message, errors: {} };

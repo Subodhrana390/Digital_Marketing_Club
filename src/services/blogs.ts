@@ -2,6 +2,13 @@ import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, de
 import { db } from '@/lib/firebase';
 import type { BlogPost } from '@/lib/types';
 
+function calculateReadTime(content: string): number {
+    if (!content) return 0;
+    const wordsPerMinute = 200;
+    const wordCount = content.split(/\s+/).length;
+    return Math.ceil(wordCount / wordsPerMinute);
+}
+
 function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
     const data = doc.data();
     // Validate required fields
@@ -32,6 +39,7 @@ function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
         imageUrl: data.imageUrl,
         imageHint: data.imageHint, // Optional field
         slug: data.slug,
+        readTime: typeof data.readTime === 'number' ? data.readTime : calculateReadTime(data.content),
     };
 }
 
