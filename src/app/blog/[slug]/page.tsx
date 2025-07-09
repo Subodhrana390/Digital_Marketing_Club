@@ -274,19 +274,21 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     </div>
                     <div className="prose prose-lg dark:prose-invert max-w-none 
                         prose-p:leading-relaxed 
-                        prose-headings:font-headline prose-headings:scroll-mt-24 prose-headings:text-slate-800 dark:prose-headings:text-slate-200
-                        prose-h2:text-3xl prose-h2:mb-4 prose-h2:mt-8 prose-h3:text-2xl prose-h3:mb-3 prose-h3:mt-6
-                        prose-a:text-primary prose-a:font-medium hover:prose-a:underline prose-a:no-underline
-                        prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-muted-foreground
+                        prose-headings:font-headline prose-headings:scroll-mt-24 prose-headings:text-slate-900 dark:prose-headings:text-slate-100
+                        prose-h2:text-3xl prose-h2:mb-6 prose-h2:mt-10 prose-h2:pb-4 prose-h2:border-b prose-h2:border-slate-200 dark:prose-h2:border-slate-700
+                        prose-h3:text-2xl prose-h3:mb-4 prose-h3:mt-8
+                        prose-a:text-primary prose-a:font-medium hover:prose-a:text-blue-500 dark:hover:prose-a:text-blue-400 prose-a:no-underline prose-a:transition-colors
+                        prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:font-light prose-blockquote:text-slate-600 dark:prose-blockquote:text-slate-400
                         prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:font-mono prose-code:text-sm prose-code:font-medium
-                        prose-pre:bg-card prose-pre:p-4 prose-pre:rounded-xl prose-pre:border
+                        prose-pre:bg-slate-800 prose-pre:text-white prose-pre:p-6 prose-pre:rounded-xl prose-pre:border prose-pre:border-slate-700
                         prose-img:rounded-xl prose-img:shadow-lg
-                        prose-ul:list-disc prose-ul:pl-6 prose-li:mb-2
-                        prose-ol:list-decimal prose-ol:pl-6 prose-li:mb-2
-                        prose-table:w-full prose-table:border-collapse
+                        prose-ul:list-disc prose-ul:pl-6 prose-li:my-3 prose-li:marker:text-primary
+                        prose-ol:list-decimal prose-ol:pl-6 prose-li:my-3 prose-li:marker:text-primary
+                        prose-table:w-full prose-table:border-collapse prose-table:my-8
                         prose-thead:border-b-2 prose-thead:border-border
                         prose-th:p-4 prose-th:text-left prose-th:font-semibold
                         prose-tbody:divide-y prose-tbody:divide-border
+                        prose-tr:hover:bg-muted/50
                         prose-td:p-4
                         ">
                         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
