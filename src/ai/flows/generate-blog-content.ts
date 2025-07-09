@@ -31,7 +31,7 @@ const prompt = ai.definePrompt({
   The post should be well-structured, informative, and engaging for an audience interested in digital marketing trends.
   
   Please provide the output in the requested JSON format, with a concise excerpt and the full content in Markdown.
-  Use headings, lists, and bold text to structure the content.`,
+  Use rich Markdown formatting, including multiple levels of headings (H2, H3), lists, bold text, links, and tables where appropriate to create a well-structured and easy-to-read article.`,
 });
 
 const generateBlogContentFlow = ai.defineFlow(
