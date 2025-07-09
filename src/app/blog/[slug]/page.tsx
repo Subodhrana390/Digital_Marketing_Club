@@ -231,7 +231,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.category}
               </Badge>
             </div>
-            <h1 className="text-center text-4xl md:text-6xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent font-headline leading-tight">
+            <h1 className="text-center text-4xl md:text-6xl font-bold text-slate-900 dark:text-white font-headline leading-tight">
                 {post.title}
             </h1>
             <div className="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-sm text-slate-600 dark:text-slate-400">
@@ -273,19 +273,22 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                       </p>
                     </div>
                     <div className="prose prose-lg dark:prose-invert max-w-none 
-                                    prose-headings:font-headline prose-headings:scroll-mt-24
-                                    prose-headings:bg-gradient-to-r prose-headings:from-slate-900 prose-headings:to-slate-600 dark:prose-headings:from-white dark:prose-headings:to-slate-300 prose-headings:bg-clip-text prose-headings:text-transparent
-                                    prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline 
-                                    prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-slate-800/50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg 
-                                    prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm 
-                                    prose-pre:bg-slate-900 dark:prose-pre:bg-slate-950 prose-pre:border prose-pre:border-slate-200 dark:prose-pre:border-slate-700
-                                    prose-img:rounded-xl prose-img:shadow-lg
-                                    prose-table:border-collapse prose-table:w-full
-                                    prose-thead:border-b prose-thead:border-slate-300 dark:prose-thead:border-slate-600
-                                    prose-th:px-4 prose-th:py-2 prose-th:text-left
-                                    prose-tbody:divide-y prose-tbody:divide-slate-200 dark:prose-tbody:divide-slate-700
-                                    prose-td:p-4
-                                    ">
+                        prose-p:leading-relaxed 
+                        prose-headings:font-headline prose-headings:scroll-mt-24 prose-headings:text-slate-800 dark:prose-headings:text-slate-200
+                        prose-h2:text-3xl prose-h2:mb-4 prose-h2:mt-8 prose-h3:text-2xl prose-h3:mb-3 prose-h3:mt-6
+                        prose-a:text-primary prose-a:font-medium hover:prose-a:underline prose-a:no-underline
+                        prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-muted-foreground
+                        prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:font-mono prose-code:text-sm prose-code:font-medium
+                        prose-pre:bg-card prose-pre:p-4 prose-pre:rounded-xl prose-pre:border
+                        prose-img:rounded-xl prose-img:shadow-lg
+                        prose-ul:list-disc prose-ul:pl-6 prose-li:mb-2
+                        prose-ol:list-decimal prose-ol:pl-6 prose-li:mb-2
+                        prose-table:w-full prose-table:border-collapse
+                        prose-thead:border-b-2 prose-thead:border-border
+                        prose-th:p-4 prose-th:text-left prose-th:font-semibold
+                        prose-tbody:divide-y prose-tbody:divide-border
+                        prose-td:p-4
+                        ">
                         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
                             {post.content}
                         </ReactMarkdown>
