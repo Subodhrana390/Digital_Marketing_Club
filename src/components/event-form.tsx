@@ -278,6 +278,25 @@ export function EventForm({ event }: EventFormProps) {
         {state.errors?.registrationLink && <p className="text-sm font-medium text-destructive">{state.errors.registrationLink[0]}</p>}
       </div>
 
+       <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+        <h3 className="text-lg font-medium">Event Visuals</h3>
+        <div className="space-y-2">
+            <Label htmlFor="bannerUrl">Banner Image URL</Label>
+            <Input id="bannerUrl" name="bannerUrl" defaultValue={event?.bannerUrl} placeholder="https://placehold.co/1200x400.png" />
+            {state.errors?.bannerUrl && <p className="text-sm font-medium text-destructive">{state.errors.bannerUrl[0]}</p>}
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="bannerHint">Banner Image Hint (for AI)</Label>
+            <Input id="bannerHint" name="bannerHint" defaultValue={event?.bannerHint} placeholder="e.g., people networking" />
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="photos">Event Photo Gallery URLs</Label>
+            <Textarea id="photos" name="photos" defaultValue={event?.photos?.join(', \n')} rows={4} placeholder="Enter image URLs separated by commas or new lines." />
+            <p className="text-xs text-muted-foreground">Add multiple URLs for a photo gallery on the event page.</p>
+            {state.errors?.photos && <p className="text-sm font-medium text-destructive">{state.errors.photos[0]}</p>}
+        </div>
+      </div>
+
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />
       </div>

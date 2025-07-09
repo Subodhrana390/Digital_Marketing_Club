@@ -26,6 +26,9 @@ export interface Event {
   certificateTemplateUrl?: string;
   certificateTemplatePublicId?: string;
   registrationCount?: number;
+  bannerUrl?: string;
+  bannerHint?: string;
+  photos?: string[];
 }
 
 export interface Registration {

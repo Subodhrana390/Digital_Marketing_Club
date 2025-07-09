@@ -206,6 +206,9 @@ const eventSchema = z.object({
     location: z.string().min(3, "Location is required."),
     description: z.string().min(10, "Description must be at least 10 characters."),
     registrationLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+    bannerUrl: z.string().url("Please enter a valid banner URL.").optional().or(z.literal('')),
+    bannerHint: z.string().optional(),
+    photos: z.string().optional(),
 });
 
 export async function addEventAction(prevState: FormState, formData: FormData): Promise<FormState> {
@@ -219,7 +222,12 @@ export async function addEventAction(prevState: FormState, formData: FormData): 
     }
     
     try {
-        await addEvent(validatedFields.data);
+        const { photos, ...rest } = validatedFields.data;
+        const eventData = {
+            ...rest,
+            photos: photos ? photos.split(/,|\n/).map(p => p.trim()).filter(p => p) : [],
+        };
+        await addEvent(eventData);
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to create event: " + e.message, errors: {} };
@@ -241,7 +249,12 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
     }
 
     try {
-        await updateEvent(id, validatedFields.data);
+        const { photos, ...rest } = validatedFields.data;
+        const eventData = {
+            ...rest,
+            photos: photos ? photos.split(/,|\n/).map(p => p.trim()).filter(p => p) : [],
+        };
+        await updateEvent(id, eventData);
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to update event: " + e.message, errors: {} };
@@ -249,6 +262,7 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
 
     revalidatePath("/admin/events");
     revalidatePath("/events");
+    revalidatePath(`/events/${id}`);
     redirect("/admin/events");
 }
 

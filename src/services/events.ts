@@ -29,6 +29,9 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         reportName: data.reportName,
         certificateTemplateUrl: data.certificateTemplateUrl,
         certificateTemplatePublicId: data.certificateTemplatePublicId,
+        bannerUrl: data.bannerUrl,
+        bannerHint: data.bannerHint,
+        photos: data.photos || [],
     };
 }
 
@@ -57,7 +60,13 @@ export async function getEvent(id: string): Promise<Event | null> {
     if (!docSnap.exists()) {
         return null;
     }
-    return docToEvent(docSnap);
+    const event = docToEvent(docSnap);
+    if(event) {
+        const registrationsCollection = collection(db, 'events', event.id, 'registrations');
+        const registrationsSnapshot = await getDocs(registrationsCollection);
+        return { ...event, registrationCount: registrationsSnapshot.size };
+    }
+    return null;
 }
 
 type EventInput = {
@@ -71,6 +80,9 @@ type EventInput = {
     reportName?: string;
     certificateTemplateUrl?: string;
     certificateTemplatePublicId?: string;
+    bannerUrl?: string;
+    bannerHint?: string;
+    photos?: string[];
 }
 
 export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName' | 'certificateTemplateUrl' | 'certificateTemplatePublicId'>) {

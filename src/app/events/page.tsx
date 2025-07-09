@@ -210,10 +210,10 @@ export default function EventsPage() {
                                 </span>
                             </button>
                         ) : (
-                            <Link href={event.registrationLink || '#'} target={event.registrationLink ? "_blank" : "_self"} rel="noopener noreferrer" className="w-full block">
+                            <Link href={`/events/${event.id}`} className="w-full block">
                                 <button className="w-full group/btn relative px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                                     <span className="flex items-center justify-center">
-                                    Register Now
+                                    View Details
                                     <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
                                     </span>
                                 </button>
@@ -286,10 +286,10 @@ export default function EventsPage() {
                             </span>
                         </button>
                     ) : (
-                        <Link href={event.registrationLink || '#'} target="_blank" rel="noopener noreferrer" className="w-full mt-auto block">
+                        <Link href={`/events/${event.id}`} className="w-full mt-auto block">
                             <button className="w-full group/btn px-4 py-2 bg-gradient-to-r from-purple-600/80 to-pink-600/80 rounded-xl font-medium text-white text-sm hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
                             <span className="flex items-center justify-center">
-                                Register
+                                View Details
                                 <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                             </span>
                             </button>
@@ -352,4 +352,3 @@ export default function EventsPage() {
     </div>
   );
 }
-
