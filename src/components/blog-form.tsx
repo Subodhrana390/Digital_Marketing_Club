@@ -106,7 +106,7 @@ export function BlogForm({ post }: BlogFormProps) {
             </Button>
         </div>
         <Textarea id="content" name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={15} required />
-        <p className="text-xs text-muted-foreground">Markdown is supported. Use headings (e.g., ## My Heading), lists, links, and tables. Headings will populate the Table of Contents.</p>
+        <p className="text-xs text-muted-foreground">Use Markdown for formatting. Headings (e.g., ## Section Title) create sections for the Table of Contents. You can also add lists, links, tables, and images using `![alt text](image_url)`.</p>
         {state.errors?.content && <p className="text-sm font-medium text-destructive">{state.errors.content[0]}</p>}
       </div>
 
