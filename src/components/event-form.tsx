@@ -18,6 +18,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AttendeeManager } from "./attendee-manager";
+import { Checkbox } from "./ui/checkbox";
 
 interface EventFormProps {
   event?: Event | null;
@@ -295,6 +296,13 @@ export function EventForm({ event }: EventFormProps) {
             <p className="text-xs text-muted-foreground">Add multiple URLs for a photo gallery on the event page.</p>
             {state.errors?.photos && <p className="text-sm font-medium text-destructive">{state.errors.photos[0]}</p>}
         </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox id="featured" name="featured" defaultChecked={event?.featured} />
+        <Label htmlFor="featured" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Mark as Featured Event
+        </Label>
       </div>
 
       <div className="flex justify-end">

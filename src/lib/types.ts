@@ -29,6 +29,7 @@ export interface Event {
   bannerUrl?: string;
   bannerHint?: string;
   photos?: string[];
+  featured?: boolean;
 }
 
 export interface Registration {

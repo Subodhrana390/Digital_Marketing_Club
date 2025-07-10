@@ -209,6 +209,7 @@ const eventSchema = z.object({
     bannerUrl: z.string().url("Please enter a valid banner URL.").optional().or(z.literal('')),
     bannerHint: z.string().optional(),
     photos: z.string().optional(),
+    featured: z.preprocess((val) => val === 'on', z.boolean()).optional(),
 });
 
 export async function addEventAction(prevState: FormState, formData: FormData): Promise<FormState> {
@@ -252,6 +253,7 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
         const { photos, ...rest } = validatedFields.data;
         const eventData = {
             ...rest,
+            featured: rest.featured ?? false,
             photos: photos ? photos.split(/,|\n/).map(p => p.trim()).filter(p => p) : [],
         };
         await updateEvent(id, eventData);

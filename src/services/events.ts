@@ -32,6 +32,7 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         bannerUrl: data.bannerUrl,
         bannerHint: data.bannerHint,
         photos: data.photos || [],
+        featured: data.featured || false,
     };
 }
 
@@ -83,12 +84,14 @@ type EventInput = {
     bannerUrl?: string;
     bannerHint?: string;
     photos?: string[];
+    featured?: boolean;
 }
 
 export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName' | 'certificateTemplateUrl' | 'certificateTemplatePublicId'>) {
     const newEvent = {
         ...event,
         date: Timestamp.fromDate(event.date),
+        featured: event.featured || false,
     };
     const docRef = await addDoc(collection(db, 'events'), newEvent);
     return docRef.id;
