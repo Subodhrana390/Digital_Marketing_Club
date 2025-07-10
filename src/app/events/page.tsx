@@ -123,21 +123,23 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
   
-  const { featuredEvents, upcomingEvents, pastEvents } = useMemo(() => {
-      const filtered = allEvents.filter(event => 
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filteredEvents = useMemo(() => {
+    return allEvents.filter(event => 
+        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allEvents, searchTerm]);
 
-      const featured = filtered.filter(e => e.featured && new Date(e.date) >= today);
-      const upcoming = filtered.filter(e => !e.featured && new Date(e.date) >= today);
-      const past = filtered.filter(e => new Date(e.date) < today);
+  const { featuredEvents, upcomingEvents, pastEvents } = useMemo(() => {
+      const featured = filteredEvents.filter(e => e.featured && new Date(e.date) >= today);
+      const upcoming = filteredEvents.filter(e => !e.featured && new Date(e.date) >= today);
+      const past = filteredEvents.filter(e => new Date(e.date) < today);
 
       upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       past.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       return { featuredEvents: featured, upcomingEvents: upcoming, pastEvents: past };
-  }, [allEvents, searchTerm, today]);
+  }, [filteredEvents, today]);
 
 
   return (
