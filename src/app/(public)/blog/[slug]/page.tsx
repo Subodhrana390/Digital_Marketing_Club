@@ -1,3 +1,5 @@
+// This file has been moved to src/app/(public)/blog/[slug]/page.tsx
+// The content is identical to the old src/app/blog/[slug]/page.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
