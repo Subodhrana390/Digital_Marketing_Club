@@ -316,7 +316,6 @@ const registrationSchema = z.object({
   branch: z.string().min(2, "Branch is required."),
   mobileNumber: z.string().min(10, "A valid mobile number is required."),
   year: z.enum(["1st", "2nd", "3rd", "4th"]),
-  dYear: z.enum(["D1", "D2", "D3", "D4"]).optional(),
 });
 
 export async function addRegistrationAction(eventId: string, prevState: FormState, formData: FormData): Promise<FormState> {

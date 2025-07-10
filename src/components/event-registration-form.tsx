@@ -67,37 +67,20 @@ export function EventRegistrationForm({ eventId }: { eventId: string }) {
                 {state.errors?.mobileNumber && <p className="text-sm text-destructive">{state.errors.mobileNumber[0]}</p>}
             </div>
         </div>
-         <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-                <Label htmlFor="year">Year</Label>
-                <Select name="year">
-                    <SelectTrigger id="year">
-                        <SelectValue placeholder="Select Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="1st">1st Year</SelectItem>
-                        <SelectItem value="2nd">2nd Year</SelectItem>
-                        <SelectItem value="3rd">3rd Year</SelectItem>
-                        <SelectItem value="4th">4th Year</SelectItem>
-                    </SelectContent>
-                </Select>
-                {state.errors?.year && <p className="text-sm text-destructive">{state.errors.year[0]}</p>}
-            </div>
-            <div className="grid gap-2">
-                <Label htmlFor="dYear">Diploma Year (Optional)</Label>
-                <Select name="dYear">
-                    <SelectTrigger id="dYear">
-                        <SelectValue placeholder="Select Diploma Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="D1">D1</SelectItem>
-                        <SelectItem value="D2">D2</SelectItem>
-                        <SelectItem value="D3">D3</SelectItem>
-                        <SelectItem value="D4">D4</SelectItem>
-                    </SelectContent>
-                </Select>
-                {state.errors?.dYear && <p className="text-sm text-destructive">{state.errors.dYear[0]}</p>}
-            </div>
+         <div className="grid gap-2">
+            <Label htmlFor="year">Year</Label>
+            <Select name="year">
+                <SelectTrigger id="year">
+                    <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="1st">1st Year</SelectItem>
+                    <SelectItem value="2nd">2nd Year</SelectItem>
+                    <SelectItem value="3rd">3rd Year</SelectItem>
+                    <SelectItem value="4th">4th Year</SelectItem>
+                </SelectContent>
+            </Select>
+            {state.errors?.year && <p className="text-sm text-destructive">{state.errors.year[0]}</p>}
         </div>
         <div className="mt-4">
             <SubmitButton />

@@ -136,21 +136,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             </Select>
             {state.errors?.year && <p className="text-sm text-destructive">{state.errors.year[0]}</p>}
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="dYear">Diploma Year (Optional)</Label>
-            <Select name="dYear">
-                <SelectTrigger id="dYear">
-                    <SelectValue placeholder="Select Diploma Year" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="D1">D1</SelectItem>
-                    <SelectItem value="D2">D2</SelectItem>
-                    <SelectItem value="D3">D3</SelectItem>
-                    <SelectItem value="D4">D4</SelectItem>
-                </SelectContent>
-            </Select>
-             {state.errors?.dYear && <p className="text-sm text-destructive">{state.errors.dYear[0]}</p>}
-          </div>
+          
           <div className="lg:col-span-3 flex justify-end">
             <Button type="submit" disabled={isPending} className="w-full sm:w-auto mt-4">
                 <UserPlus className="mr-2 h-4 w-4" />
@@ -186,7 +172,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                       <div className="text-xs text-muted-foreground sm:hidden">{reg.studentEmail}</div>
                       </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">{reg.branch}</TableCell>
-                    <TableCell className="hidden md:table-cell text-muted-foreground">{reg.year}{reg.dYear ? ` (${reg.dYear})` : ''}</TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{reg.year}</TableCell>
                     <TableCell>
                       <Switch
                         checked={reg.attended}
