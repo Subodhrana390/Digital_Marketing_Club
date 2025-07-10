@@ -12,6 +12,9 @@ import {
   Ticket,
   Camera,
 } from "lucide-react";
+import { EventRegistrationForm } from "@/components/event-registration-form";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
 
 interface EventDetailPageProps {
   params: {
@@ -139,12 +142,21 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   Registration Closed
                 </Button>
               ) : event.registrationLink ? (
-                <Button size="lg" asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <a href={event.registrationLink} target="_blank" rel="noopener noreferrer">
-                    <Ticket className="mr-2 h-5 w-5" />
-                    Register Now
-                  </a>
-                </Button>
+                <Dialog>
+                   <DialogTrigger asChild>
+                    <Button size="lg" className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        <Ticket className="mr-2 h-5 w-5" />
+                        Register Now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px] bg-slate-900 border-purple-500/30 text-white">
+                      <DialogHeader>
+                          <DialogTitle>Register for {event.title}</DialogTitle>
+                          <DialogDescription>Fill out your details below to secure your spot.</DialogDescription>
+                      </DialogHeader>
+                      <EventRegistrationForm eventId={event.id} />
+                  </DialogContent>
+                </Dialog>
               ) : (
                 <Button size="lg" className="w-full" disabled>
                   Registration Not Available

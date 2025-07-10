@@ -119,6 +119,7 @@ export async function generateBlogPostContentAction(
 type FormState = {
   message: string;
   errors?: Record<string, string[] | undefined>;
+  success?: boolean;
 }
 
 const blogPostSchema = z.object({
@@ -325,15 +326,17 @@ export async function addRegistrationAction(eventId: string, prevState: FormStat
     return {
       message: "Please correct the errors.",
       errors: validatedFields.error.flatten().fieldErrors,
+      success: false,
     };
   }
 
   try {
     await addRegistrationToEvent(eventId, validatedFields.data);
     revalidatePath(`/admin/events/edit/${eventId}`);
-    return { message: "Student registered successfully.", errors: {} };
+    revalidatePath(`/events/${eventId}`);
+    return { message: "You have been registered successfully!", errors: {}, success: true };
   } catch (e: any) {
-    return { message: "Failed to register student: " + e.message, errors: {} };
+    return { message: "Failed to register student: " + e.message, errors: {}, success: false };
   }
 }
 
