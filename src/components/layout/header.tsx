@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -28,6 +29,7 @@ const navLinks = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const NavLink = ({
     href,
@@ -40,7 +42,7 @@ export function Header() {
     icon: React.ElementType;
     isMobile?: boolean;
   }) => {
-    const isActive = typeof window !== 'undefined' ? window.location.pathname === href : false;
+    const isActive = pathname === href;
     return (
       <Link
         href={href}
