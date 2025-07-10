@@ -116,6 +116,10 @@ function docToRegistration(doc: DocumentSnapshot<DocumentData>): Registration {
         id: doc.id,
         studentName: data.studentName,
         studentEmail: data.studentEmail,
+        branch: data.branch,
+        mobileNumber: data.mobileNumber,
+        year: data.year,
+        dYear: data.dYear,
         attended: data.attended || false,
         certificateUrl: data.certificateUrl,
     };
@@ -129,7 +133,7 @@ export async function getRegistrationsForEvent(eventId: string): Promise<Registr
     return querySnapshot.docs.map(docToRegistration);
 }
 
-export async function addRegistrationToEvent(eventId: string, registration: { studentName: string; studentEmail: string }) {
+export async function addRegistrationToEvent(eventId: string, registration: Omit<Registration, 'id' | 'attended' | 'certificateUrl'>) {
     const registrationsCollection = collection(db, 'events', eventId, 'registrations');
     await addDoc(registrationsCollection, {
         ...registration,

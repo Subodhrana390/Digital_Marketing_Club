@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, UserPlus, Trash2, Award, Download, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface AttendeeManagerProps {
   event: Event;
@@ -98,21 +100,63 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
         <CardDescription>Manage registered students for this event.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form ref={formRef} action={formAction} className="flex flex-col sm:flex-row gap-4 items-end mb-6 p-4 border rounded-lg">
-          <div className="grid gap-2 flex-grow w-full sm:w-auto">
+        <form ref={formRef} action={formAction} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 border rounded-lg items-end">
+          <div className="grid gap-2">
             <Label htmlFor="studentName">Student Name</Label>
             <Input id="studentName" name="studentName" placeholder="John Doe" />
             {state.errors?.studentName && <p className="text-sm text-destructive">{state.errors.studentName[0]}</p>}
           </div>
-          <div className="grid gap-2 flex-grow w-full sm:w-auto">
+          <div className="grid gap-2">
             <Label htmlFor="studentEmail">Student Email</Label>
             <Input id="studentEmail" name="studentEmail" type="email" placeholder="john.doe@example.com" />
             {state.errors?.studentEmail && <p className="text-sm text-destructive">{state.errors.studentEmail[0]}</p>}
           </div>
-          <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Registrant
-          </Button>
+          <div className="grid gap-2">
+            <Label htmlFor="branch">Branch</Label>
+            <Input id="branch" name="branch" placeholder="e.g., CSE" />
+            {state.errors?.branch && <p className="text-sm text-destructive">{state.errors.branch[0]}</p>}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="mobileNumber">Mobile Number</Label>
+            <Input id="mobileNumber" name="mobileNumber" type="tel" placeholder="e.g., 9876543210" />
+            {state.errors?.mobileNumber && <p className="text-sm text-destructive">{state.errors.mobileNumber[0]}</p>}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="year">Year</Label>
+            <Select name="year">
+                <SelectTrigger id="year">
+                    <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="1st">1st Year</SelectItem>
+                    <SelectItem value="2nd">2nd Year</SelectItem>
+                    <SelectItem value="3rd">3rd Year</SelectItem>
+                    <SelectItem value="4th">4th Year</SelectItem>
+                </SelectContent>
+            </Select>
+            {state.errors?.year && <p className="text-sm text-destructive">{state.errors.year[0]}</p>}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="dYear">Diploma Year (Optional)</Label>
+            <Select name="dYear">
+                <SelectTrigger id="dYear">
+                    <SelectValue placeholder="Select Diploma Year" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="D1">D1</SelectItem>
+                    <SelectItem value="D2">D2</SelectItem>
+                    <SelectItem value="D3">D3</SelectItem>
+                    <SelectItem value="D4">D4</SelectItem>
+                </SelectContent>
+            </Select>
+             {state.errors?.dYear && <p className="text-sm text-destructive">{state.errors.dYear[0]}</p>}
+          </div>
+          <div className="lg:col-span-3 flex justify-end">
+            <Button type="submit" disabled={isPending} className="w-full sm:w-auto mt-4">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add Registrant
+            </Button>
+          </div>
         </form>
 
         <div className="rounded-md border">
@@ -120,7 +164,8 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Student Name</TableHead>
-                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                <TableHead className="hidden sm:table-cell">Branch</TableHead>
+                <TableHead className="hidden md:table-cell">Year</TableHead>
                 <TableHead>Attended</TableHead>
                 <TableHead>Certificate</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -129,15 +174,19 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24">
+                  <TableCell colSpan={6} className="text-center h-24">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : registrations.length > 0 ? (
                 registrations.map(reg => (
                   <TableRow key={reg.id}>
-                    <TableCell className="font-medium">{reg.studentName}</TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">{reg.studentEmail}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>{reg.studentName}</div>
+                      <div className="text-xs text-muted-foreground sm:hidden">{reg.studentEmail}</div>
+                      </TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">{reg.branch}</TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{reg.year}{reg.dYear ? ` (${reg.dYear})` : ''}</TableCell>
                     <TableCell>
                       <Switch
                         checked={reg.attended}
@@ -178,7 +227,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                     No students registered yet.
                   </TableCell>
                 </TableRow>

@@ -36,6 +36,10 @@ export interface Registration {
   id: string;
   studentName: string;
   studentEmail: string;
+  branch: string;
+  mobileNumber: string;
+  year: "1st" | "2nd" | "3rd" | "4th";
+  dYear?: "D1" | "D2" | "D3" | "D4";
   attended: boolean;
   certificateUrl?: string;
 }
