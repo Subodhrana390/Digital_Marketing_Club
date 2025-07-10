@@ -100,7 +100,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
         <CardDescription>Manage registered students for this event.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form ref={formRef} action={formAction} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 border rounded-lg items-end">
+        <form ref={formRef} action={formAction} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 border rounded-lg items-end">
           <div className="grid gap-2">
             <Label htmlFor="studentName">Student Name</Label>
             <Input id="studentName" name="studentName" placeholder="John Doe" />
@@ -110,6 +110,16 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             <Label htmlFor="studentEmail">Student Email</Label>
             <Input id="studentEmail" name="studentEmail" type="email" placeholder="john.doe@example.com" />
             {state.errors?.studentEmail && <p className="text-sm text-destructive">{state.errors.studentEmail[0]}</p>}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="urn">URN</Label>
+            <Input id="urn" name="urn" placeholder="University Roll No." />
+            {state.errors?.urn && <p className="text-sm text-destructive">{state.errors.urn[0]}</p>}
+          </div>
+           <div className="grid gap-2">
+            <Label htmlFor="crn">CRN</Label>
+            <Input id="crn" name="crn" placeholder="College Roll No." />
+            {state.errors?.crn && <p className="text-sm text-destructive">{state.errors.crn[0]}</p>}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="branch">Branch</Label>
@@ -137,8 +147,8 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             {state.errors?.year && <p className="text-sm text-destructive">{state.errors.year[0]}</p>}
           </div>
           
-          <div className="lg:col-span-3 flex justify-end">
-            <Button type="submit" disabled={isPending} className="w-full sm:w-auto mt-4">
+          <div className="flex justify-end mt-4">
+            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Add Registrant
             </Button>
@@ -150,7 +160,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Student Name</TableHead>
-                <TableHead className="hidden sm:table-cell">Branch</TableHead>
+                <TableHead className="hidden sm:table-cell">URN / CRN</TableHead>
                 <TableHead className="hidden md:table-cell">Year</TableHead>
                 <TableHead>Attended</TableHead>
                 <TableHead>Certificate</TableHead>
@@ -171,7 +181,10 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                       <div>{reg.studentName}</div>
                       <div className="text-xs text-muted-foreground sm:hidden">{reg.studentEmail}</div>
                       </TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">{reg.branch}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">
+                      <div>URN: {reg.urn}</div>
+                      <div>CRN: {reg.crn}</div>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">{reg.year}</TableCell>
                     <TableCell>
                       <Switch

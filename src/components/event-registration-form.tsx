@@ -57,6 +57,18 @@ export function EventRegistrationForm({ eventId }: { eventId: string }) {
         </div>
         <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
+                <Label htmlFor="urn">URN</Label>
+                <Input id="urn" name="urn" placeholder="University Roll No." />
+                {state.errors?.urn && <p className="text-sm text-destructive">{state.errors.urn[0]}</p>}
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="crn">CRN</Label>
+                <Input id="crn" name="crn" placeholder="College Roll No." />
+                {state.errors?.crn && <p className="text-sm text-destructive">{state.errors.crn[0]}</p>}
+            </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
                 <Label htmlFor="branch">Branch</Label>
                 <Input id="branch" name="branch" placeholder="e.g., CSE" />
                 {state.errors?.branch && <p className="text-sm text-destructive">{state.errors.branch[0]}</p>}

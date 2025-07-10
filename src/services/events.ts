@@ -119,6 +119,8 @@ function docToRegistration(doc: DocumentSnapshot<DocumentData>): Registration {
         branch: data.branch,
         mobileNumber: data.mobileNumber,
         year: data.year,
+        urn: data.urn,
+        crn: data.crn,
         attended: data.attended || false,
         certificateUrl: data.certificateUrl,
     };

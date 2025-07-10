@@ -39,6 +39,8 @@ export interface Registration {
   branch: string;
   mobileNumber: string;
   year: "1st" | "2nd" | "3rd" | "4th";
+  urn: string;
+  crn: string;
   attended: boolean;
   certificateUrl?: string;
 }
