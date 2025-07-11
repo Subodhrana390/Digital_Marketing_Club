@@ -1,5 +1,138 @@
-# Firebase Studio
+# MarketVerse: Digital Marketing Club Platform
 
-This is a NextJS starter in Firebase Studio.
+MarketVerse is a comprehensive, feature-rich web platform built for the Digital Marketing Club at GNDEC, Ludhiana. It serves as a central hub for members, students, and the public to engage with the club's activities, resources, and content. The platform includes a public-facing website and a powerful, secure admin panel for managing all aspects of the club's operations.
 
-To get started, take a look at src/app/page.tsx.
+![MarketVerse Homepage](https://placehold.co/1200x600.png?text=MarketVerse+Screenshot)
+
+## ✨ Key Features
+
+### Public-Facing Website
+- **Homepage:** A stunning, animated landing page introducing the club and its mission.
+- **Events Showcase:** View upcoming and past events with a clean, modern UI.
+- **Event Details & Registration:** Detailed event pages with banners, photo galleries, and a seamless on-page registration pop-up form.
+- **Blog Platform:** A fully-featured blog with search functionality, category filtering, and beautifully rendered articles with a table of contents.
+- **Resource Library:** A curated collection of marketing tools, templates, and learning resources, categorized for easy access.
+- **Team Showcase:** A dynamic members page to introduce the club's team.
+- **Public Analytics:** A transparent reports page showcasing club statistics like event attendance and content engagement.
+- **Contact Form:** A functional contact page for inquiries.
+- **AI Ideation Tool:** A public tool for generating blog post ideas using Genkit.
+
+### Admin Panel
+- **Secure Authentication:** Admin login via Email/Password or Google Sign-In, protected by an authentication guard.
+- **Dashboard:** An at-a-glance overview of key club metrics (total members, upcoming events, etc.).
+- **Content Management (CRUD):**
+  - **Blogs:** Create, edit, and delete blog posts. Features AI-powered content and title generation.
+  - **Events:** Create, edit, and delete events.
+  - **Members:** Manage the team members list.
+  - **Resources:** Manage the resource library.
+- **Event & Attendee Management:**
+  - View, add, and manage student registrations for each event.
+  - Track student attendance.
+  - Upload event reports (e.g., PDFs).
+  - **Certificate Generation:** Upload a certificate template, and automatically generate and email participation certificates to attendees using Cloudinary for image overlays and Resend for email delivery.
+- **Reporting:**
+  - View analytics charts for event attendance and platform engagement.
+  - Access a centralized list of all event reports.
+
+
+## 🚀 Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS with Radix UI primitives.
+- **UI Components:** ShadCN UI
+- **Generative AI:** Google AI with Genkit for AI flows (content generation).
+- **Backend & Database:** Firebase (Firestore, Authentication, Storage).
+- **Image & Asset Management:** Cloudinary for certificate generation and transformations.
+- **Transactional Emails:** Resend
+- **Form Management:** React Hook Form with Zod for validation.
+- **Icons:** Lucide React
+
+## ⚙️ Getting Started
+
+### Prerequisites
+- Node.js (v18 or later)
+- npm or yarn
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-repo/market-verse.git
+cd market-verse
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Set Up Environment Variables
+Create a `.env` file in the root of the project and add the following environment variables. These are required for Firebase, Cloudinary, and Resend to function correctly.
+
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
+
+# Cloudinary Configuration (for certificate generation)
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# Resend Configuration (for sending emails)
+RESEND_API_KEY=
+FROM_EMAIL=
+```
+
+### 4. Run the Development Server
+You can run the application in development mode with:
+
+```bash
+npm run dev
+```
+The application will be available at `http://localhost:9002`.
+
+### 5. Run the Genkit AI Flows (Optional)
+To test and run the AI flows locally, you'll need to run the Genkit development server in a separate terminal:
+
+```bash
+npm run genkit:dev
+```
+This starts the Genkit developer UI, where you can inspect and test your AI flows.
+
+## 📁 Project Structure
+
+```
+src
+├── app/
+│   ├── (admin)/          # Admin panel routes & layout
+│   ├── (auth)/           # Authentication routes (login)
+│   ├── api/              # API routes (not heavily used due to Server Actions)
+│   ├── blog/             # Public blog routes
+│   ├── events/           # Public event routes
+│   └── ...               # Other public pages (home, contact, etc.)
+├── components/
+│   ├── admin/            # Components specific to the admin panel
+│   ├── layout/           # Header, Footer, Sidebar
+│   └── ui/               # Reusable UI components from ShadCN
+├── ai/
+│   ├── flows/            # Genkit AI flows (e.g., generateBlogContent)
+│   └── genkit.ts         # Genkit configuration
+├── hooks/
+│   └── use-auth.tsx      # Authentication context and guard
+├── services/
+│   ├── auth.ts           # Firebase auth services
+│   ├── blogs.ts          # Firestore services for blogs
+│   ├── events.ts         # Firestore services for events
+│   ├── email.ts          # Resend email service
+│   ├── storage.ts        # Cloudinary services
+│   └── ...               # Other data services
+└── lib/
+    ├── firebase.ts       # Firebase initialization
+    ├── types.ts          # TypeScript type definitions
+    └── utils.ts          # Utility functions (e.g., cn for classnames)
+```
