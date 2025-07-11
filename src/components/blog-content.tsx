@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -23,6 +24,23 @@ interface ShareButtonProps {
 function ShareButton({ title, text }: ShareButtonProps) {
     const { toast } = useToast();
 
+    const copyToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            toast({
+                title: 'Link Copied!',
+                description: 'The blog post URL has been copied to your clipboard.',
+            });
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            toast({
+                title: 'Error',
+                description: 'Failed to copy the link.',
+                variant: 'destructive',
+            });
+        }
+    };
+
     const handleShare = async () => {
         const shareData = {
             title,
@@ -35,22 +53,11 @@ function ShareButton({ title, text }: ShareButtonProps) {
                 await navigator.share(shareData);
             } catch (err) {
                 console.error('Error sharing:', err);
+                // If sharing fails, fall back to copying the link
+                copyToClipboard();
             }
         } else {
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                toast({
-                    title: 'Link Copied!',
-                    description: 'The blog post URL has been copied to your clipboard.',
-                });
-            } catch (err) {
-                console.error('Failed to copy: ', err);
-                toast({
-                    title: 'Error',
-                    description: 'Failed to copy the link.',
-                    variant: 'destructive',
-                });
-            }
+            copyToClipboard();
         }
     };
 
