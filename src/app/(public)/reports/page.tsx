@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -10,7 +11,10 @@ import { getBlogPosts } from "@/services/blogs";
 import { getEvents } from "@/services/events";
 import { getMembers } from "@/services/members";
 import { getResources } from "@/services/resources";
-import { BarChart2, TrendingUp, Zap } from "lucide-react";
+import { BarChart2, TrendingUp, Zap, FileText } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function PublicReportsPage() {
   const events = await getEvents();
@@ -18,14 +22,13 @@ export default async function PublicReportsPage() {
   const members = await getMembers();
   const resources = await getResources();
 
-  // Using a simplified version of attendance data for public view
   const attendanceData = events
     .map(event => ({
         name: event.title.length > 15 ? `${event.title.substring(0, 15)}...` : event.title,
         total: event.registrationCount ?? 0
     }))
-    .filter(e => e.total > 0) // Only show events with registrations
-    .slice(0, 6); // show max 6 events
+    .filter(e => e.total > 0)
+    .slice(0, 6);
 
   const engagementData = [
     { name: "Blog Posts", total: blogPosts.length },
@@ -34,6 +37,7 @@ export default async function PublicReportsPage() {
     { name: "Resources", total: resources.length },
   ];
 
+  const eventsWithReports = events.filter(event => event.reportUrl);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -100,6 +104,63 @@ export default async function PublicReportsPage() {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl shadow-green-500/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                 <FileText className="text-green-400" />
+                 Event Reports
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Official reports and summaries from our past events.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/10 hover:bg-white/10">
+                    <TableHead className="text-white">Event Title</TableHead>
+                    <TableHead className="text-white">Date</TableHead>
+                    <TableHead className="text-right text-white">Report</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eventsWithReports.length > 0 ? (
+                    eventsWithReports.map((event) => (
+                      <TableRow key={event.id} className="border-white/10 hover:bg-white/10">
+                        <TableCell className="font-medium">{event.title}</TableCell>
+                        <TableCell>
+                          {new Date(event.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button asChild variant="outline" size="sm" className="bg-transparent border-purple-400 text-purple-300 hover:bg-purple-500/20 hover:text-white">
+                              <a
+                                href={event.reportUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                View Report
+                              </a>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
+                        No event reports are available at this time.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
       </div>
     </div>
   );
