@@ -11,6 +11,7 @@ import {
   BarChart2,
   ArrowLeft,
   Shield,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -21,7 +22,11 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarSeparator,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { useState } from "react";
 
 const adminNavLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -29,11 +34,17 @@ const adminNavLinks = [
   { href: "/admin/blogs", label: "Blogs", icon: Newspaper },
   { href: "/admin/resources", label: "Resources", icon: Library },
   { href: "/admin/members", label: "Members", icon: Users },
-  { href: "/admin/reports", label: "Reports", icon: BarChart2 },
 ];
+
+const reportLinks = [
+    { href: "/admin/reports", label: "Analytics", icon: BarChart2 },
+    { href: "/admin/event-reports", label: "Event Reports", icon: FileText },
+]
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const isReportsActive = reportLinks.some(link => pathname.startsWith(link.href));
+  const [isReportsOpen, setIsReportsOpen] = useState(isReportsActive);
 
   return (
     <div className="flex h-full max-h-screen flex-col gap-2">
@@ -62,6 +73,33 @@ export default function AdminSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+           <Collapsible open={isReportsOpen} onOpenChange={setIsReportsOpen}>
+                <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                         <SidebarMenuButton
+                            isActive={isReportsActive}
+                            className="justify-start w-full"
+                        >
+                            <BarChart2 className="h-4 w-4" />
+                            <span>Reports</span>
+                        </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                </SidebarMenuItem>
+                 <CollapsibleContent asChild>
+                    <SidebarMenuSub>
+                        {reportLinks.map((link) => (
+                            <SidebarMenuItem key={link.href}>
+                                 <SidebarMenuSubButton asChild isActive={pathname === link.href}>
+                                    <Link href={link.href}>
+                                        <link.icon className="h-4 w-4" />
+                                        <span>{link.label}</span>
+                                    </Link>
+                                </SidebarMenuSubButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenuSub>
+                </CollapsibleContent>
+           </Collapsible>
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
