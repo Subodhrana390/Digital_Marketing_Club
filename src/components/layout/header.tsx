@@ -13,6 +13,7 @@ import {
   Users,
   Shield,
   X,
+  BarChart2,
 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const navLinks = [
   { href: "/blog", label: "Blog", icon: BookOpen },
   { href: "/resources", label: "Resources", icon: Library },
   { href: "/members", label: "Members", icon: Users },
+  { href: "/reports", label: "Reports", icon: BarChart2 },
   { href: "/contact", label: "Contact", icon: Contact },
   { href: "/ideation-tool", label: "Ideation Tool", icon: Lightbulb },
 ];
