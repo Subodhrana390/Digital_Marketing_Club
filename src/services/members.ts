@@ -10,7 +10,6 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         typeof data.name !== 'string' ||
         typeof data.role !== 'string' ||
         typeof data.avatarUrl !== 'string' ||
-        typeof data.fallback !== 'string' ||
         !Array.isArray(data.skills)
     ) {
         console.error("Invalid or incomplete member data for doc ID:", doc.id);
@@ -24,8 +23,9 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         description: data.description, // Optional
         avatarUrl: data.avatarUrl,
         avatarHint: data.avatarHint, // Optional
-        fallback: data.fallback,
+        fallback: data.name.charAt(0).toUpperCase(),
         skills: data.skills,
+        session: data.session, // Optional
     };
 }
 

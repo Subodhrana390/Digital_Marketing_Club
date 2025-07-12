@@ -32,6 +32,21 @@ const MemberCard = ({ member }: { member: Member }) => (
 export default async function MembersPage() {
   const members = await getMembers();
 
+  const groupedMembers = members.reduce((acc, member) => {
+    const session = member.session || 'Uncategorized';
+    if (!acc[session]) {
+      acc[session] = [];
+    }
+    acc[session].push(member);
+    return acc;
+  }, {} as Record<string, Member[]>);
+
+  const sortedSessions = Object.keys(groupedMembers).sort((a, b) => {
+      if (a === 'Uncategorized') return 1;
+      if (b === 'Uncategorized') return -1;
+      return b.localeCompare(a);
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* Animated Background Grid */}
@@ -67,12 +82,19 @@ export default async function MembersPage() {
       </div>
 
       {/* Members Grid */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {members.map((member) => (
-                <MemberCard key={member.id} member={member} />
-            ))}
-        </div>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-16">
+        {sortedSessions.map(session => (
+            <section key={session}>
+                 <h2 className="text-3xl font-bold text-center text-white mb-8 border-b-2 border-purple-500/30 pb-4">
+                    Team {session}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    {groupedMembers[session].map((member) => (
+                        <MemberCard key={member.id} member={member} />
+                    ))}
+                </div>
+            </section>
+        ))}
       </div>
     </div>
   );

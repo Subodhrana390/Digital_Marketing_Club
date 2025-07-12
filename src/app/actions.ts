@@ -514,6 +514,7 @@ export async function deleteResourceAction(id: string) {
 const memberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     role: z.string().min(2, "Role is required."),
+    session: z.string().min(1, "Session is required."),
     avatarUrl: z.string().url("Please enter a valid avatar URL."),
     avatarHint: z.string().optional(),
     skills: z.string().min(1, "At least one skill is required."),

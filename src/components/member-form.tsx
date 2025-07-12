@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "./ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface MemberFormProps {
   member?: Member | null;
@@ -100,6 +101,13 @@ export function MemberForm({ member }: MemberFormProps) {
   
   const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || "");
   const skills = member?.skills?.join(', ') || '';
+  
+  const currentYear = new Date().getFullYear();
+  const sessions = [
+      `${currentYear-1}-${currentYear}`,
+      `${currentYear}-${currentYear+1}`,
+      `${currentYear+1}-${currentYear+2}`,
+  ];
 
   return (
     <form action={formAction} className="space-y-6">
@@ -143,12 +151,29 @@ export function MemberForm({ member }: MemberFormProps) {
         {state.errors?.description && <p className="text-sm font-medium text-destructive">{state.errors.description[0]}</p>}
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="skills">Skills</Label>
-        <Textarea id="skills" name="skills" defaultValue={skills} placeholder="e.g., SEO, Content Writing, PPC" required />
-        <p className="text-xs text-muted-foreground">Enter skills separated by commas.</p>
-        {state.errors?.skills && <p className="text-sm font-medium text-destructive">{state.errors.skills[0]}</p>}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="skills">Skills</Label>
+          <Textarea id="skills" name="skills" defaultValue={skills} placeholder="e.g., SEO, Content Writing, PPC" required />
+          <p className="text-xs text-muted-foreground">Enter skills separated by commas.</p>
+          {state.errors?.skills && <p className="text-sm font-medium text-destructive">{state.errors.skills[0]}</p>}
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="session">Session</Label>
+            <Select name="session" defaultValue={member?.session}>
+                <SelectTrigger id="session">
+                    <SelectValue placeholder="Select Session" />
+                </SelectTrigger>
+                <SelectContent>
+                    {sessions.map(session => (
+                        <SelectItem key={session} value={session}>{session}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            {state.errors?.session && <p className="text-sm font-medium text-destructive">{state.errors.session[0]}</p>}
+        </div>
       </div>
+
 
       <div className="flex justify-end">
         <SubmitButton isUpdate={isUpdate} />

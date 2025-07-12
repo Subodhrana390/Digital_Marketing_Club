@@ -54,6 +54,7 @@ export interface Member {
   avatarHint?: string;
   fallback: string;
   skills: string[];
+  session: string;
 }
 
 export interface Resource {
