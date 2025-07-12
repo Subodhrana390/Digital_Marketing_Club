@@ -1,3 +1,4 @@
+
 'use server';
 
 import { v2 as cloudinary } from 'cloudinary';
@@ -33,6 +34,26 @@ function checkConfiguration() {
     }
 }
 
+export async function uploadImage(file: File, folder: string): Promise<{ downloadUrl: string, publicId: string }> {
+    checkConfiguration();
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const response = await uploadStream(buffer, {
+        folder: folder,
+        resource_type: 'image',
+    });
+
+    if (!response || !response.secure_url || !response.public_id) {
+        throw new Error('Image upload to Cloudinary failed.');
+    }
+
+    return {
+        downloadUrl: response.secure_url,
+        publicId: response.public_id,
+    };
+}
+
+
 export async function uploadEventReport(file: File): Promise<{ downloadUrl: string, fileName: string }> {
   checkConfiguration();
   
@@ -55,22 +76,7 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
 }
 
 export async function uploadCertificateTemplate(file: File): Promise<{ downloadUrl: string, publicId: string }> {
-    checkConfiguration();
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const response = await uploadStream(buffer, {
-        folder: 'certificate-templates',
-        resource_type: 'image',
-    });
-
-    if (!response || !response.secure_url || !response.public_id) {
-        throw new Error('Template upload to Cloudinary failed.');
-    }
-
-    return {
-        downloadUrl: response.secure_url,
-        publicId: response.public_id,
-    };
+    return uploadImage(file, 'certificate-templates');
 }
 
 

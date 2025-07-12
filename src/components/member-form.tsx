@@ -1,14 +1,18 @@
+
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
+import Image from "next/image";
 import type { Member } from "@/lib/types";
-import { addMemberAction, updateMemberAction } from "@/app/actions";
+import { addMemberAction, updateMemberAction, uploadImageAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "./ui/card";
 
 interface MemberFormProps {
   member?: Member | null;
@@ -24,15 +28,83 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
   );
 }
 
+function ImageUploader({
+  label,
+  currentImageUrl,
+  onImageUploaded,
+  folder,
+}: {
+  label: string;
+  currentImageUrl: string | null;
+  onImageUploaded: (url: string) => void;
+  folder: string;
+}) {
+  const [isUploading, startTransition] = useTransition();
+  const [preview, setPreview] = useState<string | null>(currentImageUrl);
+  const { toast } = useToast();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", folder);
+        const result = await uploadImageAction(formData);
+        if (result.url) {
+          onImageUploaded(result.url);
+          toast({ title: "Success", description: "Image uploaded successfully." });
+        } else {
+          setPreview(currentImageUrl);
+          toast({ title: "Error", description: result.error, variant: "destructive" });
+        }
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-4">
+        <div className="relative h-24 w-24 rounded-md border border-dashed flex items-center justify-center">
+          {preview ? (
+            <Image src={preview} alt="Preview" fill className="object-cover rounded-md" />
+          ) : (
+            <span className="text-xs text-muted-foreground">Preview</span>
+          )}
+          {isUploading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md">
+              <Loader2 className="h-6 w-6 text-white animate-spin" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1">
+          <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
+          <p className="text-xs text-muted-foreground mt-1">Select an image file to upload.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MemberForm({ member }: MemberFormProps) {
   const isUpdate = !!member;
   const action = isUpdate ? updateMemberAction.bind(null, member.id) : addMemberAction;
   const [state, formAction] = useActionState(action, { message: "", errors: {} });
   
+  const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || "");
   const skills = member?.skills?.join(', ') || '';
 
   return (
     <form action={formAction} className="space-y-6">
+       <input type="hidden" name="avatarUrl" value={avatarUrl} />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="name">Full Name</Label>
@@ -45,18 +117,25 @@ export function MemberForm({ member }: MemberFormProps) {
           {state.errors?.role && <p className="text-sm font-medium text-destructive">{state.errors.role[0]}</p>}
         </div>
       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Avatar URL</Label>
-            <Input id="avatarUrl" name="avatarUrl" defaultValue={member?.avatarUrl} placeholder="https://placehold.co/100x100.png" required />
-            {state.errors?.avatarUrl && <p className="text-sm font-medium text-destructive">{state.errors.avatarUrl[0]}</p>}
-        </div>
-        <div className="space-y-2">
-            <Label htmlFor="avatarHint">Avatar Hint</Label>
-            <Input id="avatarHint" name="avatarHint" defaultValue={member?.avatarHint} placeholder="e.g., person smiling" />
-        </div>
-      </div>
+      
+       <Card>
+        <CardContent className="p-6">
+             <div className="space-y-6">
+                <ImageUploader 
+                    label="Avatar Image"
+                    currentImageUrl={member?.avatarUrl || null}
+                    onImageUploaded={setAvatarUrl}
+                    folder="member-avatars"
+                />
+                 {state.errors?.avatarUrl && <p className="text-sm font-medium text-destructive">{state.errors.avatarUrl[0]}</p>}
+                
+                <div className="space-y-2">
+                    <Label htmlFor="avatarHint">Avatar Hint</Label>
+                    <Input id="avatarHint" name="avatarHint" defaultValue={member?.avatarHint} placeholder="e.g., person smiling" />
+                </div>
+            </div>
+        </CardContent>
+       </Card>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>

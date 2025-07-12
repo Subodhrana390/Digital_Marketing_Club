@@ -19,7 +19,7 @@ import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember } from "@/services/members";
-import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay } from "@/services/storage";
+import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
 
@@ -93,6 +93,26 @@ export async function getSuggestedTitles(
       titles: [],
       error: "An error occurred while generating titles. Please try again.",
     };
+  }
+}
+
+// Image Upload Action
+export async function uploadImageAction(
+  formData: FormData
+): Promise<{ url: string | null; error: string | null }> {
+  const file = formData.get("file") as File | null;
+  const folder = (formData.get("folder") as string) || "general";
+
+  if (!file) {
+    return { url: null, error: "No file provided." };
+  }
+
+  try {
+    const { downloadUrl } = await uploadImage(file, folder);
+    return { url: downloadUrl, error: null };
+  } catch (e: any) {
+    console.error("Image upload failed:", e);
+    return { url: null, error: "Failed to upload image: " + e.message };
   }
 }
 
@@ -369,7 +389,7 @@ export async function uploadCertificateTemplateAction(formData: FormData): Promi
     }
     
     try {
-        const { downloadUrl, publicId } = await uploadCertificateTemplate(file);
+        const { downloadUrl, publicId } = await uploadCertificateTemplate(file, 'certificate-templates');
         return { downloadUrl, publicId };
     } catch (e: any) {
         console.error("Template upload failed:", e);
