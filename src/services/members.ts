@@ -26,6 +26,9 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         fallback: data.name.charAt(0).toUpperCase(),
         skills: data.skills,
         session: data.session, // Optional
+        linkedinUrl: data.linkedinUrl,
+        githubUrl: data.githubUrl,
+        googleUrl: data.googleUrl,
     };
 }
 
@@ -49,6 +52,10 @@ export async function getMember(id: string): Promise<Member | null> {
 export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
     const newMember = {
         ...member,
+        description: member.description || "",
+        linkedinUrl: member.linkedinUrl || "",
+        githubUrl: member.githubUrl || "",
+        googleUrl: member.googleUrl || "",
         fallback: member.name.charAt(0).toUpperCase()
     };
     const docRef = await addDoc(collection(db, 'members'), newMember);

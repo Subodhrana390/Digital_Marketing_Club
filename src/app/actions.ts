@@ -515,10 +515,13 @@ const memberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     role: z.string().min(2, "Role is required."),
     session: z.string().min(1, "Session is required."),
-    avatarUrl: z.string().url("Please enter a valid avatar URL."),
+    avatarUrl: z.string().url("Please upload an avatar image."),
     avatarHint: z.string().optional(),
     skills: z.string().min(1, "At least one skill is required."),
-    description: z.string().min(10, "Description must be at least 10 characters.").optional(),
+    description: z.string().min(10, "Description must be at least 10 characters.").optional().or(z.literal('')),
+    linkedinUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+    githubUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+    googleUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
 });
 
 export async function addMemberAction(prevState: FormState, formData: FormData): Promise<FormState> {

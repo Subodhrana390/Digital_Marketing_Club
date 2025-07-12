@@ -4,11 +4,31 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, Filter, Sparkles, Loader2 } from "lucide-react";
+import { Users, Filter, Sparkles, Loader2, Linkedin, Github } from "lucide-react";
 import { getMembers } from "@/services/members";
 import type { Member } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
+
+const SocialIcon = ({ type, url }: { type: 'linkedin' | 'github' | 'google', url: string }) => {
+    const commonClasses = "w-6 h-6 text-gray-400 hover:text-white transition-colors";
+    
+    if(type === 'linkedin') {
+        return <Link href={url} target="_blank" rel="noopener noreferrer"><Linkedin className={commonClasses} /></Link>
+    }
+    if(type === 'github') {
+        return <Link href={url} target="_blank" rel="noopener noreferrer"><Github className={commonClasses} /></Link>
+    }
+    if(type === 'google') {
+        return (
+            <Link href={url} target="_blank" rel="noopener noreferrer">
+                <svg className={commonClasses} viewBox="0 0 488 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C307.4 99.4 280.7 86 248 86c-84.3 0-152.3 68.3-152.3 152S163.7 384 248 384c87.7 0 140.2-61.9 144-131.6H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.8z"></path></svg>
+            </Link>
+        )
+    }
+    return null;
+}
 
 const MemberCard = ({ member }: { member: Member }) => (
   <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 group h-full flex flex-col">
@@ -20,15 +40,22 @@ const MemberCard = ({ member }: { member: Member }) => (
       <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
       <p className="text-purple-300 font-medium mb-4">{member.role}</p>
       {member.description && (
-        <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{member.description}</p>
+        <p className="text-gray-400 text-sm mb-4 min-h-[40px] flex-grow">{member.description}</p>
       )}
-      <div className="flex flex-wrap justify-center gap-2 mt-auto">
-        {member.skills.map((skill) => (
-          <Badge key={skill} variant="secondary" className="bg-white/10 text-purple-300 border-purple-500/30">
-            {skill}
-          </Badge>
-        ))}
-      </div>
+    </div>
+    <div className="mt-auto space-y-4">
+        <div className="flex flex-wrap justify-center gap-2">
+            {member.skills.map((skill) => (
+            <Badge key={skill} variant="secondary" className="bg-white/10 text-purple-300 border-purple-500/30">
+                {skill}
+            </Badge>
+            ))}
+        </div>
+        <div className="flex justify-center items-center gap-4 pt-4 border-t border-white/10">
+            {member.linkedinUrl && <SocialIcon type="linkedin" url={member.linkedinUrl} />}
+            {member.githubUrl && <SocialIcon type="github" url={member.githubUrl} />}
+            {member.googleUrl && <SocialIcon type="google" url={member.googleUrl} />}
+        </div>
     </div>
   </div>
 );

@@ -55,6 +55,9 @@ export interface Member {
   fallback: string;
   skills: string[];
   session: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  googleUrl?: string;
 }
 
 export interface Resource {

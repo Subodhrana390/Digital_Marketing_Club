@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Linkedin, Github } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface MemberFormProps {
@@ -173,6 +173,32 @@ export function MemberForm({ member }: MemberFormProps) {
             {state.errors?.session && <p className="text-sm font-medium text-destructive">{state.errors.session[0]}</p>}
         </div>
       </div>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Social Links</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="linkedinUrl" className="flex items-center gap-2"><Linkedin className="h-4 w-4" />LinkedIn Profile URL</Label>
+                <Input id="linkedinUrl" name="linkedinUrl" type="url" defaultValue={member?.linkedinUrl} placeholder="https://linkedin.com/in/..." />
+                {state.errors?.linkedinUrl && <p className="text-sm font-medium text-destructive">{state.errors.linkedinUrl[0]}</p>}
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="githubUrl" className="flex items-center gap-2"><Github className="h-4 w-4" />GitHub Profile URL</Label>
+                <Input id="githubUrl" name="githubUrl" type="url" defaultValue={member?.githubUrl} placeholder="https://github.com/..." />
+                {state.errors?.githubUrl && <p className="text-sm font-medium text-destructive">{state.errors.githubUrl[0]}</p>}
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="googleUrl" className="flex items-center gap-2">
+                    <svg className="h-4 w-4" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C307.4 99.4 280.7 86 248 86c-84.3 0-152.3 68.3-152.3 152S163.7 384 248 384c87.7 0 140.2-61.9 144-131.6H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.8z"></path></svg>
+                    Google Profile URL
+                </Label>
+                <Input id="googleUrl" name="googleUrl" type="url" defaultValue={member?.googleUrl} placeholder="https://..." />
+                {state.errors?.googleUrl && <p className="text-sm font-medium text-destructive">{state.errors.googleUrl[0]}</p>}
+            </div>
+        </CardContent>
+      </Card>
 
 
       <div className="flex justify-end">
