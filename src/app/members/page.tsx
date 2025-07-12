@@ -1,9 +1,14 @@
 
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, ArrowRight, Sparkles } from "lucide-react";
+import { Users, Filter, Sparkles, Loader2 } from "lucide-react";
 import { getMembers } from "@/services/members";
 import type { Member } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MemberCard = ({ member }: { member: Member }) => (
   <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 group h-full flex flex-col">
@@ -28,18 +33,65 @@ const MemberCard = ({ member }: { member: Member }) => (
   </div>
 );
 
+const LoadingSkeletons = () => (
+    <div className="space-y-16">
+        {[...Array(2)].map((_, i) => (
+            <section key={i}>
+                <Skeleton className="h-10 w-48 mb-8 mx-auto" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    {[...Array(4)].map((_, j) => (
+                        <div key={j} className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col items-center text-center">
+                            <Skeleton className="w-28 h-28 rounded-full mb-4" />
+                            <Skeleton className="h-6 w-3/4 mb-2" />
+                            <Skeleton className="h-5 w-1/2 mb-4" />
+                            <div className="flex flex-wrap justify-center gap-2 mt-auto w-full">
+                                <Skeleton className="h-6 w-1/4" />
+                                <Skeleton className="h-6 w-1/3" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        ))}
+    </div>
+);
 
-export default async function MembersPage() {
-  const members = await getMembers();
 
-  const groupedMembers = members.reduce((acc, member) => {
-    const session = member.session || 'Uncategorized';
-    if (!acc[session]) {
-      acc[session] = [];
+export default function MembersPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedSession, setSelectedSession] = useState('all');
+
+  useEffect(() => {
+    async function fetchMembers() {
+      setIsLoading(true);
+      const fetchedMembers = await getMembers();
+      setMembers(fetchedMembers);
+      setIsLoading(false);
     }
-    acc[session].push(member);
-    return acc;
-  }, {} as Record<string, Member[]>);
+    fetchMembers();
+  }, []);
+
+  const { sessions, filteredMembers } = useMemo(() => {
+      const allSessions = [...new Set(members.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
+      
+      const filtered = selectedSession === 'all' 
+          ? members 
+          : members.filter(member => member.session === selectedSession);
+
+      return { sessions: allSessions, filteredMembers: filtered };
+  }, [members, selectedSession]);
+  
+  const groupedMembers = useMemo(() => {
+    return filteredMembers.reduce((acc, member) => {
+      const session = member.session || 'Uncategorized';
+      if (!acc[session]) {
+        acc[session] = [];
+      }
+      acc[session].push(member);
+      return acc;
+    }, {} as Record<string, Member[]>);
+  }, [filteredMembers]);
 
   const sortedSessions = Object.keys(groupedMembers).sort((a, b) => {
       if (a === 'Uncategorized') return 1;
@@ -77,24 +129,51 @@ export default async function MembersPage() {
               The driving force behind our club's success. Meet the dedicated individuals who bring passion and expertise to everything we do.
             </p>
 
+             <div className="max-w-xs mx-auto">
+                <Select value={selectedSession} onValueChange={setSelectedSession}>
+                  <SelectTrigger className="w-full bg-white/10 backdrop-blur-md border-white/20 text-white placeholder-gray-400 focus:ring-purple-500/50">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Filter by session..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-purple-500/30 text-white">
+                    <SelectItem value="all">All Sessions</SelectItem>
+                    {sessions.map(session => (
+                        <SelectItem key={session} value={session}>{session}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+            </div>
+
           </div>
         </div>
       </div>
 
       {/* Members Grid */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-16">
-        {sortedSessions.map(session => (
-            <section key={session}>
-                 <h2 className="text-3xl font-bold text-center text-white mb-8 border-b-2 border-purple-500/30 pb-4">
-                    Team {session}
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {groupedMembers[session].map((member) => (
-                        <MemberCard key={member.id} member={member} />
-                    ))}
+        {isLoading ? (
+            <LoadingSkeletons />
+        ) : sortedSessions.length > 0 ? (
+          sortedSessions.map(session => (
+              <section key={session}>
+                   <h2 className="text-3xl font-bold text-center text-white mb-8 border-b-2 border-purple-500/30 pb-4">
+                      Team {session}
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                      {groupedMembers[session].map((member) => (
+                          <MemberCard key={member.id} member={member} />
+                      ))}
+                  </div>
+              </section>
+          ))
+        ) : (
+             <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-8 h-8 text-gray-400" />
                 </div>
-            </section>
-        ))}
+                <h3 className="text-xl font-semibold text-white mb-2">No members found</h3>
+                <p className="text-gray-400">Try adjusting your session filter.</p>
+            </div>
+        )}
       </div>
     </div>
   );
