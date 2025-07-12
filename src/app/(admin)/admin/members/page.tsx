@@ -51,7 +51,7 @@ export default async function AdminMembersPage() {
             <TableRow>
               <TableHead>Member</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Skills</TableHead>
+              <TableHead className="hidden md:table-cell">Skills</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -66,11 +66,13 @@ export default async function AdminMembersPage() {
                       <AvatarImage src={member.avatarUrl} alt={member.name} />
                       <AvatarFallback>{member.fallback}</AvatarFallback>
                     </Avatar>
-                    <div className="font-medium">{member.name}</div>
+                    <div className="grid gap-1">
+                      <p className="font-medium">{member.name}</p>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>{member.role}</TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   <div className="flex flex-wrap gap-1">
                     {member.skills.map((skill) => (
                       <Badge key={skill} variant="secondary">
