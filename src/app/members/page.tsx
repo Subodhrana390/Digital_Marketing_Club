@@ -20,7 +20,7 @@ const MemberCard = ({ member }: { member: Member }) => (
       <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
       <p className="text-purple-300 font-medium mb-4">{member.role}</p>
       {member.description && (
-        <p className="text-gray-400 text-sm mb-4 min-h-[40px] line-clamp-2">{member.description}</p>
+        <p className="text-gray-400 text-sm mb-4 min-h-[40px]">{member.description}</p>
       )}
       <div className="flex flex-wrap justify-center gap-2 mt-auto">
         {member.skills.map((skill) => (
@@ -58,43 +58,41 @@ const LoadingSkeletons = () => (
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchMembers() {
       setIsLoading(true);
       const fetchedMembers = await getMembers();
       setMembers(fetchedMembers);
+
+      // Set default selected session to the latest one
+      if (fetchedMembers.length > 0) {
+        const allSessions = [...new Set(fetchedMembers.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
+        setSelectedSession(allSessions[0] || null);
+      }
       setIsLoading(false);
     }
     fetchMembers();
   }, []);
-
-  const { latestSession, latestSessionMembers } = useMemo(() => {
+  
+  const { allSessions, filteredMembers } = useMemo(() => {
       if (members.length === 0) {
-          return { latestSession: null, latestSessionMembers: [] };
+          return { allSessions: [], filteredMembers: [] };
       }
+      const sessions = [...new Set(members.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
+      const filtered = selectedSession ? members.filter(m => m.session === selectedSession) : [];
+      return { allSessions: sessions, filteredMembers: filtered };
+  }, [members, selectedSession]);
 
-      const allSessions = [...new Set(members.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
-      const latest = allSessions[0] || null;
-      
-      const filtered = latest 
-          ? members.filter(member => member.session === latest)
-          : [];
-
-      return { latestSession: latest, latestSessionMembers: filtered };
-  }, [members]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8b5cf6_1px,transparent_1px),linear-gradient(to_bottom,#8b5cf6_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-10"></div>
-
-      {/* Floating Orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
       <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '4s' }}></div>
 
-      {/* Hero Section */}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
           <div className="text-center space-y-8">
@@ -102,14 +100,12 @@ export default function MembersPage() {
                 <Users className="h-5 w-5 text-purple-300 mr-2" />
                 <span className="text-white font-semibold">{members.length} Active Members</span>
             </div>
-
             <div className="space-y-4">
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent leading-tight font-headline">
                 Meet Our Team
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto rounded-full"></div>
             </div>
-
             <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
               The driving force behind our club's success. Meet the dedicated individuals who bring passion and expertise to everything we do.
             </p>
@@ -117,17 +113,25 @@ export default function MembersPage() {
         </div>
       </div>
 
-      {/* Members Grid */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-16">
+        <div className="max-w-xs mx-auto">
+            <Select onValueChange={setSelectedSession} value={selectedSession ?? ""}>
+              <SelectTrigger className="w-full bg-white/10 backdrop-blur-md border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-300">
+                <SelectValue placeholder="Select a session..." />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-900 border-purple-500/30 text-white">
+                {allSessions.map(session => (
+                  <SelectItem key={session} value={session} className="cursor-pointer">Team {session}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+        </div>
         {isLoading ? (
             <LoadingSkeletons />
-        ) : latestSessionMembers.length > 0 ? (
+        ) : filteredMembers.length > 0 ? (
               <section>
-                   <h2 className="text-3xl font-bold text-center text-white mb-8 border-b-2 border-purple-500/30 pb-4">
-                      Team {latestSession}
-                  </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                      {latestSessionMembers.map((member) => (
+                      {filteredMembers.map((member) => (
                           <MemberCard key={member.id} member={member} />
                       ))}
                   </div>
@@ -138,7 +142,7 @@ export default function MembersPage() {
                     <Users className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">No members found</h3>
-                <p className="text-gray-400">Team members for the current session will be displayed here soon.</p>
+                <p className="text-gray-400">Team members for the selected session will be displayed here.</p>
             </div>
         )}
       </div>
