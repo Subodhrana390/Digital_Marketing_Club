@@ -5,38 +5,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { getEvents } from "@/services/events";
 import type { Event as EventType } from "@/lib/types";
-import { Calendar, Clock, MapPin, Users, Star, ArrowRight, Filter, Search, Zap, Award, TrendingUp, Globe, XCircle, Trophy } from 'lucide-react';
+import { Calendar, Users, Star, ArrowRight, Search, Zap, Award, TrendingUp, Globe, XCircle, Trophy, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Helper to add UI-specific properties to the event data
-const categoryMap: { [key: string]: { icon: React.ElementType; gradient: string } } = {
-  workshop: { icon: TrendingUp, gradient: "from-blue-500 to-purple-600" },
-  bootcamp: { icon: Globe, gradient: "from-pink-500 to-red-600" },
-  networking: { icon: Users, gradient: "from-purple-500 to-pink-600" },
-  certification: { icon: Award, gradient: "from-orange-500 to-red-600" },
-  other: { icon: Zap, gradient: "from-green-500 to-teal-600" },
-};
-
-const allCategories = ["workshop", "bootcamp", "networking", "certification", "other"];
-
-type AugmentedEvent = EventType & {
-  category: string;
-  icon: React.ElementType;
-  gradient: string;
-};
-
-
-const augmentEventData = (event: EventType, index: number): AugmentedEvent => {
-  const category = allCategories[index % allCategories.length];
-  return {
-    ...event,
-    category: category,
-    icon: categoryMap[category].icon,
-    gradient: categoryMap[category].gradient,
-  };
-};
-
-const EventCard = ({ event, isPast }: { event: AugmentedEvent, isPast: boolean }) => {
+const EventCard = ({ event, isPast }: { event: EventType, isPast: boolean }) => {
   return (
     <div className="group relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105 h-full flex flex-col">
       {event.featured && (
@@ -45,8 +18,9 @@ const EventCard = ({ event, isPast }: { event: AugmentedEvent, isPast: boolean }
         </div>
       )}
       <div className="flex items-center justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${event.gradient} flex items-center justify-center`}>
-          <event.icon className="w-6 h-6 text-white" />
+         <div className="flex items-center text-sm text-gray-400 gap-2">
+            <Zap className="w-4 h-4 text-purple-400" />
+            <span className='capitalize'>{event.session}</span>
         </div>
         <div className="flex items-center text-sm text-gray-400">
           <Users className="w-4 h-4 mr-1" />
@@ -60,8 +34,8 @@ const EventCard = ({ event, isPast }: { event: AugmentedEvent, isPast: boolean }
           {new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </div>
         <div className="flex items-center">
-          <MapPin className="w-4 h-4 mr-3" />
-          {event.location}
+          <Clock className="w-4 h-4 mr-3" />
+          {event.time}
         </div>
       </div>
       {isPast ? (
@@ -100,9 +74,10 @@ const LoadingSkeletons = () => (
 
 
 export default function EventsPage() {
-  const [allEvents, setAllEvents] = useState<AugmentedEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<EventType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
   
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -112,8 +87,13 @@ export default function EventsPage() {
       setIsLoading(true);
       try {
         const fetchedEvents = await getEvents();
-        const augmentedEvents = fetchedEvents.map(augmentEventData);
-        setAllEvents(augmentedEvents);
+        setAllEvents(fetchedEvents);
+
+        if (fetchedEvents.length > 0) {
+            const allSessions = [...new Set(fetchedEvents.map(e => e.session).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+            setSelectedSession(allSessions[0] || null);
+        }
+
       } catch (error) {
         console.error("Failed to fetch events:", error);
       } finally {
@@ -123,12 +103,21 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
   
-  const filteredEvents = useMemo(() => {
-    return allEvents.filter(event => 
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allEvents, searchTerm]);
+  const { allSessions, filteredEvents } = useMemo(() => {
+      if (allEvents.length === 0) {
+          return { allSessions: [], filteredEvents: [] };
+      }
+      const sessions = [...new Set(allEvents.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
+      
+      const sessionFiltered = selectedSession ? allEvents.filter(m => m.session === selectedSession) : [];
+
+      const searchFiltered = sessionFiltered.filter(event => 
+          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      return { allSessions: sessions, filteredEvents: searchFiltered };
+  }, [allEvents, searchTerm, selectedSession]);
 
   const { featuredEvents, upcomingEvents, pastEvents } = useMemo(() => {
       const featured = filteredEvents.filter(e => e.featured && new Date(e.date) >= today);
@@ -165,17 +154,27 @@ export default function EventsPage() {
               </p>
             </div>
 
-            <div className="max-w-md mx-auto mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-12">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
-                    placeholder="Search events..."
+                    placeholder="Search events in this session..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-300"
                   />
                 </div>
+                <Select onValueChange={setSelectedSession} value={selectedSession ?? ""}>
+                  <SelectTrigger className="w-full bg-white/10 backdrop-blur-md border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-300">
+                    <SelectValue placeholder="Select a session..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-purple-500/30 text-white">
+                    {allSessions.map(session => (
+                      <SelectItem key={session} value={session}>Session {session}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
             </div>
           </div>
         </section>
@@ -230,7 +229,7 @@ export default function EventsPage() {
                                 <Search className="w-8 h-8 text-gray-400" />
                             </div>
                             <h3 className="text-xl font-semibold text-white mb-2">No events found</h3>
-                            <p className="text-gray-400">Try adjusting your search or filter criteria</p>
+                            <p className="text-gray-400">Try adjusting your search or filter criteria.</p>
                         </div>
                     )}
                 </>

@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    domains: ['drive.google.com'],
   },
 };
 

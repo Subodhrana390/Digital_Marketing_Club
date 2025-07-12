@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useActionState, useState, useEffect } from "react";
@@ -19,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AttendeeManager } from "./attendee-manager";
 import { Checkbox } from "./ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface EventFormProps {
   event?: Event | null;
@@ -206,6 +208,13 @@ export function EventForm({ event }: EventFormProps) {
   const isUpdate = !!event;
   const action = isUpdate ? updateEventAction.bind(null, event.id) : addEventAction;
   const [state, formAction] = useActionState(action, { message: "", errors: {} });
+  
+  const currentYear = new Date().getFullYear();
+  const sessions = [
+      `${currentYear-1}-${currentYear}`,
+      `${currentYear}-${currentYear+1}`,
+      `${currentYear+1}-${currentYear+2}`,
+  ];
 
   const [date, setDate] = useState<Date | undefined>(
     event ? new Date(event.date) : undefined
@@ -260,12 +269,28 @@ export function EventForm({ event }: EventFormProps) {
           {state.errors?.time && <p className="text-sm font-medium text-destructive">{state.errors.time[0]}</p>}
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input id="location" name="location" defaultValue={event?.location} placeholder="e.g., Online or Campus Hall" required />
-        {state.errors?.location && <p className="text-sm font-medium text-destructive">{state.errors.location[0]}</p>}
-      </div>
+      
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input id="location" name="location" defaultValue={event?.location} placeholder="e.g., Online or Campus Hall" required />
+            {state.errors?.location && <p className="text-sm font-medium text-destructive">{state.errors.location[0]}</p>}
+          </div>
+           <div className="space-y-2">
+                <Label htmlFor="session">Session</Label>
+                <Select name="session" defaultValue={event?.session}>
+                    <SelectTrigger id="session">
+                        <SelectValue placeholder="Select Session" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {sessions.map(session => (
+                            <SelectItem key={session} value={session}>{session}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {state.errors?.session && <p className="text-sm font-medium text-destructive">{state.errors.session[0]}</p>}
+            </div>
+       </div>
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>

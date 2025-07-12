@@ -20,6 +20,7 @@ export interface Event {
   time: string;
   location: string;
   description: string;
+  session: string;
   registrationLink?: string;
   reportUrl?: string;
   reportName?: string;

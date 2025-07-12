@@ -226,6 +226,7 @@ const eventSchema = z.object({
     time: z.string().min(1, "Time is required."),
     location: z.string().min(3, "Location is required."),
     description: z.string().min(10, "Description must be at least 10 characters."),
+    session: z.string().min(1, "Session is required."),
     registrationLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
     bannerUrl: z.string().url("Please enter a valid banner URL.").optional().or(z.literal('')),
     bannerHint: z.string().optional(),

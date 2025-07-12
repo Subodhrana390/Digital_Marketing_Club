@@ -11,7 +11,8 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         typeof data.title !== 'string' ||
         typeof data.time !== 'string' ||
         typeof data.location !== 'string' ||
-        typeof data.description !== 'string'
+        typeof data.description !== 'string' ||
+        typeof data.session !== 'string'
     ) {
         console.error("Invalid or incomplete event data for doc ID:", doc.id);
         return null;
@@ -24,6 +25,7 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         time: data.time,
         location: data.location,
         description: data.description,
+        session: data.session,
         registrationLink: data.registrationLink,
         reportUrl: data.reportUrl,
         reportName: data.reportName,
@@ -76,6 +78,7 @@ type EventInput = {
     time: string;
     location: string;
     description: string;
+    session: string;
     registrationLink?: string;
     reportUrl?: string;
     reportName?: string;
