@@ -57,6 +57,12 @@ export function MemberForm({ member }: MemberFormProps) {
             <Input id="avatarHint" name="avatarHint" defaultValue={member?.avatarHint} placeholder="e.g., person smiling" />
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea id="description" name="description" defaultValue={member?.description} placeholder="A short bio or description about the member." rows={3} />
+        {state.errors?.description && <p className="text-sm font-medium text-destructive">{state.errors.description[0]}</p>}
+      </div>
       
       <div className="space-y-2">
         <Label htmlFor="skills">Skills</Label>

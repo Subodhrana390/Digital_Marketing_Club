@@ -21,6 +21,7 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         id: doc.id,
         name: data.name,
         role: data.role,
+        description: data.description, // Optional
         avatarUrl: data.avatarUrl,
         avatarHint: data.avatarHint, // Optional
         fallback: data.fallback,

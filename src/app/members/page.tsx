@@ -6,7 +6,7 @@ import { getMembers } from "@/services/members";
 import type { Member } from "@/lib/types";
 
 const MemberCard = ({ member }: { member: Member }) => (
-  <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 group">
+  <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 group h-full flex flex-col">
     <div className="flex flex-col items-center text-center">
       <Avatar className="w-28 h-28 mb-4 border-4 border-purple-500/30 group-hover:border-purple-500/80 transition-all duration-300">
         <AvatarImage src={member.avatarUrl} alt={member.name} data-ai-hint={member.avatarHint} />
@@ -14,7 +14,10 @@ const MemberCard = ({ member }: { member: Member }) => (
       </Avatar>
       <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
       <p className="text-purple-300 font-medium mb-4">{member.role}</p>
-      <div className="flex flex-wrap justify-center gap-2">
+      {member.description && (
+        <p className="text-gray-400 text-sm mb-4 min-h-[40px] line-clamp-2">{member.description}</p>
+      )}
+      <div className="flex flex-wrap justify-center gap-2 mt-auto">
         {member.skills.map((skill) => (
           <Badge key={skill} variant="secondary" className="bg-white/10 text-purple-300 border-purple-500/30">
             {skill}

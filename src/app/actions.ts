@@ -497,6 +497,7 @@ const memberSchema = z.object({
     avatarUrl: z.string().url("Please enter a valid avatar URL."),
     avatarHint: z.string().optional(),
     skills: z.string().min(1, "At least one skill is required."),
+    description: z.string().min(10, "Description must be at least 10 characters.").optional(),
 });
 
 export async function addMemberAction(prevState: FormState, formData: FormData): Promise<FormState> {
