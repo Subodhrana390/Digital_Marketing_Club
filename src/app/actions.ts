@@ -21,6 +21,7 @@ import { addResource, deleteResource, updateResource } from "@/services/resource
 import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
+import { addContactSubmission } from "@/services/contact";
 import type { BlogPost, Event, Member, Resource, MemberRegistration } from "@/lib/types";
 
 
@@ -45,15 +46,21 @@ export async function submitContactForm(prevState: any, formData: FormData) {
       message: "Please correct the errors and try again.",
     };
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Contact Form Submitted:", validatedFields.data);
-
-  return {
-    message: "Thank you! Your message has been sent.",
-    errors: {},
-    reset: true,
-  };
+  
+  try {
+    await addContactSubmission(validatedFields.data);
+    return {
+      message: "Thank you! Your message has been sent.",
+      errors: {},
+      reset: true,
+    };
+  } catch (e: any) {
+    return {
+      message: "An error occurred while sending your message. Please try again later.",
+      errors: {},
+      reset: false,
+    };
+  }
 }
 
 

@@ -14,6 +14,7 @@ import {
   Shield,
   FileText,
   UserPlus,
+  Contact,
 } from "lucide-react";
 
 import {
@@ -37,6 +38,7 @@ const adminNavLinks = [
   { href: "/admin/resources", label: "Resources", icon: Library },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
+  { href: "/admin/contacts", label: "Contacts", icon: Contact },
 ];
 
 const reportLinks = [

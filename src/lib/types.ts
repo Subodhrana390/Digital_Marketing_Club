@@ -81,3 +81,11 @@ export interface Resource {
     url: string;
     category: 'Tool' | 'Template' | 'Learning';
 }
+
+export interface ContactSubmission {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    createdAt: string;
+}
