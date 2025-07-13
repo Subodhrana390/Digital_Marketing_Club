@@ -59,12 +59,12 @@ const navLinks: NavLinkItem[] = [
     ]
   },
   {
-    href: "/members",
+    href: "/members/core",
     label: "Members",
     icon: Users,
     subItems: [
-      { href: "/members#core", label: "Core Team", icon: ShieldCheck },
-      { href: "/members#active", label: "Active Team", icon: UserCheck },
+      { href: "/members/core", label: "Core Team", icon: ShieldCheck },
+      { href: "/members/active", label: "Active Team", icon: UserCheck },
     ]
   },
   { href: "/contact", label: "Contact", icon: Contact },
@@ -81,7 +81,7 @@ export function Header() {
     isMobile = false,
     subItems,
   }: NavLinkItem & { isMobile?: boolean }) => {
-    const isActive = pathname === href || (subItems && subItems.some(i => pathname.startsWith(i.href)));
+    const isActive = pathname.startsWith(href) || (subItems && subItems.some(i => pathname.startsWith(i.href)));
 
     if (subItems && subItems.length > 0) {
       if (isMobile) {

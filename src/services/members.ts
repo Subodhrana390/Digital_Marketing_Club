@@ -1,4 +1,4 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData, Timestamp, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Member, MemberRegistration } from '@/lib/types';
 
@@ -33,9 +33,16 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
     };
 }
 
-export async function getMembers(): Promise<Member[]> {
+export async function getMembers(type?: 'Core' | 'Active'): Promise<Member[]> {
     const membersCollection = collection(db, 'members');
-    const q = query(membersCollection, orderBy('name', 'asc'));
+    
+    let q;
+    if (type) {
+        q = query(membersCollection, where('type', '==', type), orderBy('name', 'asc'));
+    } else {
+        q = query(membersCollection, orderBy('name', 'asc'));
+    }
+    
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map(docToMember).filter((member): member is Member => member !== null);
