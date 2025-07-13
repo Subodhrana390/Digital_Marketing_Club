@@ -1,305 +1,289 @@
+
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
 import {
-  Rocket,
-  Target,
-  Users,
   ArrowRight,
+  Clapperboard,
+  Feather,
+  Palette,
+  Camera,
+  Users,
+  Eye,
   Calendar,
-  BookOpen,
-  Award,
-  TrendingUp,
-  Globe,
-  Zap,
-  Star,
   ChevronRight,
-  Play,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
-export default function DigitalMarketingClub() {
-  const [scrollY, setScrollY] = useState(0);
-  const [activeCard, setActiveCard] = useState(null);
+const services = [
+  {
+    icon: Clapperboard,
+    title: "Reels & Video Editing",
+    description:
+      "Crafting viral-worthy short-form videos and professional event coverage.",
+    color: "from-purple-500 to-indigo-500",
+  },
+  {
+    icon: Feather,
+    title: "Content Writing",
+    description:
+      "Engaging articles, social media captions, and compelling ad copy.",
+    color: "from-sky-500 to-cyan-500",
+  },
+  {
+    icon: Palette,
+    title: "Graphic Designing",
+    description: "Eye-catching posters, logos, and social media graphics.",
+    color: "from-pink-500 to-rose-500",
+  },
+  {
+    icon: Camera,
+    title: "Event Coverage",
+    description:
+      "Professional photography and videography for all college events.",
+    color: "from-amber-500 to-orange-500",
+  },
+];
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+const stats = [
+  { icon: Calendar, number: "50+", label: "Events Covered" },
+  { icon: Eye, number: "10K+", label: "Social Views" },
+  { icon: Users, number: "20+", label: "Active Creators" },
+];
 
-  const features = [
-    {
-      icon: Rocket,
-      title: "Hands-On Workshops",
-      description:
-        "Master the latest digital marketing tools and platforms through practical, industry-focused sessions.",
-      color: "from-blue-500 to-purple-600",
-    },
-    {
-      icon: Target,
-      title: "Industry Connections",
-      description:
-        "Network with professionals and learn from guest speakers from top marketing companies.",
-      color: "from-purple-500 to-pink-600",
-    },
-    {
-      icon: Users,
-      title: "Collaborative Projects",
-      description:
-        "Build your portfolio with real-world marketing campaigns alongside talented peers.",
-      color: "from-pink-500 to-red-600",
-    },
-    {
-      icon: TrendingUp,
-      title: "Analytics & Insights",
-      description:
-        "Dive deep into data-driven marketing strategies and performance optimization techniques.",
-      color: "from-orange-500 to-red-600",
-    },
-    {
-      icon: Globe,
-      title: "Global Perspective",
-      description:
-        "Understand international marketing trends and cross-cultural digital strategies.",
-      color: "from-green-500 to-teal-600",
-    },
-    {
-      icon: Award,
-      title: "Certification Programs",
-      description:
-        "Earn industry-recognized certifications in Google Ads, Facebook Marketing, and more.",
-      color: "from-teal-500 to-blue-600",
-    },
-  ];
+const featuredProjects = [
+  {
+    type: "photo",
+    src: "https://placehold.co/600x400.png",
+    hint: "college event",
+    title: "Annual Tech Fest",
+    category: "Photography",
+  },
+  {
+    type: "video",
+    src: "https://placehold.co/600x400.png",
+    hint: "students dancing",
+    title: "Freshers Party Reel",
+    category: "Video Reel",
+  },
+  {
+    type: "design",
+    src: "https://placehold.co/600x400.png",
+    hint: "marketing poster",
+    title: "Marketing Workshop Poster",
+    category: "Graphic Design",
+  },
+  {
+    type: "photo",
+    src: "https://placehold.co/600x400.png",
+    hint: "sports competition",
+    title: "Sports Day Highlights",
+    category: "Photography",
+  },
+  {
+    type: "video",
+    src: "https://placehold.co/600x400.png",
+    hint: "graduation ceremony",
+    title: "Convocation Ceremony",
+    category: "Videography",
+  },
+  {
+    type: "design",
+    src: "https://placehold.co/600x400.png",
+    hint: "club logo",
+    title: "Debate Club Logo",
+    category: "Graphic Design",
+  },
+];
 
-  const stats = [
-    { number: "500+", label: "Active Members" },
-    { number: "50+", label: "Industry Partners" },
-    { number: "25+", label: "Workshops Conducted" },
-    { number: "95%", label: "Placement Rate" },
-  ];
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+    <div className="min-h-screen bg-slate-900 text-white overflow-x-hidden">
+      {/* Background Gradient Grid */}
+      <div className="absolute inset-0 z-0 opacity-20">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d53f8c,transparent)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_0%_400px,#8b5cf6,transparent)]"></div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-purple-900/30 to-black/50"></div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <div className="mb-6">
-                <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-500/30 backdrop-blur-sm mb-6">
-                  <Zap className="w-4 h-4 text-yellow-400 mr-2" />
-                  <span className="text-sm font-medium text-gray-300">
-                    Guru Nanak Dev Engineering College
-                  </span>
-                </div>
-                <h1 className="text-5xl lg:text-7xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent leading-tight">
-                  Digital Marketing
-                  <span className="block text-4xl lg:text-6xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    Club
-                  </span>
-                </h1>
-              </div>
-
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
-                Your launchpad into the universe of digital marketing. Connect,
-                learn, and grow with the brightest minds at
-                <span className="text-purple-400 font-semibold">
-                  {" "}
-                  GNDEC Ludhiana
-                </span>
-                .
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 transform hover:scale-105">
-                  <span className="relative z-10 flex items-center">
-                    Join Our Community
-                    <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-
-                <button className="group px-8 py-4 border-2 border-purple-500/50 rounded-full font-semibold text-purple-200 hover:bg-purple-500/10 transition-all duration-300 backdrop-blur-sm">
-                  <span className="flex items-center">
-                    <Play className="mr-2 w-5 h-5" />
-                    Watch Demo
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl"></div>
-              <div className="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
-                <div className="aspect-video bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Rocket className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      Ready to Launch?
-                    </h3>
-                    <p className="text-gray-300">
-                      Join 500+ students already building their digital
-                      marketing careers
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <section className="relative z-10 flex min-h-screen items-center py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="text-5xl font-bold leading-tight tracking-tight sm:text-6xl md:text-7xl">
+              <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                Where Creativity
+              </span>
+              <br />
+              Meets Strategy
+            </h1>
+            <p className="mt-6 text-lg text-slate-300 sm:text-xl">
+              Empowering the next wave of digital creators in marketing, media,
+              and design at GNDEC, Ludhiana.
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg">
+                <Link href="/contact">
+                  Get Involved <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="bg-transparent border-purple-400 text-purple-300 hover:bg-purple-500/20 hover:text-white">
+                <Link href="/blog">
+                  See Our Work
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="relative">
-                  <div className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-400 font-medium">{stat.label}</div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-500/30 backdrop-blur-sm mb-6">
-              <Star className="w-4 h-4 text-yellow-400 mr-2" />
-              <span className="text-sm font-medium text-gray-300">
-                Why Choose Us
-              </span>
-            </div>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              Empowering Future
-              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Marketing Leaders
-              </span>
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We provide our members with cutting-edge knowledge, practical
-              skills, and industry connections necessary to excel in the
-              fast-paced world of digital marketing.
+      {/* What We Do Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl">What We Do</h2>
+            <p className="mt-4 text-slate-400">
+              We are a team of storytellers, designers, and strategists passionate
+              about bringing ideas to life.
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {services.map((service, index) => (
               <div
                 key={index}
-                className="group relative"
-                onMouseEnter={() => setActiveCard(index)}
-                onMouseLeave={() => setActiveCard(null)}
+                className="group relative overflow-hidden rounded-2xl bg-slate-800/50 p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
               >
                 <div
-                  className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl blur-xl"
-                  style={{
-                    background: `linear-gradient(135deg, ${
-                      feature.color.split(" ")[1]
-                    }, ${feature.color.split(" ")[3]})`,
-                  }}
+                  className={`absolute -top-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-bl ${service.color} opacity-20 blur-2xl transition-all duration-500 group-hover:h-32 group-hover:w-32 group-hover:opacity-30`}
                 ></div>
-
-                <div className="relative h-full bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10 group-hover:border-white/20 transition-all duration-300 transform group-hover:scale-105">
-                  <div className="flex items-center mb-6">
-                    <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <feature.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">
-                      {feature.title}
-                    </h3>
-                  </div>
-                  <p className="text-gray-300 leading-relaxed mb-6">
-                    {feature.description}
-                  </p>
-                  <div className="flex items-center text-purple-400 font-semibold group-hover:text-pink-400 transition-colors">
-                    Learn More
-                    <ChevronRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
+                <div
+                  className={`mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${service.color} text-white`}
+                >
+                  <service.icon className="h-6 w-6" />
                 </div>
+                <h3 className="mb-2 text-xl font-bold">{service.title}</h3>
+                <p className="text-slate-400">{service.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Impact Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="rounded-2xl bg-white/5 p-8 backdrop-blur-sm"
+              >
+                <stat.icon className="mx-auto mb-4 h-12 w-12 text-purple-400" />
+                <div className="text-4xl font-bold">{stat.number}</div>
+                <p className="mt-1 text-slate-400">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl"></div>
-              <div className="relative bg-white/5 backdrop-blur-md rounded-3xl p-12 border border-white/10">
-                <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-                  Ready to Transform Your
-                  <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    Digital Marketing Journey?
-                  </span>
-                </h2>
-                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Join GNDEC's most dynamic club and unlock your potential in
-                  the digital marketing universe. Your success story starts
-                  here.
+
+      {/* Featured Projects Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl">Featured Projects</h2>
+            <p className="mt-4 text-slate-400">
+              A glimpse into the creative work we do for college events and
+              initiatives.
+            </p>
+          </div>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {featuredProjects.map((project, index) => (
+                <CarouselItem
+                  key={index}
+                  className="md:basis-1/2 lg:basis-1/3"
+                >
+                  <div className="group relative overflow-hidden rounded-2xl">
+                    <Image
+                      src={project.src}
+                      alt={project.title}
+                      width={600}
+                      height={400}
+                      data-ai-hint={project.hint}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 p-6 text-white">
+                      <span className="text-sm font-semibold uppercase tracking-wider text-purple-300">
+                        {project.category}
+                      </span>
+                      <h3 className="mt-1 text-xl font-bold">{project.title}</h3>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 transform text-white bg-slate-800/50 hover:bg-slate-700/80 border-slate-700" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 transform text-white bg-slate-800/50 hover:bg-slate-700/80 border-slate-700" />
+          </Carousel>
+        </div>
+      </section>
+
+      {/* Join Us Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 to-pink-600 p-12 text-center shadow-2xl shadow-purple-500/30">
+             <div className="absolute inset-0 z-0 opacity-20 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat"></div>
+            </div>
+            <div className="relative z-10">
+                <h2 className="text-4xl font-bold">Ready to Create?</h2>
+                <p className="mx-auto mt-4 max-w-2xl text-lg text-purple-100">
+                Join our vibrant community of marketers, designers, and content
+                creators. Let's build something amazing together.
                 </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 transform hover:scale-105">
-                    <span className="relative z-10 flex items-center">
-                      <Calendar className="mr-2 w-5 h-5" />
-                      Book Your Spot
-                    </span>
-                  </button>
-
-                  <button className="group px-8 py-4 border-2 border-purple-500/50 rounded-full font-semibold text-purple-200 hover:bg-purple-500/10 transition-all duration-300 backdrop-blur-sm">
-                    <span className="flex items-center">
-                      <BookOpen className="mr-2 w-5 h-5" />
-                      Explore Resources
-                    </span>
-                  </button>
+                <div className="mt-8">
+                <Button asChild size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-purple-50 shadow-lg">
+                    <Link href="/contact">
+                    Join the Club Now <ChevronRight className="ml-2 h-5 w-5" />
+                    </Link>
+                </Button>
                 </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/10">
-        <div className="container mx-auto px-6">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-              Digital Marketing Club
-            </h3>
-            <p className="text-gray-400 mb-4">
-              Guru Nanak Dev Engineering College, Ludhiana
-            </p>
-            <div className="flex justify-center space-x-6 text-gray-400">
-              <span>© 2025 GNDEC DMC</span>
-              <span>•</span>
-              <span>Building Digital Leaders</span>
-            </div>
+      <footer className="relative z-10 border-t border-white/10 py-12">
+        <div className="container mx-auto px-4 text-center text-slate-400">
+          <p className="text-lg font-bold text-white">Digital Marketing Club</p>
+          <p className="text-sm">Guru Nanak Dev Engineering College, Ludhiana</p>
+          <div className="mt-4 flex justify-center space-x-6">
+            <Link href="/events" className="hover:text-white">Events</Link>
+            <Link href="/blog" className="hover:text-white">Blog</Link>
+            <Link href="/contact" className="hover:text-white">Contact</Link>
           </div>
+          <p className="mt-6 text-xs">
+            © {new Date().getFullYear()} GNDEC Digital Marketing Club. All Rights Reserved.
+          </p>
         </div>
       </footer>
     </div>
