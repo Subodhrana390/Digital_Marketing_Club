@@ -16,6 +16,7 @@ import {
   X,
   BarChart2,
   ChevronDown,
+  PenSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -45,8 +46,16 @@ const navLinks: NavLinkItem[] = [
       { href: "/reports", label: "Reports", icon: BarChart2 },
     ],
   },
-  { href: "/blog", label: "Blog", icon: BookOpen },
-  { href: "/resources", label: "Resources", icon: Library },
+  {
+    href: "/blog",
+    label: "Content",
+    icon: PenSquare,
+    subItems: [
+        { href: "/blog", label: "Blog", icon: BookOpen },
+        { href: "/resources", label: "Resources", icon: Library },
+        { href: "/ideation-tool", label: "Ideation Tool", icon: Lightbulb },
+    ]
+  },
   {
     href: "/members",
     label: "Members",
@@ -57,7 +66,6 @@ const navLinks: NavLinkItem[] = [
     ]
   },
   { href: "/contact", label: "Contact", icon: Contact },
-  { href: "/ideation-tool", label: "Ideation Tool", icon: Lightbulb },
 ];
 
 export function Header() {
@@ -71,7 +79,7 @@ export function Header() {
     isMobile = false,
     subItems,
   }: NavLinkItem & { isMobile?: boolean }) => {
-    const isActive = pathname === href;
+    const isActive = pathname === href || (subItems && subItems.some(i => pathname.startsWith(i.href)));
 
     if (subItems && subItems.length > 0) {
       if (isMobile) {
@@ -94,7 +102,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <button
               className={cn(`relative transition-all duration-300 group text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm flex items-center gap-1`,
-                subItems.some(i => i.href === pathname) ? "text-white font-semibold" : "text-gray-300 hover:text-white"
+                isActive ? "text-white font-semibold" : "text-gray-300 hover:text-white"
               )}
             >
               <span>{label}</span>
@@ -122,7 +130,7 @@ export function Header() {
         className={`relative transition-all duration-300 group ${isActive
           ? "text-white font-semibold"
           : "text-gray-300 hover:text-white"
-          } ${isMobile
+        } ${isMobile
             ? "flex items-center gap-4 text-lg py-3 px-4 rounded-xl hover:bg-white/10 backdrop-blur-sm"
             : "text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
           }`}
