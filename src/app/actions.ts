@@ -18,10 +18,10 @@ import {
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
-import { addMember, deleteMember, updateMember, addMemberRegistration } from "@/services/members";
+import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
-import type { BlogPost, Event, Member, Resource } from "@/lib/types";
+import type { BlogPost, Event, Member, Resource, MemberRegistration } from "@/lib/types";
 
 
 const contactFormSchema = z.object({
@@ -390,7 +390,7 @@ export async function uploadCertificateTemplateAction(formData: FormData): Promi
     }
     
     try {
-        const { downloadUrl, publicId } = await uploadCertificateTemplate(file, 'certificate-templates');
+        const { downloadUrl, publicId } = await uploadCertificateTemplate(file);
         return { downloadUrl, publicId };
     } catch (e: any) {
         console.error("Template upload failed:", e);
@@ -619,4 +619,45 @@ export async function addMemberRegistrationAction(prevState: FormState, formData
   } catch (e: any) {
     return { message: "Failed to submit application: " + e.message, errors: {}, success: false };
   }
+}
+
+export async function approveMemberRegistrationAction(registration: MemberRegistration) {
+    try {
+        // Step 1: Add the user as an Active Member
+        const currentYear = new Date().getFullYear();
+        const session = `${currentYear}-${currentYear + 1}`;
+        
+        await addMember({
+            name: registration.studentName,
+            role: "Member",
+            type: "Active",
+            session: session,
+            skills: ['New Member'],
+            avatarUrl: '',
+        });
+
+        // Step 2: Update the registration status
+        await updateMemberRegistrationStatus(registration.id, 'approved');
+
+        revalidatePath("/admin/registrations");
+        revalidatePath("/admin/members");
+        revalidatePath("/members/active");
+
+        return { success: true, message: `${registration.studentName} has been approved and added as an Active Member.` };
+
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, message: "Failed to approve member: " + e.message };
+    }
+}
+
+export async function rejectMemberRegistrationAction(id: string) {
+    try {
+        await updateMemberRegistrationStatus(id, 'rejected');
+        revalidatePath("/admin/registrations");
+        return { success: true, message: "Registration has been rejected." };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, message: "Failed to reject member: " + e.message };
+    }
 }

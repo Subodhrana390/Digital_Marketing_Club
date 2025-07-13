@@ -127,3 +127,8 @@ export async function getMemberRegistrations(): Promise<MemberRegistration[]> {
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(docToMemberRegistration).filter((reg): reg is MemberRegistration => reg !== null);
 }
+
+export async function updateMemberRegistrationStatus(id: string, status: 'approved' | 'rejected') {
+    const registrationRef = doc(db, 'memberRegistrations', id);
+    await updateDoc(registrationRef, { status });
+}
