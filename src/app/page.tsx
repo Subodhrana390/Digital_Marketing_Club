@@ -14,6 +14,10 @@ import {
   Eye,
   Calendar,
   ChevronRight,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -272,18 +276,55 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 py-12">
-        <div className="container mx-auto px-4 text-center text-slate-400">
-          <p className="text-lg font-bold text-white">Digital Marketing Club</p>
-          <p className="text-sm">Guru Nanak Dev Engineering College, Ludhiana</p>
-          <div className="mt-4 flex justify-center space-x-6">
-            <Link href="/events" className="hover:text-white">Events</Link>
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <Link href="/contact" className="hover:text-white">Contact</Link>
-          </div>
-          <p className="mt-6 text-xs">
-            © {new Date().getFullYear()} GNDEC Digital Marketing Club. All Rights Reserved.
-          </p>
+      <footer className="relative z-10 border-t border-white/10 bg-slate-900/50 py-12">
+        <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                {/* Column 1: Logos and Info */}
+                <div className="md:col-span-2 space-y-4">
+                    <div className="flex items-center space-x-4">
+                        <Image src="https://placehold.co/80x80.png" alt="DMC Logo" width={60} height={60} data-ai-hint="club logo" />
+                        <Image src="https://placehold.co/80x80.png" alt="GNDEC Logo" width={60} height={60} data-ai-hint="college crest" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">Digital Marketing Club</h3>
+                    <p className="text-sm text-slate-400">
+                        Guru Nanak Dev Engineering College<br/>
+                        Ludhiana
+                    </p>
+                    <div className="space-y-2">
+                        <h4 className="font-semibold text-slate-200">Follow Us</h4>
+                        <div className="flex space-x-4">
+                            <Link href="#" className="text-slate-400 hover:text-white"><Facebook/></Link>
+                            <Link href="#" className="text-slate-400 hover:text-white"><Instagram/></Link>
+                            <Link href="#" className="text-slate-400 hover:text-white"><Linkedin/></Link>
+                            <Link href="#" className="text-slate-400 hover:text-white"><Youtube/></Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Column 2: Main Links */}
+                <div>
+                    <h4 className="font-semibold text-slate-200 mb-4">Main Links</h4>
+                    <ul className="space-y-3">
+                        <li><Link href="/" className="text-slate-400 hover:text-white">Home</Link></li>
+                        <li><Link href="/about" className="text-slate-400 hover:text-white">About Us</Link></li>
+                        <li><Link href="/events" className="text-slate-400 hover:text-white">Events</Link></li>
+                        <li><Link href="/members" className="text-slate-400 hover:text-white">Teams</Link></li>
+                        <li><Link href="/contact" className="text-slate-400 hover:text-white">Contact</Link></li>
+                    </ul>
+                </div>
+
+                {/* Column 3: Other Links */}
+                <div>
+                    <h4 className="font-semibold text-slate-200 mb-4">Links</h4>
+                     <ul className="space-y-3">
+                        <li><Link href="#" className="text-slate-400 hover:text-white">Faculty</Link></li>
+                        <li><Link href="#" className="text-slate-400 hover:text-white">Web Developer</Link></li>
+                    </ul>
+                </div>
+            </div>
+            <div className="mt-12 pt-8 border-t border-white/10 text-center text-sm text-slate-500">
+                <p>© {new Date().getFullYear()} Digital Marketing Club. All Rights Reserved.</p>
+            </div>
         </div>
       </footer>
     </div>
