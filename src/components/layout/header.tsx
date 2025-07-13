@@ -17,6 +17,8 @@ import {
   BarChart2,
   ChevronDown,
   PenSquare,
+  ShieldCheck,
+  UserCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -61,8 +63,8 @@ const navLinks: NavLinkItem[] = [
     label: "Members",
     icon: Users,
     subItems: [
-      { href: "/members", label: "Core Team", icon: Users },
-      { href: "/members#active", label: "Active Team", icon: Users },
+      { href: "/members#core", label: "Core Team", icon: ShieldCheck },
+      { href: "/members#active", label: "Active Team", icon: UserCheck },
     ]
   },
   { href: "/contact", label: "Contact", icon: Contact },
