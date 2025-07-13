@@ -163,7 +163,7 @@ export default function MembersPage() {
         ) : (coreMembers.length > 0 || activeMembers.length > 0) ? (
               <div className="space-y-16">
                 {coreMembers.length > 0 && (
-                    <section>
+                    <section id="core">
                          <h2 className="text-3xl font-bold text-center mb-10 text-white flex items-center justify-center gap-3">
                             <ShieldCheck className="w-8 h-8 text-cyan-400" />
                             Core Members
@@ -176,7 +176,7 @@ export default function MembersPage() {
                     </section>
                 )}
                 {activeMembers.length > 0 && (
-                     <section>
+                     <section id="active">
                          <h2 className="text-3xl font-bold text-center mb-10 text-white flex items-center justify-center gap-3">
                             <UserCheck className="w-8 h-8 text-green-400" />
                             Active Members

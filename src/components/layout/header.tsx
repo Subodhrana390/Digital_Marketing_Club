@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -14,17 +15,47 @@ import {
   Shield,
   X,
   BarChart2,
+  ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-const navLinks = [
+interface NavLinkItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  subItems?: NavLinkItem[];
+}
+
+const navLinks: NavLinkItem[] = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/events", label: "Events", icon: Calendar },
+  {
+    href: "/events",
+    label: "Events",
+    icon: Calendar,
+    subItems: [
+      { href: "/events", label: "All Events", icon: Calendar },
+      { href: "/reports", label: "Reports", icon: BarChart2 },
+    ],
+  },
   { href: "/blog", label: "Blog", icon: BookOpen },
   { href: "/resources", label: "Resources", icon: Library },
-  { href: "/members", label: "Members", icon: Users },
-  { href: "/reports", label: "Reports", icon: BarChart2 },
+  {
+    href: "/members",
+    label: "Members",
+    icon: Users,
+    subItems: [
+      { href: "/members", label: "Core Team", icon: Users },
+      { href: "/members#active", label: "Active Team", icon: Users },
+    ]
+  },
   { href: "/contact", label: "Contact", icon: Contact },
   { href: "/ideation-tool", label: "Ideation Tool", icon: Lightbulb },
 ];
@@ -38,13 +69,53 @@ export function Header() {
     label,
     icon: Icon,
     isMobile = false,
-  }: {
-    href: string;
-    label: string;
-    icon: React.ElementType;
-    isMobile?: boolean;
-  }) => {
+    subItems,
+  }: NavLinkItem & { isMobile?: boolean }) => {
     const isActive = pathname === href;
+
+    if (subItems && subItems.length > 0) {
+      if (isMobile) {
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-4 text-lg py-3 px-4 rounded-xl text-gray-300">
+               <Icon className="h-5 w-5" />
+               <span>{label}</span>
+            </div>
+            <div className="flex flex-col pl-10">
+              {subItems.map(item => (
+                <NavLink key={item.href} {...item} isMobile />
+              ))}
+            </div>
+          </div>
+        )
+      }
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(`relative transition-all duration-300 group text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm flex items-center gap-1`,
+                subItems.some(i => i.href === pathname) ? "text-white font-semibold" : "text-gray-300 hover:text-white"
+              )}
+            >
+              <span>{label}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-slate-800 border-purple-500/30 text-white">
+            {subItems.map((item) => (
+              <DropdownMenuItem key={item.href} asChild className="cursor-pointer">
+                <Link href={item.href} className="flex items-center gap-2">
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+
     return (
       <Link
         href={href}
