@@ -20,6 +20,7 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         id: doc.id,
         name: data.name,
         role: data.role,
+        type: data.type || 'Core', // Default to 'Core' if not specified
         description: data.description, // Optional
         avatarUrl: data.avatarUrl,
         avatarHint: data.avatarHint, // Optional
@@ -56,13 +57,13 @@ export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
         linkedinUrl: member.linkedinUrl || "",
         githubUrl: member.githubUrl || "",
         googleUrl: member.googleUrl || "",
-        fallback: member.name.charAt(0).toUpperCase()
+        avatarUrl: member.avatarUrl || "",
     };
     const docRef = await addDoc(collection(db, 'members'), newMember);
     return docRef.id;
 }
 
-export async function updateMember(id: string, member: Partial<Omit<Member, 'id'>>) {
+export async function updateMember(id: string, member: Partial<Omit<Member, 'id' | 'fallback'>>) {
     const memberData: Partial<Member> = {...member};
     if (member.name) {
         memberData.fallback = member.name.charAt(0).toUpperCase();

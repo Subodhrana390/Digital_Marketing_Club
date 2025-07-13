@@ -63,6 +63,7 @@ export interface Member {
   id: string;
   name: string;
   role: string;
+  type: 'Core' | 'Active';
   description?: string;
   avatarUrl: string;
   avatarHint?: string;

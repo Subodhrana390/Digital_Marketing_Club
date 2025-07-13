@@ -34,11 +34,13 @@ function ImageUploader({
   currentImageUrl,
   onImageUploaded,
   folder,
+  disabled = false
 }: {
   label: string;
   currentImageUrl: string | null;
   onImageUploaded: (url: string) => void;
   folder: string;
+  disabled?: boolean;
 }) {
   const [isUploading, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
@@ -74,10 +76,10 @@ function ImageUploader({
       <Label>{label}</Label>
       <div className="flex items-center gap-4">
         <div className="relative h-24 w-24 rounded-md border border-dashed flex items-center justify-center">
-          {preview ? (
+          {preview && !disabled ? (
             <Image src={preview} alt="Preview" fill className="object-cover rounded-md" />
           ) : (
-            <span className="text-xs text-muted-foreground">Preview</span>
+            <span className="text-xs text-muted-foreground">{disabled ? 'N/A' : 'Preview'}</span>
           )}
           {isUploading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md">
@@ -86,8 +88,10 @@ function ImageUploader({
           )}
         </div>
         <div className="flex-1">
-          <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} />
-          <p className="text-xs text-muted-foreground mt-1">Select an image file to upload.</p>
+          <Input id="image-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading || disabled} />
+          <p className="text-xs text-muted-foreground mt-1">
+            {disabled ? "Avatar is not needed for Active Members." : "Select an image file to upload."}
+          </p>
         </div>
       </div>
     </div>
@@ -100,6 +104,7 @@ export function MemberForm({ member }: MemberFormProps) {
   const [state, formAction] = useActionState(action, { message: "", errors: {} });
   
   const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || "");
+  const [memberType, setMemberType] = useState<'Core' | 'Active'>(member?.type || 'Core');
   const skills = member?.skills?.join(', ') || '';
   
   const currentYear = new Date().getFullYear();
@@ -109,9 +114,15 @@ export function MemberForm({ member }: MemberFormProps) {
       `${currentYear+1}-${currentYear+2}`,
   ];
 
+  const handleAvatarUploaded = (url: string) => {
+      setAvatarUrl(url);
+  };
+  
+  const isAvatarDisabled = memberType === 'Active';
+
   return (
     <form action={formAction} className="space-y-6">
-       <input type="hidden" name="avatarUrl" value={avatarUrl} />
+       <input type="hidden" name="avatarUrl" value={isAvatarDisabled ? '' : avatarUrl} />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
@@ -132,14 +143,15 @@ export function MemberForm({ member }: MemberFormProps) {
                 <ImageUploader 
                     label="Avatar Image"
                     currentImageUrl={member?.avatarUrl || null}
-                    onImageUploaded={setAvatarUrl}
+                    onImageUploaded={handleAvatarUploaded}
                     folder="member-avatars"
+                    disabled={isAvatarDisabled}
                 />
                  {state.errors?.avatarUrl && <p className="text-sm font-medium text-destructive">{state.errors.avatarUrl[0]}</p>}
                 
                 <div className="space-y-2">
                     <Label htmlFor="avatarHint">Avatar Hint</Label>
-                    <Input id="avatarHint" name="avatarHint" defaultValue={member?.avatarHint} placeholder="e.g., person smiling" />
+                    <Input id="avatarHint" name="avatarHint" defaultValue={member?.avatarHint} placeholder="e.g., person smiling" disabled={isAvatarDisabled} />
                 </div>
             </div>
         </CardContent>
@@ -151,8 +163,8 @@ export function MemberForm({ member }: MemberFormProps) {
         {state.errors?.description && <p className="text-sm font-medium text-destructive">{state.errors.description[0]}</p>}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-2">
           <Label htmlFor="skills">Skills</Label>
           <Textarea id="skills" name="skills" defaultValue={skills} placeholder="e.g., SEO, Content Writing, PPC" required />
           <p className="text-xs text-muted-foreground">Enter skills separated by commas.</p>
@@ -171,6 +183,19 @@ export function MemberForm({ member }: MemberFormProps) {
                 </SelectContent>
             </Select>
             {state.errors?.session && <p className="text-sm font-medium text-destructive">{state.errors.session[0]}</p>}
+        </div>
+         <div className="space-y-2">
+            <Label htmlFor="type">Member Type</Label>
+            <Select name="type" defaultValue={memberType} onValueChange={(value) => setMemberType(value as 'Core' | 'Active')}>
+                <SelectTrigger id="type">
+                    <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Core">Core Member</SelectItem>
+                    <SelectItem value="Active">Active Member</SelectItem>
+                </SelectContent>
+            </Select>
+            {state.errors?.type && <p className="text-sm font-medium text-destructive">{state.errors.type[0]}</p>}
         </div>
       </div>
       

@@ -516,14 +516,19 @@ const memberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     role: z.string().min(2, "Role is required."),
     session: z.string().min(1, "Session is required."),
-    avatarUrl: z.string().url("Please upload an avatar image."),
+    type: z.enum(["Core", "Active"], { required_error: "Member type is required." }),
+    avatarUrl: z.string().optional(),
     avatarHint: z.string().optional(),
     skills: z.string().min(1, "At least one skill is required."),
     description: z.string().min(10, "Description must be at least 10 characters.").optional().or(z.literal('')),
     linkedinUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
     githubUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
     googleUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+}).refine(data => data.type === 'Active' || (data.type === 'Core' && data.avatarUrl && data.avatarUrl.length > 0), {
+    message: "Avatar is required for Core members.",
+    path: ["avatarUrl"],
 });
+
 
 export async function addMemberAction(prevState: FormState, formData: FormData): Promise<FormState> {
     const validatedFields = memberSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -538,6 +543,7 @@ export async function addMemberAction(prevState: FormState, formData: FormData):
     const { skills, ...rest } = validatedFields.data;
     const memberData: Omit<Member, 'id' | 'fallback'> = {
         ...rest,
+        avatarUrl: rest.avatarUrl || '',
         skills: skills.split(',').map(s => s.trim()),
     };
     
@@ -566,6 +572,7 @@ export async function updateMemberAction(id: string, prevState: FormState, formD
     const { skills, ...rest } = validatedFields.data;
     const memberData = {
         ...rest,
+        avatarUrl: rest.avatarUrl || '',
         skills: skills.split(',').map(s => s.trim()),
     };
 

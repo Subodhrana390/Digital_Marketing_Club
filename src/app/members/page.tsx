@@ -4,12 +4,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, Filter, Sparkles, Loader2, Linkedin, Github } from "lucide-react";
+import { Users, Filter, Sparkles, Loader2, Linkedin, Github, Swords, ShieldCheck, UserCheck } from "lucide-react";
 import { getMembers } from "@/services/members";
 import type { Member } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const SocialIcon = ({ type, url }: { type: 'linkedin' | 'github' | 'google', url: string }) => {
     const commonClasses = "w-6 h-6 text-gray-400 hover:text-white transition-colors";
@@ -30,7 +32,7 @@ const SocialIcon = ({ type, url }: { type: 'linkedin' | 'github' | 'google', url
     return null;
 }
 
-const MemberCard = ({ member }: { member: Member }) => (
+const CoreMemberCard = ({ member }: { member: Member }) => (
   <div className="relative bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:-translate-y-2 group h-full flex flex-col">
     <div className="flex flex-col items-center text-center">
       <Avatar className="w-28 h-28 mb-4 border-4 border-purple-500/30 group-hover:border-purple-500/80 transition-all duration-300">
@@ -93,7 +95,6 @@ export default function MembersPage() {
       const fetchedMembers = await getMembers();
       setMembers(fetchedMembers);
 
-      // Set default selected session to the latest one
       if (fetchedMembers.length > 0) {
         const allSessions = [...new Set(fetchedMembers.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
         setSelectedSession(allSessions[0] || null);
@@ -103,13 +104,17 @@ export default function MembersPage() {
     fetchMembers();
   }, []);
   
-  const { allSessions, filteredMembers } = useMemo(() => {
+  const { allSessions, coreMembers, activeMembers } = useMemo(() => {
       if (members.length === 0) {
-          return { allSessions: [], filteredMembers: [] };
+          return { allSessions: [], coreMembers: [], activeMembers: [] };
       }
       const sessions = [...new Set(members.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
       const filtered = selectedSession ? members.filter(m => m.session === selectedSession) : [];
-      return { allSessions: sessions, filteredMembers: filtered };
+      
+      const core = filtered.filter(m => m.type === 'Core');
+      const active = filtered.filter(m => m.type === 'Active');
+
+      return { allSessions: sessions, coreMembers: core, activeMembers: active };
   }, [members, selectedSession]);
 
 
@@ -125,7 +130,7 @@ export default function MembersPage() {
           <div className="text-center space-y-8">
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium">
                 <Users className="h-5 w-5 text-purple-300 mr-2" />
-                <span className="text-white font-semibold">{members.length} Active Members</span>
+                <span className="text-white font-semibold">{members.length} Total Members</span>
             </div>
             <div className="space-y-4">
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent leading-tight font-headline">
@@ -155,14 +160,50 @@ export default function MembersPage() {
         </div>
         {isLoading ? (
             <LoadingSkeletons />
-        ) : filteredMembers.length > 0 ? (
-              <section>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                      {filteredMembers.map((member) => (
-                          <MemberCard key={member.id} member={member} />
-                      ))}
-                  </div>
-              </section>
+        ) : (coreMembers.length > 0 || activeMembers.length > 0) ? (
+              <div className="space-y-16">
+                {coreMembers.length > 0 && (
+                    <section>
+                         <h2 className="text-3xl font-bold text-center mb-10 text-white flex items-center justify-center gap-3">
+                            <ShieldCheck className="w-8 h-8 text-cyan-400" />
+                            Core Members
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                            {coreMembers.map((member) => (
+                                <CoreMemberCard key={member.id} member={member} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+                {activeMembers.length > 0 && (
+                     <section>
+                         <h2 className="text-3xl font-bold text-center mb-10 text-white flex items-center justify-center gap-3">
+                            <UserCheck className="w-8 h-8 text-green-400" />
+                            Active Members
+                        </h2>
+                        <Card className="bg-white/5 backdrop-blur-md border border-white/10">
+                            <CardContent className="p-0">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="border-white/10 hover:bg-white/10">
+                                            <TableHead className="text-white">Name</TableHead>
+                                            <TableHead className="text-white">Role</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {activeMembers.map((member) => (
+                                            <TableRow key={member.id} className="border-white/10 hover:bg-white/10">
+                                                <TableCell className="font-medium text-slate-200">{member.name}</TableCell>
+                                                <TableCell className="text-slate-400">{member.role}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </section>
+                )}
+              </div>
         ) : (
              <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
