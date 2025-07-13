@@ -18,6 +18,7 @@ import {
   Instagram,
   Linkedin,
   Youtube,
+  Quote
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 
 const services = [
   {
@@ -108,6 +111,31 @@ const featuredProjects = [
     category: "Graphic Design",
   },
 ];
+
+const testimonials = [
+    {
+        quote: "The Digital Marketing Club has been an invaluable asset to our college events, providing professional-level coverage and boosting our online presence significantly.",
+        name: "Dr. Emily Carter",
+        role: "Faculty Advisor",
+        avatarSrc: "https://placehold.co/100x100.png",
+        avatarHint: "woman professional"
+    },
+    {
+        quote: "Joining the DMC was the best decision of my college life. I've gained practical skills in video editing and content strategy that I know I'll use in my career.",
+        name: "Jessica Lee",
+        role: "Student Member, 3rd Year",
+        avatarSrc: "https://placehold.co/100x100.png",
+        avatarHint: "female student"
+
+    },
+    {
+        quote: "The creativity and professionalism of the DMC team are outstanding. They are the go-to creators for any major event on campus.",
+        name: "Michael Chen",
+        role: "Head of Student Council",
+        avatarSrc: "https://placehold.co/100x100.png",
+        avatarHint: "male student"
+    }
+]
 
 export default function HomePage() {
   return (
@@ -250,6 +278,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+           <div className="mx-auto mb-16 max-w-2xl text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl">What People Say</h2>
+            <p className="mt-4 text-slate-400">
+                Hear from our members, collaborators, and faculty about their experience with the club.
+            </p>
+          </div>
+           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+             {testimonials.map((testimonial, index) => (
+                <div key={index} className="rounded-2xl bg-white/5 p-8 backdrop-blur-sm flex flex-col">
+                    <Quote className="w-10 h-10 text-purple-400/50 mb-4" />
+                    <p className="text-slate-300 italic mb-6 flex-grow">"{testimonial.quote}"</p>
+                    <div className="flex items-center mt-auto">
+                        <Avatar className="h-12 w-12 mr-4">
+                            <AvatarImage src={testimonial.avatarSrc} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
+                            <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h4 className="font-bold text-white">{testimonial.name}</h4>
+                            <p className="text-sm text-slate-400">{testimonial.role}</p>
+                        </div>
+                    </div>
+                </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Join Us Section */}
       <section className="relative z-10 py-20">
         <div className="container mx-auto px-4">
@@ -330,3 +388,4 @@ export default function HomePage() {
     </div>
   );
 }
+
