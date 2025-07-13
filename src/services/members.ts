@@ -1,3 +1,4 @@
+
 import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData, Timestamp, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Member, MemberRegistration } from '@/lib/types';
@@ -9,7 +10,6 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         !data ||
         typeof data.name !== 'string' ||
         typeof data.role !== 'string' ||
-        typeof data.avatarUrl !== 'string' ||
         !Array.isArray(data.skills)
     ) {
         console.error("Invalid or incomplete member data for doc ID:", doc.id);
@@ -22,7 +22,7 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         role: data.role,
         type: data.type || 'Core', // Default to 'Core' if not specified
         description: data.description, // Optional
-        avatarUrl: data.avatarUrl,
+        avatarUrl: data.avatarUrl || "", // Ensure avatarUrl is always a string
         avatarHint: data.avatarHint, // Optional
         fallback: data.name.charAt(0).toUpperCase(),
         skills: data.skills,
@@ -38,14 +38,22 @@ export async function getMembers(type?: 'Core' | 'Active'): Promise<Member[]> {
     
     let q;
     if (type) {
-        q = query(membersCollection, where('type', '==', type), orderBy('name', 'asc'));
+        // Query only by type
+        q = query(membersCollection, where('type', '==', type));
     } else {
         q = query(membersCollection, orderBy('name', 'asc'));
     }
     
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map(docToMember).filter((member): member is Member => member !== null);
+    const members = querySnapshot.docs.map(docToMember).filter((member): member is Member => member !== null);
+
+    // Sort by name in the application code if we filtered by type
+    if (type) {
+        members.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return members;
 }
 
 export async function getMember(id: string): Promise<Member | null> {
