@@ -106,7 +106,7 @@ export default function CoreMembersPage() {
           return { allSessions: [], coreMembers: [] };
       }
       const sessions = [...new Set(allMembers.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
-      const filtered = selectedSession ? allMembers.filter(m => m.session === selectedSession) : allMembers;
+      const filtered = selectedSession ? allMembers.filter(m => m.session === selectedSession) : [];
       
       return { allSessions: sessions, coreMembers: filtered };
   }, [allMembers, selectedSession]);
