@@ -82,7 +82,7 @@ const LoadingSkeletons = () => (
 
 
 export default function CoreMembersPage() {
-  const [members, setMembers] = useState<Member[]>([]);
+  const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
@@ -90,7 +90,7 @@ export default function CoreMembersPage() {
     async function fetchMembers() {
       setIsLoading(true);
       const fetchedMembers = await getMembers('Core');
-      setMembers(fetchedMembers);
+      setAllMembers(fetchedMembers);
 
       if (fetchedMembers.length > 0) {
         const allSessions = [...new Set(fetchedMembers.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
@@ -102,14 +102,14 @@ export default function CoreMembersPage() {
   }, []);
   
   const { allSessions, coreMembers } = useMemo(() => {
-      if (members.length === 0) {
+      if (allMembers.length === 0) {
           return { allSessions: [], coreMembers: [] };
       }
-      const sessions = [...new Set(members.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
-      const filtered = selectedSession ? members.filter(m => m.session === selectedSession) : [];
+      const sessions = [...new Set(allMembers.map(m => m.session).filter(Boolean))].sort((a,b) => b.localeCompare(a));
+      const filtered = selectedSession ? allMembers.filter(m => m.session === selectedSession) : allMembers;
       
       return { allSessions: sessions, coreMembers: filtered };
-  }, [members, selectedSession]);
+  }, [allMembers, selectedSession]);
 
 
   return (
