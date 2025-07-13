@@ -46,6 +46,19 @@ export interface Registration {
   certificateUrl?: string;
 }
 
+export interface MemberRegistration {
+  id: string;
+  studentName: string;
+  studentEmail: string;
+  branch: string;
+  mobileNumber: string;
+  year: "1st" | "2nd" | "3rd" | "4th";
+  urn: string;
+  crn: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
 export interface Member {
   id: string;
   name: string;

@@ -1,6 +1,6 @@
-import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Member } from '@/lib/types';
+import type { Member, MemberRegistration } from '@/lib/types';
 
 function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
     const data = doc.data();
@@ -72,4 +72,42 @@ export async function updateMember(id: string, member: Partial<Omit<Member, 'id'
 
 export async function deleteMember(id: string) {
     await deleteDoc(doc(db, 'members', id));
+}
+
+
+// Member Registration Functions
+export async function addMemberRegistration(registration: Omit<MemberRegistration, 'id' | 'status' | 'createdAt'>) {
+    const registrationsCollection = collection(db, 'memberRegistrations');
+    await addDoc(registrationsCollection, {
+        ...registration,
+        status: 'pending',
+        createdAt: Timestamp.now(),
+    });
+}
+
+function docToMemberRegistration(doc: DocumentSnapshot<DocumentData>): MemberRegistration | null {
+    const data = doc.data();
+     if (!data || !(data.createdAt instanceof Timestamp)) {
+        console.error("Invalid or incomplete member registration data for doc ID:", doc.id);
+        return null;
+    }
+    return {
+        id: doc.id,
+        studentName: data.studentName,
+        studentEmail: data.studentEmail,
+        branch: data.branch,
+        mobileNumber: data.mobileNumber,
+        year: data.year,
+        urn: data.urn,
+        crn: data.crn,
+        status: data.status || 'pending',
+        createdAt: data.createdAt.toDate().toISOString(),
+    };
+}
+
+export async function getMemberRegistrations(): Promise<MemberRegistration[]> {
+    const registrationsCollection = collection(db, 'memberRegistrations');
+    const q = query(registrationsCollection, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(docToMemberRegistration).filter((reg): reg is MemberRegistration => reg !== null);
 }

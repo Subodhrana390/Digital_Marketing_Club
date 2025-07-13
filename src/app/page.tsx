@@ -29,6 +29,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { MemberRegistrationForm } from "@/components/member-registration-form";
 
 
 const services = [
@@ -163,11 +165,20 @@ export default function HomePage() {
               and design at GNDEC, Ludhiana.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg">
-                <Link href="/contact">
-                  Get Involved <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+              <Dialog>
+                 <DialogTrigger asChild>
+                    <Button size="lg">
+                      Get Involved <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] bg-slate-900 border-purple-500/30 text-white">
+                    <DialogHeader>
+                        <DialogTitle>Join the Digital Marketing Club</DialogTitle>
+                        <DialogDescription>Fill out your details below to start your journey with us.</DialogDescription>
+                    </DialogHeader>
+                    <MemberRegistrationForm />
+                </DialogContent>
+              </Dialog>
               <Button asChild size="lg" variant="outline" className="bg-transparent border-purple-400 text-purple-300 hover:bg-purple-500/20 hover:text-white">
                 <Link href="/blog">
                   See Our Work
@@ -322,11 +333,20 @@ export default function HomePage() {
                 creators. Let's build something amazing together.
                 </p>
                 <div className="mt-8">
-                <Button asChild size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-purple-50 shadow-lg">
-                    <Link href="/contact">
-                    Join the Club Now <ChevronRight className="ml-2 h-5 w-5" />
-                    </Link>
-                </Button>
+                <Dialog>
+                   <DialogTrigger asChild>
+                    <Button size="lg" variant="secondary" className="bg-white text-purple-600 hover:bg-purple-50 shadow-lg">
+                        Join the Club Now <ChevronRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px] bg-slate-900 border-purple-500/30 text-white">
+                      <DialogHeader>
+                          <DialogTitle>Join the Digital Marketing Club</DialogTitle>
+                          <DialogDescription>Fill out your details below to start your journey with us.</DialogDescription>
+                      </DialogHeader>
+                      <MemberRegistrationForm />
+                  </DialogContent>
+                </Dialog>
                 </div>
             </div>
           </div>

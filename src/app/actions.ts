@@ -18,7 +18,7 @@ import {
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
-import { addMember, deleteMember, updateMember } from "@/services/members";
+import { addMember, deleteMember, updateMember, addMemberRegistration } from "@/services/members";
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import type { BlogPost, Event, Member, Resource } from "@/lib/types";
@@ -591,4 +591,25 @@ export async function deleteMemberAction(id: string) {
         console.error(e);
         return { message: "Failed to remove member: " + e.message };
     }
+}
+
+
+export async function addMemberRegistrationAction(prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = registrationSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors.",
+      errors: validatedFields.error.flatten().fieldErrors,
+      success: false,
+    };
+  }
+
+  try {
+    await addMemberRegistration(validatedFields.data);
+    revalidatePath(`/admin/registrations`);
+    return { message: "Your application has been submitted successfully! We will get back to you soon.", errors: {}, success: true };
+  } catch (e: any) {
+    return { message: "Failed to submit application: " + e.message, errors: {}, success: false };
+  }
 }

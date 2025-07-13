@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -12,6 +13,7 @@ import {
   ArrowLeft,
   Shield,
   FileText,
+  UserPlus,
 } from "lucide-react";
 
 import {
@@ -34,6 +36,7 @@ const adminNavLinks = [
   { href: "/admin/blogs", label: "Blogs", icon: Newspaper },
   { href: "/admin/resources", label: "Resources", icon: Library },
   { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
 ];
 
 const reportLinks = [
