@@ -20,7 +20,7 @@ import {
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
@@ -81,17 +81,17 @@ export function Header() {
     isMobile = false,
     subItems,
   }: NavLinkItem & { isMobile?: boolean }) => {
-    const isActive = pathname.startsWith(href) || (subItems && subItems.some(i => pathname.startsWith(i.href)));
+    const isActive = pathname === href || (subItems && subItems.some(i => pathname.startsWith(i.href) && i.href !== '/'));
 
     if (subItems && subItems.length > 0) {
       if (isMobile) {
         return (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-4 text-lg py-3 px-4 rounded-xl text-gray-300">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-4 text-lg py-3 px-4 rounded-xl text-gray-300 font-medium">
                <Icon className="h-5 w-5" />
                <span>{label}</span>
             </div>
-            <div className="flex flex-col pl-10">
+            <div className="flex flex-col pl-6 border-l border-white/10 ml-6">
               {subItems.map(item => (
                 <NavLink key={item.href} {...item} isMobile />
               ))}
@@ -129,13 +129,13 @@ export function Header() {
     return (
       <Link
         href={href}
-        className={`relative transition-all duration-300 group ${isActive
-          ? "text-white font-semibold"
-          : "text-gray-300 hover:text-white"
-        } ${isMobile
+        className={cn(
+          `relative transition-all duration-300 group`,
+          isMobile
             ? "flex items-center gap-4 text-lg py-3 px-4 rounded-xl hover:bg-white/10 backdrop-blur-sm"
-            : "text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm"
-          }`}
+            : "text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm",
+          isActive ? 'text-white font-semibold bg-white/5' : 'text-gray-300 hover:text-white'
+        )}
         onClick={() => isMobile && setIsOpen(false)}
       >
         <div className="flex items-center gap-2">
@@ -143,8 +143,10 @@ export function Header() {
           <span>{label}</span>
         </div>
         {!isMobile && (
-          <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
-            }`} />
+          <div className={cn(
+            `absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300`,
+            isActive ? "w-full" : "w-0 group-hover:w-full"
+            )} />
         )}
       </Link>
     );
