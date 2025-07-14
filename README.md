@@ -8,14 +8,15 @@ MarketVerse is a comprehensive, feature-rich web platform built for the Digital 
 
 ### Public-Facing Website
 - **Homepage:** A stunning, animated landing page introducing the club and its mission.
-- **Events Showcase:** View upcoming and past events with a clean, modern UI.
+- **Events Showcase:** View upcoming and past events with a clean, modern UI and session-based filtering.
 - **Event Details & Registration:** Detailed event pages with banners, photo galleries, and a seamless on-page registration pop-up form.
-- **Blog Platform:** A fully-featured blog with search functionality, category filtering, and beautifully rendered articles with a table of contents.
+- **Blog Platform:** A fully-featured blog with search functionality, beautifully rendered articles with a dynamic table of contents, and an optimized reading experience.
 - **Resource Library:** A curated collection of marketing tools, templates, and learning resources, categorized for easy access.
-- **Team Showcase:** A dynamic members page to introduce the club's team.
+- **Team Pages:** Separate, dedicated pages for the **Core Team** (with detailed profiles) and the **Active Team** (with member lists), including session-based filtering.
 - **Public Analytics:** A transparent reports page showcasing club statistics like event attendance and content engagement.
-- **Contact Form:** A functional contact page for inquiries.
+- **Contact Form:** A functional contact page that stores submissions for admin review.
 - **AI Ideation Tool:** A public tool for generating blog post ideas using Genkit.
+- **Responsive Design:** A fully responsive and mobile-friendly experience across all public pages.
 
 ### Admin Panel
 - **Secure Authentication:** Admin login via Email/Password or Google Sign-In, protected by an authentication guard.
@@ -23,13 +24,18 @@ MarketVerse is a comprehensive, feature-rich web platform built for the Digital 
 - **Content Management (CRUD):**
   - **Blogs:** Create, edit, and delete blog posts. Features AI-powered content and title generation.
   - **Events:** Create, edit, and delete events.
-  - **Members:** Manage the team members list.
+  - **Members:** Manage the Core and Active team members list.
   - **Resources:** Manage the resource library.
 - **Event & Attendee Management:**
   - View, add, and manage student registrations for each event.
   - Track student attendance.
-  - Upload event reports (e.g., PDFs).
+  - Upload and manage event reports (e.g., PDFs), which are also deleted from cloud storage when an event is deleted.
   - **Certificate Generation:** Upload a certificate template, and automatically generate and email participation certificates to attendees using Cloudinary for image overlays and Resend for email delivery.
+- **Member Application Management:**
+  - View and review new member applications submitted through the public site.
+  - **Approve or Reject** applications directly from the admin panel. Approved applicants are automatically added to the "Active Team".
+- **Contact Submission Management:**
+  - View and delete messages submitted through the public contact form.
 - **Reporting:**
   - View analytics charts for event attendance and platform engagement.
   - Access a centralized list of all event reports.
@@ -111,10 +117,12 @@ src
 ├── app/
 │   ├── (admin)/          # Admin panel routes & layout
 │   ├── (auth)/           # Authentication routes (login)
-│   ├── api/              # API routes (not heavily used due to Server Actions)
-│   ├── blog/             # Public blog routes
-│   ├── events/           # Public event routes
-│   └── ...               # Other public pages (home, contact, etc.)
+│   ├── (public)/         # Wrapper for all public-facing pages
+│   │   ├── blog/         # Public blog routes
+│   │   ├── events/       # Public event routes
+│   │   ├── members/      # Public member pages (core, active)
+│   │   └── ...           # Other public pages (home, contact, etc.)
+│   └── api/              # API routes (not heavily used due to Server Actions)
 ├── components/
 │   ├── admin/            # Components specific to the admin panel
 │   ├── layout/           # Header, Footer, Sidebar
@@ -128,6 +136,7 @@ src
 │   ├── auth.ts           # Firebase auth services
 │   ├── blogs.ts          # Firestore services for blogs
 │   ├── events.ts         # Firestore services for events
+│   ├── members.ts        # Firestore services for members
 │   ├── email.ts          # Resend email service
 │   ├── storage.ts        # Cloudinary services
 │   └── ...               # Other data services
