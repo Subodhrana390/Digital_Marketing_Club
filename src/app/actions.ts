@@ -21,7 +21,7 @@ import { addResource, deleteResource, updateResource } from "@/services/resource
 import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
-import { addContactSubmission } from "@/services/contact";
+import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import type { BlogPost, Event, Member, Resource, MemberRegistration } from "@/lib/types";
 
 
@@ -668,3 +668,17 @@ export async function rejectMemberRegistrationAction(id: string) {
         return { success: false, message: "Failed to reject member: " + e.message };
     }
 }
+
+// Contact Submission Actions
+export async function deleteContactSubmissionAction(id: string) {
+    try {
+        await deleteContactSubmission(id);
+        revalidatePath("/admin/contacts");
+        return { message: "Contact submission deleted successfully." };
+    } catch (e: any) {
+        console.error(e);
+        return { message: "Failed to delete contact submission: " + e.message };
+    }
+}
+
+    

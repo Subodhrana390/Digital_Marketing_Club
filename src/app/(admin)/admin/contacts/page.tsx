@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import ContactActions from "@/components/admin/contact-actions";
 
 export default async function AdminContactsPage() {
   const submissions = await getContactSubmissions();
@@ -37,6 +38,9 @@ export default async function AdminContactsPage() {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Message</TableHead>
+              <TableHead>
+                <span className="sr-only">Actions</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -59,11 +63,14 @@ export default async function AdminContactsPage() {
                     </a>
                   </TableCell>
                   <TableCell className="whitespace-pre-wrap">{sub.message}</TableCell>
+                  <TableCell>
+                      <ContactActions submissionId={sub.id} />
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
                 <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                         No submissions yet.
                     </TableCell>
                 </TableRow>
@@ -74,3 +81,5 @@ export default async function AdminContactsPage() {
     </Card>
   );
 }
+
+    

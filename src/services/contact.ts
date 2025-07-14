@@ -1,4 +1,4 @@
-import { collection, addDoc, Timestamp, getDocs, query, orderBy, type DocumentSnapshot, type DocumentData } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, getDocs, query, orderBy, type DocumentSnapshot, type DocumentData, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { ContactSubmission } from '@/lib/types';
 
@@ -35,3 +35,9 @@ export async function getContactSubmissions(): Promise<ContactSubmission[]> {
 
     return querySnapshot.docs.map(docToContactSubmission).filter((sub): sub is ContactSubmission => sub !== null);
 }
+
+export async function deleteContactSubmission(id: string) {
+    await deleteDoc(doc(db, 'contactSubmissions', id));
+}
+
+    
