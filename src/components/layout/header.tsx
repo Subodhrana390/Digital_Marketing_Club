@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 interface NavLinkItem {
@@ -86,17 +87,22 @@ export function Header() {
     if (subItems && subItems.length > 0) {
       if (isMobile) {
         return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-4 text-lg py-3 px-4 rounded-xl text-gray-300 font-medium">
-               <Icon className="h-5 w-5" />
-               <span>{label}</span>
-            </div>
-            <div className="flex flex-col pl-6 border-l border-white/10 ml-6">
-              {subItems.map(item => (
-                <NavLink key={item.href} {...item} isMobile />
-              ))}
-            </div>
-          </div>
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center justify-between w-full gap-4 text-lg py-3 px-4 rounded-xl text-gray-300 font-medium hover:bg-white/10 group">
+              <div className="flex items-center gap-4">
+                <Icon className="h-5 w-5" />
+                <span>{label}</span>
+              </div>
+              <ChevronDown className="h-5 w-5 transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-col pl-6 border-l border-white/10 ml-6 mt-2 space-y-1">
+                {subItems.map(item => (
+                  <NavLink key={item.href} {...item} isMobile />
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )
       }
       return (
