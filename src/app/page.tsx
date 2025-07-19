@@ -356,7 +356,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/10 bg-slate-900/50 py-12">
         <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                 {/* Column 1: Logos and Info */}
                 <div className="md:col-span-2 space-y-4">
                     <div className="flex items-center space-x-4">
@@ -366,7 +366,7 @@ export default function HomePage() {
                     <h3 className="text-xl font-bold text-white">Digital Marketing Club</h3>
                     <p className="text-sm text-slate-400">
                         Guru Nanak Dev Engineering College<br/>
-                        Ludhiana
+                        Ludhiana, Punjab 141006
                     </p>
                     <div className="space-y-2">
                         <h4 className="font-semibold text-slate-200">Follow Us</h4>
@@ -379,24 +379,32 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                {/* Column 2: Main Links */}
+                {/* Column 2: Club Links */}
                 <div>
-                    <h4 className="font-semibold text-slate-200 mb-4">Main Links</h4>
+                    <h4 className="font-semibold text-slate-200 mb-4">Club</h4>
                     <ul className="space-y-3">
                         <li><Link href="/" className="text-slate-400 hover:text-white">Home</Link></li>
-                        <li><Link href="/about" className="text-slate-400 hover:text-white">About Us</Link></li>
                         <li><Link href="/events" className="text-slate-400 hover:text-white">Events</Link></li>
-                        <li><Link href="/members" className="text-slate-400 hover:text-white">Teams</Link></li>
                         <li><Link href="/contact" className="text-slate-400 hover:text-white">Contact</Link></li>
                     </ul>
                 </div>
 
-                {/* Column 3: Other Links */}
+                {/* Column 3: Content Links */}
                 <div>
-                    <h4 className="font-semibold text-slate-200 mb-4">Links</h4>
+                    <h4 className="font-semibold text-slate-200 mb-4">Content</h4>
                      <ul className="space-y-3">
-                        <li><Link href="#" className="text-slate-400 hover:text-white">Faculty</Link></li>
-                        <li><Link href="#" className="text-slate-400 hover:text-white">Web Developer</Link></li>
+                        <li><Link href="/blog" className="text-slate-400 hover:text-white">Blog</Link></li>
+                        <li><Link href="/resources" className="text-slate-400 hover:text-white">Resources</Link></li>
+                        <li><Link href="/ideation-tool" className="text-slate-400 hover:text-white">Ideation Tool</Link></li>
+                    </ul>
+                </div>
+                 {/* Column 4: Team Links */}
+                <div>
+                    <h4 className="font-semibold text-slate-200 mb-4">Team</h4>
+                     <ul className="space-y-3">
+                        <li><Link href="/members/core" className="text-slate-400 hover:text-white">Core Team</Link></li>
+                        <li><Link href="/members/active" className="text-slate-400 hover:text-white">Active Team</Link></li>
+                         <li><Link href="/reports" className="text-slate-400 hover:text-white">Public Reports</Link></li>
                     </ul>
                 </div>
             </div>
