@@ -33,7 +33,7 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
     };
 }
 
-export async function getMembers(type?: 'Core' | 'Active'): Promise<Member[]> {
+export async function getMembers(type?: 'Core' | 'Active' | 'Faculty'): Promise<Member[]> {
     const membersCollection = collection(db, 'members');
     
     let q;

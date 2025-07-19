@@ -19,7 +19,7 @@ import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
-import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage } from "@/services/storage";
+import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage, deleteFileByPublicId } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import type { BlogPost, Event, Member, Resource, MemberRegistration } from "@/lib/types";
@@ -299,15 +299,24 @@ export async function updateEventAction(id: string, prevState: FormState, formDa
 
 export async function deleteEventAction(id: string) {
     try {
+        const event = await getEvent(id);
+        if (event?.reportUrl && event.reportName) {
+            // Extract public ID from URL to delete from Cloudinary
+            const publicIdWithFolder = 'event-reports/' + event.reportName.split('.')[0];
+            await deleteFileByPublicId(publicIdWithFolder);
+        }
+
         await deleteEvent(id);
         revalidatePath("/admin/events");
         revalidatePath("/events");
-        return { message: "Event deleted successfully." };
+        revalidatePath("/admin/event-reports");
+        return { message: "Event and associated report deleted successfully." };
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to delete event: " + e.message };
     }
 }
+
 
 export async function uploadEventReportAction(formData: FormData): Promise<{ downloadUrl: string; fileName: string; error?: string }> {
     const file = formData.get('file') as File | null;
@@ -330,6 +339,7 @@ export async function updateEventWithReport(eventId: string, reportUrl: string, 
         await updateEvent(eventId, { reportUrl, reportName });
         revalidatePath(`/admin/events/edit/${eventId}`);
         revalidatePath('/admin/events');
+        revalidatePath('/admin/event-reports');
         return { success: true, message: "Report uploaded successfully." };
     } catch (e: any) {
         console.error(e);
@@ -523,7 +533,7 @@ const memberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     role: z.string().min(2, "Role is required."),
     session: z.string().min(1, "Session is required."),
-    type: z.enum(["Core", "Active"], { required_error: "Member type is required." }),
+    type: z.enum(["Core", "Active", "Faculty"], { required_error: "Member type is required." }),
     avatarUrl: z.string().optional(),
     avatarHint: z.string().optional(),
     skills: z.string().min(1, "At least one skill is required."),
@@ -531,8 +541,8 @@ const memberSchema = z.object({
     linkedinUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
     githubUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
     googleUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
-}).refine(data => data.type === 'Active' || (data.type === 'Core' && data.avatarUrl && data.avatarUrl.length > 0), {
-    message: "Avatar is required for Core members.",
+}).refine(data => data.type === 'Active' || (data.type !== 'Active' && data.avatarUrl && data.avatarUrl.length > 0), {
+    message: "Avatar is required for Core and Faculty members.",
     path: ["avatarUrl"],
 });
 
@@ -680,5 +690,3 @@ export async function deleteContactSubmissionAction(id: string) {
         return { message: "Failed to delete contact submission: " + e.message };
     }
 }
-
-    

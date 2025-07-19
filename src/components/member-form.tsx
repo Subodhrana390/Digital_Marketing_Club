@@ -104,15 +104,21 @@ export function MemberForm({ member }: MemberFormProps) {
   const [state, formAction] = useActionState(action, { message: "", errors: {} });
   
   const [avatarUrl, setAvatarUrl] = useState(member?.avatarUrl || "");
-  const [memberType, setMemberType] = useState<'Core' | 'Active'>(member?.type || 'Core');
+  const [memberType, setMemberType] = useState<'Core' | 'Active' | 'Faculty'>(member?.type || 'Core');
   const skills = member?.skills?.join(', ') || '';
   
   const currentYear = new Date().getFullYear();
   const sessions = [
-      `${currentYear-1}-${currentYear}`,
-      `${currentYear}-${currentYear+1}`,
-      `${currentYear+1}-${currentYear+2}`,
+      `${currentYear - 2}-${currentYear-1}`,
+      `${currentYear - 1}-${currentYear}`,
+      `${currentYear}-${currentYear + 1}`,
+      `${currentYear + 1}-${currentYear + 2}`,
+      `${currentYear + 2}-${currentYear + 3}`,
+      `2024-2025`,
+      `2025-2026`
   ];
+  const uniqueSessions = [...new Set(sessions)].sort((a, b) => b.localeCompare(a));
+
 
   const handleAvatarUploaded = (url: string) => {
       setAvatarUrl(url);
@@ -177,7 +183,7 @@ export function MemberForm({ member }: MemberFormProps) {
                     <SelectValue placeholder="Select Session" />
                 </SelectTrigger>
                 <SelectContent>
-                    {sessions.map(session => (
+                    {uniqueSessions.map(session => (
                         <SelectItem key={session} value={session}>{session}</SelectItem>
                     ))}
                 </SelectContent>
@@ -186,13 +192,14 @@ export function MemberForm({ member }: MemberFormProps) {
         </div>
          <div className="space-y-2">
             <Label htmlFor="type">Member Type</Label>
-            <Select name="type" defaultValue={memberType} onValueChange={(value) => setMemberType(value as 'Core' | 'Active')}>
+            <Select name="type" defaultValue={memberType} onValueChange={(value) => setMemberType(value as 'Core' | 'Active' | 'Faculty')}>
                 <SelectTrigger id="type">
                     <SelectValue placeholder="Select Type" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="Core">Core Member</SelectItem>
                     <SelectItem value="Active">Active Member</SelectItem>
+                    <SelectItem value="Faculty">Faculty</SelectItem>
                 </SelectContent>
             </Select>
             {state.errors?.type && <p className="text-sm font-medium text-destructive">{state.errors.type[0]}</p>}

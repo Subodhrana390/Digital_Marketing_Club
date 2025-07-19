@@ -18,7 +18,8 @@ import {
   Instagram,
   Linkedin,
   Youtube,
-  Quote
+  Quote,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -404,6 +405,7 @@ export default function HomePage() {
                      <ul className="space-y-3">
                         <li><Link href="/members/core" className="text-slate-400 hover:text-white">Core Team</Link></li>
                         <li><Link href="/members/active" className="text-slate-400 hover:text-white">Active Team</Link></li>
+                        <li><Link href="/members/faculty" className="text-slate-400 hover:text-white">Faculty</Link></li>
                          <li><Link href="/reports" className="text-slate-400 hover:text-white">Public Reports</Link></li>
                     </ul>
                 </div>

@@ -19,6 +19,7 @@ import {
   PenSquare,
   ShieldCheck,
   UserCheck,
+  GraduationCap
 } from "lucide-react";
 import { useState, Fragment } from "react";
 import { usePathname } from "next/navigation";
@@ -66,6 +67,7 @@ const navLinks: NavLinkItem[] = [
     subItems: [
       { href: "/members/core", label: "Core Team", icon: ShieldCheck },
       { href: "/members/active", label: "Active Team", icon: UserCheck },
+      { href: "/members/faculty", label: "Faculty", icon: GraduationCap },
     ]
   },
   { href: "/contact", label: "Contact", icon: Contact },
@@ -140,19 +142,25 @@ export function Header() {
           isMobile
             ? "flex items-center gap-4 text-lg py-3 px-4 rounded-xl hover:bg-white/10 backdrop-blur-sm"
             : "text-sm font-medium px-4 py-2 rounded-full hover:bg-white/10 backdrop-blur-sm",
-          isActive ? 'text-white font-semibold bg-white/5' : 'text-gray-300 hover:text-white'
+          pathname.startsWith(href) && href !== '/' || pathname === href ? 'text-white font-semibold bg-white/5' : 'text-gray-300 hover:text-white'
         )}
         onClick={() => isMobile && setIsOpen(false)}
       >
-        <div className="flex items-center gap-2">
-          {isMobile && <Icon className="h-5 w-5" />}
-          <span>{label}</span>
-        </div>
-        {!isMobile && (
-          <div className={cn(
-            `absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300`,
-            isActive ? "w-full" : "w-0 group-hover:w-full"
-            )} />
+        { isMobile ? (
+             <div className="flex items-center gap-4">
+                <Icon className="h-5 w-5" />
+                <span>{label}</span>
+              </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <span>{label}</span>
+            </div>
+            <div className={cn(
+              `absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-300`,
+              isActive ? "w-full" : "w-0 group-hover:w-full"
+              )} />
+          </>
         )}
       </Link>
     );

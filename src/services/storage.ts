@@ -159,3 +159,14 @@ export async function generateCertificateWithOverlay({
 
     return { certificateUrl };
 }
+
+export async function deleteFileByPublicId(publicId: string): Promise<{ result: string }> {
+    checkConfiguration();
+    try {
+        const response = await cloudinary.uploader.destroy(publicId);
+        return response;
+    } catch (error: any) {
+        console.error(`Failed to delete file from Cloudinary (publicId: ${publicId}):`, error);
+        throw new Error('Cloudinary file deletion failed.');
+    }
+}
