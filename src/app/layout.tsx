@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Digital Marketing Club',
   description:
     'The official website for the Digital Marketing Club. Explore events, articles, and resources.',
+  icons: {
+    icon: '/images/Logo.png',
+  },
 };
 
 export default function RootLayout({
