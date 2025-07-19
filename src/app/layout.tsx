@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: 'Digital Marketing Club',
   description:
     'The official website for the Digital Marketing Club. Explore events, articles, and resources.',
+  icons: {
+    icon: '/images/logo.png',
+  },
 };
 
 export default function RootLayout({
@@ -17,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/images/logo.png" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

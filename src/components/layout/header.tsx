@@ -179,7 +179,7 @@ export function Header() {
         {/* Logo Section */}
         <div className="mr-8 hidden md:flex">
           <Link href="/" className="mr-8 flex items-center space-x-3 group">
-            <Image src="/images/Logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
+            <Image src="/images/logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
             <div className="flex flex-col">
               <span className="font-bold text-white text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                 Digital Marketing Club
