@@ -360,8 +360,8 @@ export default function HomePage() {
                 {/* Column 1: Logos and Info */}
                 <div className="md:col-span-2 space-y-4">
                     <div className="flex items-center space-x-4">
-                        <Image src="https://placehold.co/80x80.png" alt="DMC Logo" width={60} height={60} data-ai-hint="club logo" />
-                        <Image src="https://placehold.co/80x80.png" alt="GNDEC Logo" width={60} height={60} data-ai-hint="college crest" />
+                        <Image src="/images/logo.png" alt="DMC Logo" width={60} height={60} />
+                        <Image src="/images/gndec.png" alt="GNDEC Logo" width={60} height={60} />
                     </div>
                     <h3 className="text-xl font-bold text-white">Digital Marketing Club</h3>
                     <p className="text-sm text-slate-400">
