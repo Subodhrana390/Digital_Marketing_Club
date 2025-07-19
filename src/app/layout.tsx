@@ -1,14 +1,14 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/layout/header';
+import type { Metadata } from "next";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import { Header } from "@/components/layout/header";
 
 export const metadata: Metadata = {
-  title: 'Digital Marketing Club',
+  title: "Digital Marketing Club",
   description:
-    'The official website for the Digital Marketing Club. Explore events, articles, and resources.',
+    "The official website for the Digital Marketing Club. Explore events, articles, and resources.",
   icons: {
-    icon: '/images/logo.png',
+    icon: "/images/logo.png",
   },
 };
 
@@ -30,6 +30,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         ></link>
+        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
       </head>
       <body className="font-body antialiased">
         <div className="relative flex min-h-screen flex-col">
