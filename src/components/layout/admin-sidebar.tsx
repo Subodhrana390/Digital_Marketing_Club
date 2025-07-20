@@ -15,6 +15,7 @@ import {
   FileText,
   UserPlus,
   Contact,
+  MessageSquare,
 } from "lucide-react";
 
 import {
@@ -35,6 +36,7 @@ const adminNavLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/blogs", label: "Blogs", icon: Newspaper },
+  { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
   { href: "/admin/resources", label: "Resources", icon: Library },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
@@ -68,7 +70,7 @@ export default function AdminSidebar() {
             <SidebarMenuItem key={link.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === link.href}
+                isActive={pathname.startsWith(link.href)}
                 className="justify-start"
               >
                 <Link href={link.href}>

@@ -92,3 +92,12 @@ export interface ContactSubmission {
     message: string;
     createdAt: string;
 }
+
+export interface Testimonial {
+    id: string;
+    name: string;
+    role: string;
+    quote: string;
+    avatarUrl: string;
+    avatarHint?: string;
+}

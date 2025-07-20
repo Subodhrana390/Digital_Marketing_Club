@@ -22,7 +22,8 @@ import { addMember, deleteMember, updateMember, addMemberRegistration, updateMem
 import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage, deleteFileByPublicId } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
-import type { BlogPost, Event, Member, Resource, MemberRegistration } from "@/lib/types";
+import { addTestimonial, deleteTestimonial, updateTestimonial } from "@/services/testimonials";
+import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial } from "@/lib/types";
 
 
 const contactFormSchema = z.object({
@@ -694,5 +695,70 @@ export async function deleteContactSubmissionAction(id: string) {
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to delete contact submission: " + e.message };
+    }
+}
+
+// Testimonial Actions
+const testimonialSchema = z.object({
+  name: z.string().min(2, "Name is required."),
+  role: z.string().min(2, "Role is required."),
+  quote: z.string().min(10, "Quote must be at least 10 characters."),
+  avatarUrl: z.string().url("Please upload or provide a valid avatar URL."),
+  avatarHint: z.string().optional(),
+});
+
+export async function addTestimonialAction(prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await addTestimonial(validatedFields.data as Omit<Testimonial, 'id'>);
+  } catch (e: any) {
+    console.error(e);
+    return { message: "Failed to create testimonial: " + e.message, errors: {} };
+  }
+
+  revalidatePath("/admin/testimonials");
+  revalidatePath("/");
+  redirect("/admin/testimonials");
+}
+
+export async function updateTestimonialAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = testimonialSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await updateTestimonial(id, validatedFields.data);
+  } catch (e: any) {
+    console.error(e);
+    return { message: "Failed to update testimonial: " + e.message, errors: {} };
+  }
+
+  revalidatePath("/admin/testimonials");
+  revalidatePath("/");
+  redirect("/admin/testimonials");
+}
+
+export async function deleteTestimonialAction(id: string) {
+    try {
+        await deleteTestimonial(id);
+        revalidatePath("/admin/testimonials");
+        revalidatePath("/");
+        return { message: "Testimonial deleted successfully." };
+    } catch (e: any) {
+        console.error(e);
+        return { message: "Failed to delete testimonial: " + e.message };
     }
 }

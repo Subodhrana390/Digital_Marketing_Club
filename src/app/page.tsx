@@ -1,6 +1,4 @@
 
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,6 +30,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MemberRegistrationForm } from "@/components/member-registration-form";
+import { getTestimonials } from "@/services/testimonials";
 
 
 const services = [
@@ -115,32 +114,9 @@ const featuredProjects = [
   },
 ];
 
-const testimonials = [
-    {
-        quote: "The Digital Marketing Club has been an invaluable asset to our college events, providing professional-level coverage and boosting our online presence significantly.",
-        name: "Dr. Emily Carter",
-        role: "Faculty Advisor",
-        avatarSrc: "https://placehold.co/100x100.png",
-        avatarHint: "woman professional"
-    },
-    {
-        quote: "Joining the DMC was the best decision of my college life. I've gained practical skills in video editing and content strategy that I know I'll use in my career.",
-        name: "Jessica Lee",
-        role: "Student Member, 3rd Year",
-        avatarSrc: "https://placehold.co/100x100.png",
-        avatarHint: "female student"
+export default async function HomePage() {
+  const testimonials = await getTestimonials();
 
-    },
-    {
-        quote: "The creativity and professionalism of the DMC team are outstanding. They are the go-to creators for any major event on campus.",
-        name: "Michael Chen",
-        role: "Head of Student Council",
-        avatarSrc: "https://placehold.co/100x100.png",
-        avatarHint: "male student"
-    }
-]
-
-export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-900 text-white overflow-x-hidden">
       {/* Background Gradient Grid */}
@@ -300,13 +276,13 @@ export default function HomePage() {
             </p>
           </div>
            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-             {testimonials.map((testimonial, index) => (
-                <div key={index} className="rounded-2xl bg-white/5 p-8 backdrop-blur-sm flex flex-col">
+             {testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="rounded-2xl bg-white/5 p-8 backdrop-blur-sm flex flex-col">
                     <Quote className="w-10 h-10 text-purple-400/50 mb-4" />
                     <p className="text-slate-300 italic mb-6 flex-grow">"{testimonial.quote}"</p>
                     <div className="flex items-center mt-auto">
                         <Avatar className="h-12 w-12 mr-4">
-                            <AvatarImage src={testimonial.avatarSrc} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
+                            <AvatarImage src={testimonial.avatarUrl} alt={testimonial.name} data-ai-hint={testimonial.avatarHint} />
                             <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>

@@ -9,15 +9,17 @@ import { getBlogPosts } from "@/services/blogs";
 import { getEvents } from "@/services/events";
 import { getMembers } from "@/services/members";
 import { getResources } from "@/services/resources";
-import { Users, Calendar, Newspaper, Library } from "lucide-react";
+import { Users, Calendar, Newspaper, Library, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { getTestimonials } from "@/services/testimonials";
 
 export default async function AdminDashboardPage() {
   const members = await getMembers();
   const events = await getEvents();
   const blogPosts = await getBlogPosts();
   const resources = await getResources();
+  const testimonials = await getTestimonials();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -32,7 +34,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
@@ -69,6 +71,15 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{resources.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Testimonials</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{testimonials.length}</div>
           </CardContent>
         </Card>
       </div>
