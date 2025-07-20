@@ -9,7 +9,8 @@ import {
     updateAttendanceAction, 
     deleteRegistrationAction, 
     uploadAttendeeCertificateAction,
-    sendAttendeeCertificateAction
+    sendAttendeeCertificateAction,
+    sendBulkCertificatesAction
 } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,15 +21,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, UserPlus, Trash2, Mail, Upload, CheckCircle2, AlertTriangle, Send } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "./ui/checkbox";
 
 
 interface AttendeeManagerProps {
   event: Event;
 }
 
-const initialState = { message: "", errors: {} };
-
-function AttendeeRow({ event, registration: initialRegistration }: { event: Event, registration: Registration }) {
+function AttendeeRow({ event, registration: initialRegistration, isSelected, onSelectChange }: { event: Event, registration: Registration, isSelected: boolean, onSelectChange: (id: string, checked: boolean) => void }) {
   const [registration, setRegistration] = useState(initialRegistration);
   const [isProcessing, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,7 +103,14 @@ function AttendeeRow({ event, registration: initialRegistration }: { event: Even
   };
 
   return (
-    <TableRow>
+    <TableRow data-state={isSelected ? 'selected' : undefined}>
+      <TableCell className="py-2">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={(checked) => onSelectChange(registration.id, !!checked)}
+          aria-label="Select row"
+        />
+      </TableCell>
       <TableCell className="font-medium">
         <div>{registration.studentName}</div>
         <div className="text-xs text-muted-foreground sm:hidden">{registration.studentEmail}</div>
@@ -157,22 +164,31 @@ function AttendeeRow({ event, registration: initialRegistration }: { event: Even
 
 export function AttendeeManager({ event }: AttendeeManagerProps) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBulkSending, startBulkSendTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const addAction = addRegistrationAction.bind(null, event.id);
   const [state, formAction] = useActionState(addAction, initialState);
 
+  const fetchRegistrations = async () => {
+    setIsLoading(true);
+    const fetchedRegistrations = await getRegistrationsForEvent(event.id);
+    setRegistrations(fetchedRegistrations);
+    setIsLoading(false);
+  };
+  
   useEffect(() => {
-    const fetchRegistrations = async () => {
-      setIsLoading(true);
-      const fetchedRegistrations = await getRegistrationsForEvent(event.id);
-      setRegistrations(fetchedRegistrations);
-      setIsLoading(false);
-    };
     fetchRegistrations();
-  }, [event.id, state.success]); // Re-fetch on successful addition
+  }, [event.id]);
+
+  useEffect(() => {
+    if (state.success) {
+      fetchRegistrations(); // Re-fetch on successful addition
+    }
+  }, [state.success]);
 
   useEffect(() => {
     if (state.message) {
@@ -184,6 +200,39 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
       }
     }
   }, [state, toast]);
+
+  const handleSelectChange = (id: string, checked: boolean) => {
+    setSelected(prev => checked ? [...prev, id] : prev.filter(rowId => rowId !== id));
+  };
+  
+  const handleSelectAllChange = (checked: boolean) => {
+    setSelected(checked ? registrations.map(r => r.id) : []);
+  };
+
+  const handleBulkSend = () => {
+    const selectedRegistrations = registrations.filter(r => selected.includes(r.id));
+    const toSend = selectedRegistrations.filter(r => r.certificateUrl && !r.certificateSent);
+
+    if(toSend.length === 0) {
+        toast({
+            title: "No certificates to send",
+            description: "Please select attendees who have an uploaded certificate that hasn't been sent yet.",
+            variant: "destructive"
+        });
+        return;
+    }
+
+    startBulkSendTransition(async () => {
+        const result = await sendBulkCertificatesAction(event.id, toSend);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            setSelected([]);
+            fetchRegistrations(); // Refresh data
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+    });
+  }
   
 
   return (
@@ -250,10 +299,24 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
           </div>
         </form>
 
+        <div className="mb-4 flex items-center gap-4">
+          <Button onClick={handleBulkSend} disabled={selected.length === 0 || isBulkSending}>
+            {isBulkSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Send to Selected ({selected.length})
+          </Button>
+        </div>
+        
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[40px] py-2">
+                  <Checkbox
+                    checked={selected.length > 0 && selected.length === registrations.length}
+                    onCheckedChange={handleSelectAllChange}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Student Name</TableHead>
                 <TableHead className="hidden sm:table-cell">URN / CRN</TableHead>
                 <TableHead className="hidden md:table-cell">Attended</TableHead>
@@ -264,17 +327,23 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24">
+                  <TableCell colSpan={6} className="text-center h-24">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : registrations.length > 0 ? (
                 registrations.map(reg => (
-                  <AttendeeRow key={reg.id} event={event} registration={reg} />
+                  <AttendeeRow 
+                    key={reg.id} 
+                    event={event} 
+                    registration={reg} 
+                    isSelected={selected.includes(reg.id)}
+                    onSelectChange={handleSelectChange}
+                  />
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                     No students registered yet.
                   </TableCell>
                 </TableRow>

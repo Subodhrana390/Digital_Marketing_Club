@@ -464,6 +464,58 @@ export async function sendAttendeeCertificateAction(
   }
 }
 
+export async function sendBulkCertificatesAction(
+    eventId: string,
+    registrations: Registration[]
+): Promise<{ success: boolean; message: string }> {
+    const event = await getEvent(eventId);
+    if (!event) return { success: false, message: "Event not found." };
+
+    const emailsToSend = [];
+    const successfulSends: string[] = [];
+
+    for (const reg of registrations) {
+        if (reg.certificateUrl && reg.certificateName && !reg.certificateSent) {
+            try {
+                const response = await fetch(reg.certificateUrl);
+                if (!response.ok) throw new Error(`Could not fetch file for ${reg.studentName}`);
+                const fileBuffer = await response.arrayBuffer();
+                
+                emailsToSend.push({
+                    to: reg.studentEmail,
+                    studentName: reg.studentName,
+                    eventTitle: event.title,
+                    attachments: [{
+                        filename: reg.certificateName,
+                        content: Buffer.from(fileBuffer),
+                    }]
+                });
+                successfulSends.push(reg.id);
+            } catch (error) {
+                console.error(`Failed to prepare email for ${reg.studentName}:`, error);
+            }
+        }
+    }
+
+    if (emailsToSend.length === 0) {
+        return { success: true, message: "No new certificates to send." };
+    }
+
+    try {
+        await sendCertificateEmail(emailsToSend);
+        
+        // Update the sent status for all successfully sent emails
+        for (const regId of successfulSends) {
+            await updateRegistrationForEvent(eventId, regId, { certificateSent: true });
+        }
+
+        revalidatePath(`/admin/events/edit/${eventId}`);
+        return { success: true, message: `Successfully sent ${successfulSends.length} of ${registrations.length} selected certificates.` };
+    } catch (error: any) {
+        return { success: false, message: `Failed to send emails: ${error.message}` };
+    }
+}
+
 
 // Resource Actions
 const resourceSchema = z.object({
