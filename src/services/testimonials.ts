@@ -26,6 +26,7 @@ function docToTestimonial(doc: DocumentSnapshot<DocumentData>): Testimonial | nu
 }
 
 export async function getTestimonials(): Promise<Testimonial[]> {
+    if (!db) return [];
     const testimonialsCollection = collection(db, 'testimonials');
     const q = query(testimonialsCollection, orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
@@ -34,6 +35,7 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function getTestimonial(id: string): Promise<Testimonial | null> {
+    if (!db) return null;
     const docRef = doc(db, 'testimonials', id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
@@ -43,14 +45,17 @@ export async function getTestimonial(id: string): Promise<Testimonial | null> {
 }
 
 export async function addTestimonial(testimonial: Omit<Testimonial, 'id'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const docRef = await addDoc(collection(db, 'testimonials'), testimonial);
     return docRef.id;
 }
 
 export async function updateTestimonial(id: string, testimonial: Partial<Omit<Testimonial, 'id'>>) {
+    if (!db) throw new Error("Firebase not initialized");
     await updateDoc(doc(db, 'testimonials', id), testimonial);
 }
 
 export async function deleteTestimonial(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'testimonials', id));
 }

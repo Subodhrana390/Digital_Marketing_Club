@@ -1,4 +1,3 @@
-
 import { collection, getDocs, orderBy, query, doc, getDoc, addDoc, updateDoc, deleteDoc, type DocumentSnapshot, type DocumentData, Timestamp, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Member, MemberRegistration } from '@/lib/types';
@@ -37,6 +36,7 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
 }
 
 export async function getMembers(type?: 'Core' | 'Active' | 'Faculty'): Promise<Member[]> {
+    if (!db) return [];
     const membersCollection = collection(db, 'members');
     
     let q;
@@ -60,6 +60,7 @@ export async function getMembers(type?: 'Core' | 'Active' | 'Faculty'): Promise<
 }
 
 export async function getMember(id: string): Promise<Member | null> {
+    if (!db) return null;
     const docRef = doc(db, 'members', id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
@@ -69,6 +70,7 @@ export async function getMember(id: string): Promise<Member | null> {
 }
 
 export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const newMember = {
         ...member,
         description: member.description || "",
@@ -85,6 +87,7 @@ export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
 }
 
 export async function updateMember(id: string, member: Partial<Omit<Member, 'id' | 'fallback'>>) {
+    if (!db) throw new Error("Firebase not initialized");
     const memberData: Partial<Member> = {...member};
     if (member.name) {
         memberData.fallback = member.name.charAt(0).toUpperCase();
@@ -93,12 +96,14 @@ export async function updateMember(id: string, member: Partial<Omit<Member, 'id'
 }
 
 export async function deleteMember(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'members', id));
 }
 
 
 // Member Registration Functions
 export async function addMemberRegistration(registration: Omit<MemberRegistration, 'id' | 'status' | 'createdAt'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const registrationsCollection = collection(db, 'memberRegistrations');
     await addDoc(registrationsCollection, {
         ...registration,
@@ -128,6 +133,7 @@ function docToMemberRegistration(doc: DocumentSnapshot<DocumentData>): MemberReg
 }
 
 export async function getMemberRegistrations(): Promise<MemberRegistration[]> {
+    if (!db) return [];
     const registrationsCollection = collection(db, 'memberRegistrations');
     const q = query(registrationsCollection, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
@@ -135,6 +141,7 @@ export async function getMemberRegistrations(): Promise<MemberRegistration[]> {
 }
 
 export async function updateMemberRegistrationStatus(id: string, status: 'approved' | 'rejected') {
+    if (!db) throw new Error("Firebase not initialized");
     const registrationRef = doc(db, 'memberRegistrations', id);
     await updateDoc(registrationRef, { status });
 }

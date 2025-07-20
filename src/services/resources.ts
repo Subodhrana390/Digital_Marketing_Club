@@ -27,6 +27,7 @@ function docToResource(doc: DocumentSnapshot<DocumentData>): Resource | null {
 }
 
 export async function getResources(): Promise<Resource[]> {
+    if (!db) return [];
     const resourcesCollection = collection(db, 'resources');
      const q = query(resourcesCollection, orderBy('name', 'asc'));
     const querySnapshot = await getDocs(q);
@@ -35,6 +36,7 @@ export async function getResources(): Promise<Resource[]> {
 }
 
 export async function getResource(id: string): Promise<Resource | null> {
+    if (!db) return null;
     const docRef = doc(db, 'resources', id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
@@ -44,14 +46,17 @@ export async function getResource(id: string): Promise<Resource | null> {
 }
 
 export async function addResource(resource: Omit<Resource, 'id'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const docRef = await addDoc(collection(db, 'resources'), resource);
     return docRef.id;
 }
 
 export async function updateResource(id: string, resource: Partial<Omit<Resource, 'id'>>) {
+    if (!db) throw new Error("Firebase not initialized");
     await updateDoc(doc(db, 'resources', id), resource);
 }
 
 export async function deleteResource(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'resources', id));
 }

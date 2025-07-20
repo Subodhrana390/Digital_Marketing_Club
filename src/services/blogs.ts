@@ -45,6 +45,7 @@ function docToBlogPost(doc: DocumentSnapshot<DocumentData>): BlogPost | null {
 
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
+    if (!db) return [];
     const postsCollection = collection(db, 'blogPosts');
     const q = query(postsCollection, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
@@ -53,6 +54,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getBlogPost(id: string): Promise<BlogPost | null> {
+    if (!db) return null;
     const docRef = doc(db, 'blogPosts', id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
@@ -62,6 +64,7 @@ export async function getBlogPost(id: string): Promise<BlogPost | null> {
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+    if (!db) return null;
     const q = query(collection(db, "blogPosts"), where("slug", "==", slug));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
@@ -72,6 +75,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 }
 
 export async function addBlogPost(post: Omit<BlogPost, 'id' | 'date' | 'updatedAt'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const now = Timestamp.fromDate(new Date());
     const newPost = {
         ...post,
@@ -83,6 +87,7 @@ export async function addBlogPost(post: Omit<BlogPost, 'id' | 'date' | 'updatedA
 }
 
 export async function updateBlogPost(id: string, post: Partial<Omit<BlogPost, 'id'>>) {
+    if (!db) throw new Error("Firebase not initialized");
     const updateData = {
         ...post,
         updatedAt: Timestamp.fromDate(new Date()),
@@ -91,5 +96,6 @@ export async function updateBlogPost(id: string, post: Partial<Omit<BlogPost, 'i
 }
 
 export async function deleteBlogPost(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'blogPosts', id));
 }

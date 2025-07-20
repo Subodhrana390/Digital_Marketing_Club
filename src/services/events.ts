@@ -36,13 +36,14 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
 }
 
 export async function getEvents(): Promise<Event[]> {
+    if (!db) return [];
     const eventsCollection = collection(db, 'events');
     const q = query(eventsCollection, orderBy('date', 'desc'));
     const querySnapshot = await getDocs(q);
 
     const eventsPromises = querySnapshot.docs.map(async (eventDoc) => {
         const event = docToEvent(eventDoc);
-        if (event) {
+        if (event && db) {
             const registrationsCollection = collection(db, 'events', event.id, 'registrations');
             const registrationsSnapshot = await getDocs(registrationsCollection);
             return { ...event, registrationCount: registrationsSnapshot.size };
@@ -55,13 +56,14 @@ export async function getEvents(): Promise<Event[]> {
 }
 
 export async function getEvent(id: string): Promise<Event | null> {
+    if (!db) return null;
     const docRef = doc(db, 'events', id);
     const docSnap = await getDoc(docRef);
     if (!docSnap.exists()) {
         return null;
     }
     const event = docToEvent(docSnap);
-    if(event) {
+    if(event && db) {
         const registrationsCollection = collection(db, 'events', event.id, 'registrations');
         const registrationsSnapshot = await getDocs(registrationsCollection);
         return { ...event, registrationCount: registrationsSnapshot.size };
@@ -86,6 +88,7 @@ type EventInput = {
 }
 
 export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const newEvent = {
         ...event,
         date: Timestamp.fromDate(event.date),
@@ -96,6 +99,7 @@ export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName
 }
 
 export async function updateEvent(id: string, event: Partial<EventInput>) {
+    if (!db) throw new Error("Firebase not initialized");
     const eventData: Partial<any> = {...event};
     if (event.date) {
         eventData.date = Timestamp.fromDate(event.date);
@@ -104,6 +108,7 @@ export async function updateEvent(id: string, event: Partial<EventInput>) {
 }
 
 export async function deleteEvent(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'events', id));
 }
 
@@ -128,6 +133,7 @@ function docToRegistration(doc: DocumentSnapshot<DocumentData>): Registration {
 
 
 export async function getRegistrationsForEvent(eventId: string): Promise<Registration[]> {
+    if (!db) return [];
     const registrationsCollection = collection(db, 'events', eventId, 'registrations');
     const q = query(registrationsCollection, orderBy('studentName', 'asc'));
     const querySnapshot = await getDocs(q);
@@ -135,6 +141,7 @@ export async function getRegistrationsForEvent(eventId: string): Promise<Registr
 }
 
 export async function addRegistrationToEvent(eventId: string, registration: Omit<Registration, 'id' | 'attended' | 'certificateUrl'>) {
+    if (!db) throw new Error("Firebase not initialized");
     const registrationsCollection = collection(db, 'events', eventId, 'registrations');
     await addDoc(registrationsCollection, {
         ...registration,
@@ -143,11 +150,13 @@ export async function addRegistrationToEvent(eventId: string, registration: Omit
 }
 
 export async function updateRegistrationForEvent(eventId: string, registrationId: string, data: Partial<Omit<Registration, 'id'>>) {
+    if (!db) throw new Error("Firebase not initialized");
     const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
     await updateDoc(registrationRef, data);
 }
 
 export async function deleteRegistrationFromEvent(eventId: string, registrationId: string) {
+    if (!db) throw new Error("Firebase not initialized");
     const registrationRef = doc(db, 'events', eventId, 'registrations', registrationId);
     await deleteDoc(registrationRef);
 }

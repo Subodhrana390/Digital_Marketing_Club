@@ -5,6 +5,7 @@ import type { ContactSubmission } from '@/lib/types';
 type ContactSubmissionInput = Omit<ContactSubmission, 'id' | 'createdAt'>;
 
 export async function addContactSubmission(submission: ContactSubmissionInput) {
+    if (!db) throw new Error("Firebase not initialized");
     const newSubmission = {
         ...submission,
         createdAt: Timestamp.now(),
@@ -29,6 +30,7 @@ function docToContactSubmission(doc: DocumentSnapshot<DocumentData>): ContactSub
 }
 
 export async function getContactSubmissions(): Promise<ContactSubmission[]> {
+    if (!db) return [];
     const submissionsCollection = collection(db, 'contactSubmissions');
     const q = query(submissionsCollection, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
@@ -37,7 +39,6 @@ export async function getContactSubmissions(): Promise<ContactSubmission[]> {
 }
 
 export async function deleteContactSubmission(id: string) {
+    if (!db) throw new Error("Firebase not initialized");
     await deleteDoc(doc(db, 'contactSubmissions', id));
 }
-
-    
