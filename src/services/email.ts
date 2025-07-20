@@ -1,6 +1,8 @@
+
 'use server';
 
 import { Resend } from 'resend';
+import type { CreateEmailRequest, CreateEmailResponse } from 'resend/build/src/emails/interfaces';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -9,10 +11,9 @@ const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 interface CertificateEmailProps {
   studentName: string;
   eventTitle: string;
-  certificateUrl: string;
 }
 
-const CertificateEmailTemplate = ({ studentName, eventTitle, certificateUrl }: CertificateEmailProps): string => {
+const CertificateEmailTemplate = ({ studentName, eventTitle }: CertificateEmailProps): string => {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -52,16 +53,6 @@ const CertificateEmailTemplate = ({ studentName, eventTitle, certificateUrl }: C
       .content p {
         margin: 0 0 16px;
       }
-      .button {
-        display: inline-block;
-        background-color: #4F46E5; /* button color */
-        color: #ffffff;
-        padding: 12px 24px;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: bold;
-        margin-top: 16px;
-      }
       .footer {
         background-color: #f4f4f7;
         color: #6b7280;
@@ -79,8 +70,7 @@ const CertificateEmailTemplate = ({ studentName, eventTitle, certificateUrl }: C
       <div class="content">
         <p>Dear ${studentName},</p>
         <p>Thank you for your participation in the "<strong>${eventTitle}</strong>" event. We are pleased to present you with your official certificate of participation.</p>
-        <p>You can view and download your certificate by clicking the button below:</p>
-        <a href="${certificateUrl}" target="_blank" class="button">Download Your Certificate</a>
+        <p>You can find your certificate attached to this email.</p>
         <p style="margin-top: 24px;">We appreciate your engagement and hope to see you at our future events!</p>
         <p>Best regards,<br><strong>The Digital Marketing Club</strong></p>
       </div>
@@ -93,36 +83,44 @@ const CertificateEmailTemplate = ({ studentName, eventTitle, certificateUrl }: C
   `;
 };
 
-export async function sendCertificateEmail({ to, studentName, eventTitle, certificateUrl }: {
+type EmailPayload = {
   to: string;
   studentName: string;
   eventTitle: string;
-  certificateUrl: string;
-}) {
+  attachments?: CreateEmailRequest['attachments'];
+}
+
+export async function sendCertificateEmail(payloads: EmailPayload[]) {
   if (!process.env.RESEND_API_KEY) {
     console.error("Resend API key is not configured. Please set the RESEND_API_KEY environment variable.");
     throw new Error("Email service is not configured on the server.");
   }
+  
+  const emails: CreateEmailRequest[] = payloads.map(({ to, studentName, eventTitle, attachments }) => {
+      const emailHtml = CertificateEmailTemplate({ studentName, eventTitle });
+      return {
+          from: `Digital Marketing Club <${fromEmail}>`,
+          to: [to],
+          subject: `Your Certificate for: ${eventTitle}`,
+          html: emailHtml,
+          attachments: attachments,
+      };
+  });
 
-  const emailHtml = CertificateEmailTemplate({ studentName, eventTitle, certificateUrl });
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: `Digital Marketing Club <${fromEmail}>`,
-      to: [to],
-      subject: `Your Certificate for: ${eventTitle}`,
-      html: emailHtml,
-    });
+    const { data, error } = await resend.batch.send(emails);
 
     if (error) {
       console.error("Resend API Error:", error);
-      throw new Error(`Failed to send email: ${error.message}`);
+      throw new Error(`Failed to send emails: ${error.message}`);
     }
 
-    console.log("Email sent successfully:", data);
+    console.log("Emails sent successfully:", data);
+    return data;
   } catch (error) {
     console.error("Failed to execute send email request:", error);
     // Re-throw a generic error to not expose too much detail to the client.
-    throw new Error("An unexpected error occurred while trying to send the certificate email.");
+    throw new Error("An unexpected error occurred while trying to send the certificate emails.");
   }
 }

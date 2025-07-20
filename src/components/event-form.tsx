@@ -6,10 +6,10 @@ import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2, FileImage } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Event } from "@/lib/types";
-import { addEventAction, updateEventAction, updateEventWithReport, uploadEventReportAction, uploadCertificateTemplateAction, updateEventWithTemplate } from "@/app/actions";
+import { addEventAction, updateEventAction, updateEventWithReport, uploadEventReportAction, uploadAttendanceCertificateAction, updateEventWithCertificate } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +36,7 @@ function SubmitButton({ isUpdate }: { isUpdate: boolean }) {
   );
 }
 
-function CertificateTemplateUploader({ event }: { event: Event }) {
+function AttendanceCertificateUploader({ event }: { event: Event }) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
@@ -51,7 +51,7 @@ function CertificateTemplateUploader({ event }: { event: Event }) {
 
   const handleUpload = async () => {
     if (!file) {
-      toast({ title: "No file selected", description: "Please select a template image to upload.", variant: "destructive" });
+      toast({ title: "No file selected", description: "Please select a certificate file to upload.", variant: "destructive" });
       return;
     }
     setIsUploading(true);
@@ -60,14 +60,14 @@ function CertificateTemplateUploader({ event }: { event: Event }) {
     formData.append('file', file);
 
     try {
-      const uploadResult = await uploadCertificateTemplateAction(formData);
+      const uploadResult = await uploadAttendanceCertificateAction(formData);
 
       if (uploadResult.error) {
         throw new Error(uploadResult.error);
       }
 
-      const { downloadUrl, publicId } = uploadResult;
-      const result = await updateEventWithTemplate(event.id, downloadUrl, publicId);
+      const { downloadUrl, fileName } = uploadResult;
+      const result = await updateEventWithCertificate(event.id, downloadUrl, fileName);
 
       if (result.success) {
         toast({ title: "Success", description: result.message });
@@ -83,7 +83,7 @@ function CertificateTemplateUploader({ event }: { event: Event }) {
     } finally {
       setIsUploading(false);
       setFile(null);
-      const fileInput = document.getElementById('template-file') as HTMLInputElement;
+      const fileInput = document.getElementById('certificate-file') as HTMLInputElement;
       if(fileInput) fileInput.value = "";
     }
   };
@@ -91,27 +91,30 @@ function CertificateTemplateUploader({ event }: { event: Event }) {
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Certificate Template</CardTitle>
-        <CardDescription>Upload a template image (e.g., PNG, JPG) for the certificate. The student's name, event title, and date will be overlaid on this image.</CardDescription>
+        <CardTitle>Attendance Certificate</CardTitle>
+        <CardDescription>Upload a generic attendance certificate (e.g., PDF, PNG, JPG). This certificate will be emailed as an attachment to all attended students.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {event.certificateTemplateUrl ? (
+        {event.attendanceCertificateUrl ? (
           <div className="space-y-2">
-            <Label>Current Template</Label>
-            <div className="relative w-48 h-auto border rounded-md overflow-hidden">
-                <Image src={event.certificateTemplateUrl} alt="Certificate Template" width={200} height={140} className="object-contain" />
+            <Label>Current Certificate</Label>
+            <div>
+              <a href={event.attendanceCertificateUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                {event.attendanceCertificateName || 'View Certificate'}
+              </a>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No certificate template uploaded yet.</p>
+          <p className="text-sm text-muted-foreground">No certificate uploaded yet.</p>
         )}
         <div className="space-y-2">
-          <Label htmlFor="template-file">{event.certificateTemplateUrl ? "Upload New/Replace Template" : "Upload Template"}</Label>
-          <Input id="template-file" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} />
+          <Label htmlFor="certificate-file">{event.attendanceCertificateUrl ? "Upload New/Replace Certificate" : "Upload Certificate"}</Label>
+          <Input id="certificate-file" type="file" accept="image/png, image/jpeg, application/pdf" onChange={handleFileChange} />
         </div>
         <Button onClick={handleUpload} disabled={!file || isUploading}>
           {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isUploading ? "Uploading..." : "Upload Template"}
+          <FileUp className="mr-2 h-4 w-4" />
+          {isUploading ? "Uploading..." : "Upload Certificate"}
         </Button>
       </CardContent>
     </Card>
@@ -335,7 +338,7 @@ export function EventForm({ event }: EventFormProps) {
       </div>
       {state.message && (!state.errors || Object.keys(state.errors).length === 0) && <p className="text-sm font-medium text-destructive">{state.message}</p>}
     </form>
-    {isUpdate && event && <CertificateTemplateUploader event={event} />}
+    {isUpdate && event && <AttendanceCertificateUploader event={event} />}
     {isUpdate && event && <EventReportUploader event={event} />}
     {isUpdate && event && <AttendeeManager event={event} />}
     </>

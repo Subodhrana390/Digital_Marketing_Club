@@ -24,8 +24,8 @@ export interface Event {
   registrationLink?: string;
   reportUrl?: string;
   reportName?: string;
-  certificateTemplateUrl?: string;
-  certificateTemplatePublicId?: string;
+  attendanceCertificateUrl?: string;
+  attendanceCertificateName?: string;
   registrationCount?: number;
   bannerUrl?: string;
   bannerHint?: string;

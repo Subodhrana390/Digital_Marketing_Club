@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useState, useEffect, useTransition, useRef, useActionState } from "react";
 import type { Event, Registration } from "@/lib/types";
 import { getRegistrationsForEvent } from "@/services/events";
-import { addRegistrationAction, updateAttendanceAction, deleteRegistrationAction, generateCertificateAction } from "@/app/actions";
+import { addRegistrationAction, updateAttendanceAction, deleteRegistrationAction, sendCertificatesAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, UserPlus, Trash2, Award, Download, AlertCircle } from "lucide-react";
+import { Loader2, UserPlus, Trash2, Award, Mail } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
@@ -24,7 +25,7 @@ const initialState = { message: "", errors: {} };
 export function AttendeeManager({ event }: AttendeeManagerProps) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [generatingCertId, setGeneratingCertId] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -79,25 +80,34 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
     });
   };
 
-  const handleGenerateCertificate = (registration: Registration) => {
+  const handleSendCertificates = () => {
     startTransition(async () => {
-      setGeneratingCertId(registration.id);
-      const result = await generateCertificateAction(event.id, registration.id, registration.studentName, registration.studentEmail, event.title);
-      if (result.success) {
-        setRegistrations(regs => regs.map(r => r.id === registration.id ? { ...r, certificateUrl: result.certificateUrl } : r));
-        toast({ title: "Success", description: result.message });
-      } else {
-        toast({ title: "Error", description: result.message, variant: "destructive" });
-      }
-      setGeneratingCertId(null);
+        setIsSending(true);
+        const result = await sendCertificatesAction(event.id);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+        setIsSending(false);
     });
   };
+  
+  const attendeesCount = registrations.filter(r => r.attended).length;
 
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Attendance & Certificates</CardTitle>
-        <CardDescription>Manage registered students for this event.</CardDescription>
+        <div className="flex justify-between items-start">
+            <div>
+                <CardTitle>Attendance & Certificates</CardTitle>
+                <CardDescription>Manage registered students for this event.</CardDescription>
+            </div>
+             <Button onClick={handleSendCertificates} disabled={isPending || isSending || attendeesCount === 0 || !event.attendanceCertificateUrl}>
+                {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+                Send to {attendeesCount} Attendee{attendeesCount !== 1 ? 's' : ''}
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 border rounded-lg items-end">
@@ -163,14 +173,13 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                 <TableHead className="hidden sm:table-cell">URN / CRN</TableHead>
                 <TableHead className="hidden md:table-cell">Year</TableHead>
                 <TableHead>Attended</TableHead>
-                <TableHead>Certificate</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24">
+                  <TableCell colSpan={5} className="text-center h-24">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
@@ -193,29 +202,6 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                         disabled={isPending}
                       />
                     </TableCell>
-                    <TableCell>
-                      {reg.certificateUrl ? (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={reg.certificateUrl} target="_blank" rel="noopener noreferrer">
-                            <Download className="mr-2 h-4 w-4" /> View
-                          </a>
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={!reg.attended || isPending || generatingCertId === reg.id}
-                          onClick={() => handleGenerateCertificate(reg)}
-                        >
-                          {generatingCertId === reg.id ? (
-                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <Award className="mr-2 h-4 w-4" />
-                          )}
-                          Generate & Send
-                        </Button>
-                      )}
-                    </TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon" onClick={() => handleDelete(reg.id)} disabled={isPending}>
                           <Trash2 className="h-4 w-4 text-destructive" />
@@ -226,7 +212,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                     No students registered yet.
                   </TableCell>
                 </TableRow>

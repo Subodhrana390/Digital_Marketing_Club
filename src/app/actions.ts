@@ -16,10 +16,10 @@ import {
   type GenerateBlogContentOutput,
 } from "@/ai/flows/generate-blog-content";
 import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
-import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent } from "@/services/events";
+import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent, getRegistrationsForEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
-import { uploadEventReport, uploadCertificateTemplate, generateCertificateWithOverlay, uploadImage, deleteFileByPublicId } from "@/services/storage";
+import { uploadEventReport, uploadAttendanceCertificate, uploadImage, deleteFileByPublicId } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import { addTestimonial, deleteTestimonial, updateTestimonial } from "@/services/testimonials";
@@ -400,68 +400,70 @@ export async function deleteRegistrationAction(eventId: string, registrationId: 
     }
 }
 
-export async function uploadCertificateTemplateAction(formData: FormData): Promise<{ downloadUrl: string; publicId: string; error?: string }> {
+export async function uploadAttendanceCertificateAction(formData: FormData): Promise<{ downloadUrl: string; fileName: string; error?: string }> {
     const file = formData.get('file') as File | null;
 
     if (!file) {
-        return { downloadUrl: '', publicId: '', error: 'No file provided.' };
+        return { downloadUrl: '', fileName: '', error: 'No file provided.' };
     }
     
     try {
-        const { downloadUrl, publicId } = await uploadCertificateTemplate(file);
-        return { downloadUrl, publicId };
+        const { downloadUrl, fileName } = await uploadAttendanceCertificate(file);
+        return { downloadUrl, fileName };
     } catch (e: any) {
-        console.error("Template upload failed:", e);
-        return { downloadUrl: '', publicId: '', error: "Failed to upload template: " + e.message };
+        console.error("Certificate upload failed:", e);
+        return { downloadUrl: '', fileName: '', error: "Failed to upload certificate: " + e.message };
     }
 }
 
-export async function updateEventWithTemplate(eventId: string, templateUrl: string, templatePublicId: string) {
+export async function updateEventWithCertificate(eventId: string, certUrl: string, certName: string) {
     try {
-        await updateEvent(eventId, { certificateTemplateUrl: templateUrl, certificateTemplatePublicId: templatePublicId });
+        await updateEvent(eventId, { attendanceCertificateUrl: certUrl, attendanceCertificateName: certName });
         revalidatePath(`/admin/events/edit/${eventId}`);
-        return { success: true, message: "Template uploaded successfully." };
+        return { success: true, message: "Certificate uploaded successfully." };
     } catch (e: any) {
         console.error(e);
-        return { success: false, message: "Failed to update event with template: " + e.message };
+        return { success: false, message: "Failed to update event with certificate: " + e.message };
     }
 }
 
-export async function generateCertificateAction(
-  eventId: string,
-  registrationId: string,
-  studentName: string,
-  studentEmail: string,
-  eventTitle: string
-) {
+export async function sendCertificatesAction(eventId: string) {
     try {
         const event = await getEvent(eventId);
-        if (!event || !event.certificateTemplatePublicId) {
-            throw new Error('Certificate template not found for this event. Please upload a template first.');
+        if (!event || !event.attendanceCertificateUrl || !event.attendanceCertificateName) {
+            throw new Error('Attendance certificate not found for this event. Please upload a certificate first.');
         }
 
-        const { certificateUrl } = await generateCertificateWithOverlay({
-            templatePublicId: event.certificateTemplatePublicId,
-            studentName: studentName,
-            eventTitle: eventTitle,
-            eventDate: event.date,
-        });
-        
-        await updateRegistrationForEvent(eventId, registrationId, { certificateUrl });
-        
-        await sendCertificateEmail({
-            to: studentEmail,
-            studentName,
-            eventTitle,
-            certificateUrl,
-        });
+        const registrations = await getRegistrationsForEvent(eventId);
+        const attendees = registrations.filter(r => r.attended);
 
-        revalidatePath(`/admin/events/edit/${eventId}`);
-        return { success: true, message: 'Certificate generated and sent successfully.', certificateUrl };
+        if (attendees.length === 0) {
+            return { success: true, message: "No attendees marked to receive certificates." };
+        }
+
+        const response = await fetch(event.attendanceCertificateUrl);
+        if(!response.ok) throw new Error("Could not fetch the certificate file.");
+        const fileBuffer = await response.arrayBuffer();
+
+        const certificateAttachment = {
+            filename: event.attendanceCertificateName,
+            content: Buffer.from(fileBuffer),
+        };
+        
+        const emailsToSend = attendees.map(attendee => ({
+            to: attendee.studentEmail,
+            studentName: attendee.studentName,
+            eventTitle: event.title,
+            attachments: [certificateAttachment]
+        }));
+        
+        await sendCertificateEmail(emailsToSend);
+
+        return { success: true, message: `Certificates sent to ${attendees.length} attendees.` };
 
     } catch (e: any) {
-        console.error("Certificate generation and/or sending failed:", e);
-        return { success: false, message: 'Failed to generate or send certificate: ' + e.message };
+        console.error("Certificate sending failed:", e);
+        return { success: false, message: 'Failed to send certificates: ' + e.message };
     }
 }
 

@@ -75,95 +75,36 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
   };
 }
 
-export async function uploadCertificateTemplate(file: File): Promise<{ downloadUrl: string, publicId: string }> {
-    return uploadImage(file, 'certificate-templates');
-}
-
-
-export async function generateCertificateWithOverlay({
-  templatePublicId,
-  studentName,
-  eventTitle,
-  eventDate,
-}: {
-  templatePublicId: string;
-  studentName:string;
-  eventTitle: string;
-  eventDate: string; // ISO String
-}): Promise<{ certificateUrl: string }> {
+export async function uploadAttendanceCertificate(file: File): Promise<{ downloadUrl: string; fileName: string }> {
     checkConfiguration();
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const response = await uploadStream(buffer, {
+        folder: 'attendance-certificates',
+        resource_type: 'auto',
+        public_id: file.name.split('.')[0] + '_' + Date.now(),
+    });
     
-    // Sanitize text for URL transformations
-    const sanitize = (text: string) => encodeURIComponent(text.replace(/,/g, '\\,').replace(/\//g, '\\/'));
-
-    const formattedDate = new Date(eventDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-
-    // These are example transformations. You may need to adjust the x, y, font, and size
-    // based on your certificate template's design. The 'y' values are offsets from the center.
-    const transformations = [
-        // Student Name Overlay (centered horizontally, y offset from center)
-        {
-            overlay: {
-                font_family: 'Arial',
-                font_size: 80,
-                font_weight: 'bold',
-                text: sanitize(studentName),
-            },
-            color: '#374151', // gray-700
-            y: 50,
-        },
-        // Event Title Overlay
-        {
-            overlay: {
-                font_family: 'Arial',
-                font_size: 30,
-                text: sanitize(`For successfully participating in`),
-            },
-            color: '#6B7280', // gray-500
-            y: 130,
-        },
-        {
-            overlay: {
-                font_family: 'Arial',
-                font_size: 40,
-                font_weight: 'bold',
-                text: sanitize(eventTitle),
-            },
-            color: '#374151', // gray-700
-            y: 180,
-        },
-        // Date Overlay
-        {
-            overlay: {
-                font_family: 'Arial',
-                font_size: 25,
-                text: sanitize(`Awarded on ${formattedDate}`),
-            },
-            color: '#6B7280', // gray-500
-            y: 250,
-        },
-    ];
-
-    const certificateUrl = cloudinary.url(templatePublicId, {
-        transformation: transformations,
-        secure: true,
-    });
-
-    if (!certificateUrl) {
-        throw new Error('Failed to generate certificate URL from Cloudinary.');
+    if (!response || !response.secure_url) {
+        throw new Error('Certificate upload to Cloudinary failed.');
     }
 
-    return { certificateUrl };
+    return {
+        downloadUrl: response.secure_url,
+        fileName: file.name,
+    };
 }
+
 
 export async function deleteFileByPublicId(publicId: string): Promise<{ result: string }> {
     checkConfiguration();
     try {
-        const response = await cloudinary.uploader.destroy(publicId);
+        const response = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+        // Also try destroying as an image in case the resource_type was different
+        if (response.result === 'not found') {
+            return await cloudinary.uploader.destroy(publicId);
+        }
         return response;
     } catch (error: any) {
         console.error(`Failed to delete file from Cloudinary (publicId: ${publicId}):`, error);
