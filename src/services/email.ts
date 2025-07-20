@@ -83,11 +83,16 @@ const CertificateEmailTemplate = ({ studentName, eventTitle }: CertificateEmailP
   `;
 };
 
+type Attachment = {
+  url: string;
+  filename: string;
+}
+
 type EmailPayload = {
   to: string;
   studentName: string;
   eventTitle: string;
-  attachments?: CreateEmailRequest['attachments'];
+  attachment?: Attachment;
 }
 
 export async function sendCertificateEmail(payloads: EmailPayload[]) {
@@ -96,17 +101,43 @@ export async function sendCertificateEmail(payloads: EmailPayload[]) {
     throw new Error("Email service is not configured on the server.");
   }
   
-  const emails: CreateEmailRequest[] = payloads.map(({ to, studentName, eventTitle, attachments }) => {
-      const emailHtml = CertificateEmailTemplate({ studentName, eventTitle });
-      return {
-          from: `Digital Marketing Club <${fromEmail}>`,
-          to: [to],
-          subject: `Your Certificate for: ${eventTitle}`,
-          html: emailHtml,
-          attachments: attachments,
-      };
-  });
+  const emails: CreateEmailRequest[] = [];
 
+  for (const { to, studentName, eventTitle, attachment } of payloads) {
+    const emailHtml = CertificateEmailTemplate({ studentName, eventTitle });
+    const attachments: CreateEmailRequest['attachments'] = [];
+
+    if (attachment) {
+      try {
+        const response = await fetch(attachment.url);
+        if (!response.ok) {
+          console.error(`Failed to fetch certificate from ${attachment.url} for ${studentName}`);
+          continue; // Skip this email if fetching fails
+        }
+        const buffer = await response.arrayBuffer();
+        attachments.push({
+          filename: attachment.filename,
+          content: Buffer.from(buffer),
+        });
+      } catch (error) {
+        console.error(`Error fetching or converting attachment for ${studentName}:`, error);
+        continue;
+      }
+    }
+
+    emails.push({
+      from: `Digital Marketing Club <${fromEmail}>`,
+      to: [to],
+      subject: `Your Certificate for: ${eventTitle}`,
+      html: emailHtml,
+      attachments: attachments,
+    });
+  }
+
+  if (emails.length === 0) {
+    console.log("No valid emails to send after processing attachments.");
+    return;
+  }
 
   try {
     const { data, error } = await resend.batch.send(emails);

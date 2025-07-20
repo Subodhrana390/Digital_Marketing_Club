@@ -436,21 +436,15 @@ export async function sendAttendeeCertificateAction(
     const event = await getEvent(eventId);
     if (!event) throw new Error("Event not found.");
 
-    const response = await fetch(registration.certificateUrl);
-    if (!response.ok) throw new Error("Could not fetch the certificate file.");
-    const fileBuffer = await response.arrayBuffer();
-
-    const certificateAttachment = {
-      filename: registration.certificateName,
-      content: Buffer.from(fileBuffer),
-    };
-
     await sendCertificateEmail([
       {
         to: registration.studentEmail,
         studentName: registration.studentName,
         eventTitle: event.title,
-        attachments: [certificateAttachment],
+        attachment: {
+            url: registration.certificateUrl,
+            filename: registration.certificateName,
+        }
       },
     ]);
 
@@ -477,18 +471,14 @@ export async function sendBulkCertificatesAction(
     for (const reg of registrations) {
         if (reg.certificateUrl && reg.certificateName && !reg.certificateSent) {
             try {
-                const response = await fetch(reg.certificateUrl);
-                if (!response.ok) throw new Error(`Could not fetch file for ${reg.studentName}`);
-                const fileBuffer = await response.arrayBuffer();
-                
                 emailsToSend.push({
                     to: reg.studentEmail,
                     studentName: reg.studentName,
                     eventTitle: event.title,
-                    attachments: [{
+                    attachment: {
+                        url: reg.certificateUrl,
                         filename: reg.certificateName,
-                        content: Buffer.from(fileBuffer),
-                    }]
+                    }
                 });
                 successfulSends.push(reg.id);
             } catch (error) {
