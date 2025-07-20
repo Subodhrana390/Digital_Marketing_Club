@@ -1,12 +1,19 @@
 
 'use server';
 
-import { Resend } from 'resend';
-import type { CreateEmailRequest, CreateEmailResponse } from 'resend/build/src/emails/interfaces';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const fromEmail = process.env.EMAIL_FROM || 'dmc@example.com';
 
-const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  secure: Number(process.env.EMAIL_PORT) === 465, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 interface CertificateEmailProps {
   studentName: string;
@@ -96,23 +103,22 @@ type EmailPayload = {
 }
 
 export async function sendCertificateEmail(payloads: EmailPayload[]) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("Resend API key is not configured. Please set the RESEND_API_KEY environment variable.");
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error("Email service is not configured. Please set EMAIL_HOST, EMAIL_PORT, EMAIL_USER, and EMAIL_PASS environment variables.");
     throw new Error("Email service is not configured on the server.");
   }
   
-  const emails: CreateEmailRequest[] = [];
-
-  for (const { to, studentName, eventTitle, attachment } of payloads) {
+  const emailPromises = payloads.map(async (payload) => {
+    const { to, studentName, eventTitle, attachment } = payload;
     const emailHtml = CertificateEmailTemplate({ studentName, eventTitle });
-    const attachments: CreateEmailRequest['attachments'] = [];
+    const attachments: any[] = [];
 
     if (attachment) {
       try {
         const response = await fetch(attachment.url);
         if (!response.ok) {
           console.error(`Failed to fetch certificate from ${attachment.url} for ${studentName}`);
-          continue; // Skip this email if fetching fails
+          return; // Skip this email if fetching fails
         }
         const buffer = await response.arrayBuffer();
         attachments.push({
@@ -121,37 +127,28 @@ export async function sendCertificateEmail(payloads: EmailPayload[]) {
         });
       } catch (error) {
         console.error(`Error fetching or converting attachment for ${studentName}:`, error);
-        continue;
+        return;
       }
     }
 
-    emails.push({
-      from: `Digital Marketing Club <${fromEmail}>`,
-      to: [to],
-      subject: `Your Certificate for: ${eventTitle}`,
-      html: emailHtml,
-      attachments: attachments,
-    });
-  }
+    const mailOptions = {
+        from: `Digital Marketing Club <${fromEmail}>`,
+        to: to,
+        subject: `Your Certificate for: ${eventTitle}`,
+        html: emailHtml,
+        attachments: attachments,
+    };
 
-  if (emails.length === 0) {
-    console.log("No valid emails to send after processing attachments.");
-    return;
-  }
-
-  try {
-    const { data, error } = await resend.batch.send(emails);
-
-    if (error) {
-      console.error("Resend API Error:", error);
-      throw new Error(`Failed to send emails: ${error.message}`);
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully to ${to}`);
+    } catch (error) {
+        console.error(`Failed to send email to ${to}:`, error);
+        // We don't rethrow here to allow other emails to be sent.
     }
+  });
 
-    console.log("Emails sent successfully:", data);
-    return data;
-  } catch (error) {
-    console.error("Failed to execute send email request:", error);
-    // Re-throw a generic error to not expose too much detail to the client.
-    throw new Error("An unexpected error occurred while trying to send the certificate emails.");
-  }
+  await Promise.all(emailPromises);
+
+  return { success: true };
 }
