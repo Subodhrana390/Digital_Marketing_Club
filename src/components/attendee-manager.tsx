@@ -171,6 +171,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const addAction = addRegistrationAction.bind(null, event.id);
+  const initialState = { message: "", errors: {}, success: false };
   const [state, formAction] = useActionState(addAction, initialState);
 
   const fetchRegistrations = async () => {
