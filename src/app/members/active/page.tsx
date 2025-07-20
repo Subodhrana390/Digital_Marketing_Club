@@ -19,6 +19,7 @@ const LoadingSkeletons = () => (
                     <TableRow className="border-white/10 hover:bg-white/10">
                         <TableHead className="text-white">Name</TableHead>
                         <TableHead className="text-white">Role</TableHead>
+                        <TableHead className="text-white">Branch</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -26,6 +27,7 @@ const LoadingSkeletons = () => (
                          <TableRow key={i} className="border-white/10 hover:bg-white/10">
                             <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                             <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                            <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -118,6 +120,7 @@ export default function ActiveMembersPage() {
                                 <TableRow className="border-white/10 hover:bg-white/10">
                                     <TableHead className="text-white">Name</TableHead>
                                     <TableHead className="text-white">Role</TableHead>
+                                    <TableHead className="text-white">Branch</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -125,6 +128,7 @@ export default function ActiveMembersPage() {
                                     <TableRow key={member.id} className="border-white/10 hover:bg-white/10">
                                         <TableCell className="font-medium text-slate-200">{member.name}</TableCell>
                                         <TableCell className="text-slate-400">{member.role}</TableCell>
+                                        <TableCell className="text-slate-400">{member.branch}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

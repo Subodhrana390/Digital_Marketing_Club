@@ -533,6 +533,7 @@ const memberSchema = z.object({
     name: z.string().min(2, "Name is required."),
     role: z.string().min(2, "Role is required."),
     session: z.string().min(1, "Session is required."),
+    branch: z.string().min(2, "Branch is required.").optional().or(z.literal('')),
     type: z.enum(["Core", "Active", "Faculty"], { required_error: "Member type is required." }),
     avatarUrl: z.string().optional(),
     avatarHint: z.string().optional(),
@@ -649,6 +650,7 @@ export async function approveMemberRegistrationAction(registration: MemberRegist
             role: "Member",
             type: "Active",
             session: session,
+            branch: registration.branch,
             skills: ['New Member'],
             avatarUrl: '',
         });

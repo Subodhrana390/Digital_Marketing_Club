@@ -70,6 +70,7 @@ export interface Member {
   fallback: string;
   skills: string[];
   session: string;
+  branch?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   googleUrl?: string;

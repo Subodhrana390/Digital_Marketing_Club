@@ -169,8 +169,8 @@ export function MemberForm({ member }: MemberFormProps) {
         {state.errors?.description && <p className="text-sm font-medium text-destructive">{state.errors.description[0]}</p>}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
           <Label htmlFor="skills">Skills</Label>
           <Textarea id="skills" name="skills" defaultValue={skills} placeholder="e.g., SEO, Content Writing, PPC" required />
           <p className="text-xs text-muted-foreground">Enter skills separated by commas.</p>
@@ -190,6 +190,8 @@ export function MemberForm({ member }: MemberFormProps) {
             </Select>
             {state.errors?.session && <p className="text-sm font-medium text-destructive">{state.errors.session[0]}</p>}
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <div className="space-y-2">
             <Label htmlFor="type">Member Type</Label>
             <Select name="type" defaultValue={memberType} onValueChange={(value) => setMemberType(value as 'Core' | 'Active' | 'Faculty')}>
@@ -203,6 +205,11 @@ export function MemberForm({ member }: MemberFormProps) {
                 </SelectContent>
             </Select>
             {state.errors?.type && <p className="text-sm font-medium text-destructive">{state.errors.type[0]}</p>}
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="branch">Branch</Label>
+            <Input id="branch" name="branch" defaultValue={member?.branch} placeholder="e.g., CSE" />
+            {state.errors?.branch && <p className="text-sm font-medium text-destructive">{state.errors.branch[0]}</p>}
         </div>
       </div>
       
