@@ -22,6 +22,8 @@ function docToMember(doc: DocumentSnapshot<DocumentData>): Member | null {
         role: data.role,
         type: data.type || 'Core', // Default to 'Core' if not specified
         branch: data.branch,
+        urn: data.urn,
+        crn: data.crn,
         description: data.description, // Optional
         avatarUrl: data.avatarUrl || "", // Ensure avatarUrl is always a string
         avatarHint: data.avatarHint, // Optional
@@ -75,6 +77,8 @@ export async function addMember(member: Omit<Member, 'id' | 'fallback'>) {
         googleUrl: member.googleUrl || "",
         avatarUrl: member.avatarUrl || "",
         branch: member.branch || "",
+        urn: member.urn || "",
+        crn: member.crn || "",
     };
     const docRef = await addDoc(collection(db, 'members'), newMember);
     return docRef.id;

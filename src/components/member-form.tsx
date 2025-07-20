@@ -212,6 +212,19 @@ export function MemberForm({ member }: MemberFormProps) {
             {state.errors?.branch && <p className="text-sm font-medium text-destructive">{state.errors.branch[0]}</p>}
         </div>
       </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="urn">University Roll No. (URN)</Label>
+          <Input id="urn" name="urn" defaultValue={member?.urn} />
+          {state.errors?.urn && <p className="text-sm font-medium text-destructive">{state.errors.urn[0]}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="crn">College Roll No. (CRN)</Label>
+          <Input id="crn" name="crn" defaultValue={member?.crn} />
+          {state.errors?.crn && <p className="text-sm font-medium text-destructive">{state.errors.crn[0]}</p>}
+        </div>
+      </div>
       
       <Card>
         <CardHeader>

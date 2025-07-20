@@ -68,6 +68,11 @@ export default async function AdminMembersPage() {
                     </Avatar>
                     <div className="grid gap-1">
                       <p className="font-medium">{member.name}</p>
+                      <div className="text-xs text-muted-foreground flex flex-wrap gap-x-2">
+                        {member.urn && <span>URN: {member.urn}</span>}
+                        {member.crn && <span>CRN: {member.crn}</span>}
+                        {member.branch && <span>{member.branch}</span>}
+                      </div>
                     </div>
                   </div>
                 </TableCell>

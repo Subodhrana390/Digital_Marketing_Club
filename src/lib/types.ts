@@ -71,6 +71,8 @@ export interface Member {
   skills: string[];
   session: string;
   branch?: string;
+  urn?: string;
+  crn?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   googleUrl?: string;
