@@ -75,15 +75,15 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
   };
 }
 
-export async function uploadAttendanceCertificate(file: File): Promise<{ downloadUrl: string; fileName: string }> {
+export async function uploadAttendeeCertificate(file: File): Promise<{ downloadUrl: string; fileName: string }> {
     checkConfiguration();
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const response = await uploadStream(buffer, {
-        folder: 'attendance-certificates',
-        resource_type: 'auto',
-        public_id: file.name.split('.')[0] + '_' + Date.now(),
+        folder: 'attendee-certificates',
+        resource_type: 'auto', // Allow PDF, JPG, PNG
+        public_id: file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now(),
     });
     
     if (!response || !response.secure_url) {

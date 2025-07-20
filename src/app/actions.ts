@@ -19,11 +19,11 @@ import { addBlogPost, deleteBlogPost, updateBlogPost } from "@/services/blogs";
 import { addEvent, deleteEvent, updateEvent, addRegistrationToEvent, updateRegistrationForEvent, deleteRegistrationFromEvent, getEvent, getRegistrationsForEvent } from "@/services/events";
 import { addResource, deleteResource, updateResource } from "@/services/resources";
 import { addMember, deleteMember, updateMember, addMemberRegistration, updateMemberRegistrationStatus } from "@/services/members";
-import { uploadEventReport, uploadAttendanceCertificate, uploadImage, deleteFileByPublicId } from "@/services/storage";
+import { uploadEventReport, uploadImage, deleteFileByPublicId, uploadAttendeeCertificate as uploadAttendeeCertificateToStorage } from "@/services/storage";
 import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import { addTestimonial, deleteTestimonial, updateTestimonial } from "@/services/testimonials";
-import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial } from "@/lib/types";
+import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial, Registration } from "@/lib/types";
 
 
 const contactFormSchema = z.object({
@@ -400,71 +400,68 @@ export async function deleteRegistrationAction(eventId: string, registrationId: 
     }
 }
 
-export async function uploadAttendanceCertificateAction(formData: FormData): Promise<{ downloadUrl: string; fileName: string; error?: string }> {
-    const file = formData.get('file') as File | null;
+export async function uploadAttendeeCertificateAction(
+  eventId: string,
+  registrationId: string,
+  formData: FormData
+): Promise<{ success: boolean; message: string }> {
+  const file = formData.get("file") as File | null;
+  if (!file) {
+    return { success: false, message: "No file provided." };
+  }
 
-    if (!file) {
-        return { downloadUrl: '', fileName: '', error: 'No file provided.' };
-    }
-    
-    try {
-        const { downloadUrl, fileName } = await uploadAttendanceCertificate(file);
-        return { downloadUrl, fileName };
-    } catch (e: any) {
-        console.error("Certificate upload failed:", e);
-        return { downloadUrl: '', fileName: '', error: "Failed to upload certificate: " + e.message };
-    }
+  try {
+    const { downloadUrl, fileName } = await uploadAttendeeCertificateToStorage(file);
+    await updateRegistrationForEvent(eventId, registrationId, {
+      certificateUrl: downloadUrl,
+      certificateName: fileName,
+      certificateSent: false, // Reset sent status on new upload
+    });
+    revalidatePath(`/admin/events/edit/${eventId}`);
+    return { success: true, message: "Certificate uploaded." };
+  } catch (e: any) {
+    return { success: false, message: "Failed to upload certificate: " + e.message };
+  }
 }
 
-export async function updateEventWithCertificate(eventId: string, certUrl: string, certName: string) {
-    try {
-        await updateEvent(eventId, { attendanceCertificateUrl: certUrl, attendanceCertificateName: certName });
-        revalidatePath(`/admin/events/edit/${eventId}`);
-        return { success: true, message: "Certificate uploaded successfully." };
-    } catch (e: any) {
-        console.error(e);
-        return { success: false, message: "Failed to update event with certificate: " + e.message };
-    }
-}
+export async function sendAttendeeCertificateAction(
+  eventId: string,
+  registration: Registration
+): Promise<{ success: boolean; message: string }> {
+  if (!registration.certificateUrl || !registration.certificateName) {
+    return { success: false, message: "No certificate found for this attendee." };
+  }
 
-export async function sendCertificatesAction(eventId: string) {
-    try {
-        const event = await getEvent(eventId);
-        if (!event || !event.attendanceCertificateUrl || !event.attendanceCertificateName) {
-            throw new Error('Attendance certificate not found for this event. Please upload a certificate first.');
-        }
+  try {
+    const event = await getEvent(eventId);
+    if (!event) throw new Error("Event not found.");
 
-        const registrations = await getRegistrationsForEvent(eventId);
-        const attendees = registrations.filter(r => r.attended);
+    const response = await fetch(registration.certificateUrl);
+    if (!response.ok) throw new Error("Could not fetch the certificate file.");
+    const fileBuffer = await response.arrayBuffer();
 
-        if (attendees.length === 0) {
-            return { success: true, message: "No attendees marked to receive certificates." };
-        }
+    const certificateAttachment = {
+      filename: registration.certificateName,
+      content: Buffer.from(fileBuffer),
+    };
 
-        const response = await fetch(event.attendanceCertificateUrl);
-        if(!response.ok) throw new Error("Could not fetch the certificate file.");
-        const fileBuffer = await response.arrayBuffer();
+    await sendCertificateEmail([
+      {
+        to: registration.studentEmail,
+        studentName: registration.studentName,
+        eventTitle: event.title,
+        attachments: [certificateAttachment],
+      },
+    ]);
 
-        const certificateAttachment = {
-            filename: event.attendanceCertificateName,
-            content: Buffer.from(fileBuffer),
-        };
-        
-        const emailsToSend = attendees.map(attendee => ({
-            to: attendee.studentEmail,
-            studentName: attendee.studentName,
-            eventTitle: event.title,
-            attachments: [certificateAttachment]
-        }));
-        
-        await sendCertificateEmail(emailsToSend);
+    // Update the registration to mark the certificate as sent
+    await updateRegistrationForEvent(eventId, registration.id, { certificateSent: true });
 
-        return { success: true, message: `Certificates sent to ${attendees.length} attendees.` };
-
-    } catch (e: any) {
-        console.error("Certificate sending failed:", e);
-        return { success: false, message: 'Failed to send certificates: ' + e.message };
-    }
+    revalidatePath(`/admin/events/edit/${eventId}`);
+    return { success: true, message: `Certificate sent to ${registration.studentName}.` };
+  } catch (e: any) {
+    return { success: false, message: "Failed to send certificate: " + e.message };
+  }
 }
 
 

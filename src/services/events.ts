@@ -28,8 +28,6 @@ function docToEvent(doc: DocumentSnapshot<DocumentData>): Event | null {
         registrationLink: data.registrationLink,
         reportUrl: data.reportUrl,
         reportName: data.reportName,
-        attendanceCertificateUrl: data.attendanceCertificateUrl,
-        attendanceCertificateName: data.attendanceCertificateName,
         bannerUrl: data.bannerUrl,
         bannerHint: data.bannerHint,
         photos: data.photos || [],
@@ -81,15 +79,13 @@ type EventInput = {
     registrationLink?: string;
     reportUrl?: string;
     reportName?: string;
-    attendanceCertificateUrl?: string;
-    attendanceCertificateName?: string;
     bannerUrl?: string;
     bannerHint?: string;
     photos?: string[];
     featured?: boolean;
 }
 
-export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName' | 'attendanceCertificateUrl' | 'attendanceCertificateName'>) {
+export async function addEvent(event: Omit<EventInput, 'reportUrl' | 'reportName'>) {
     const newEvent = {
         ...event,
         date: Timestamp.fromDate(event.date),
@@ -125,6 +121,8 @@ function docToRegistration(doc: DocumentSnapshot<DocumentData>): Registration {
         crn: data.crn,
         attended: data.attended || false,
         certificateUrl: data.certificateUrl,
+        certificateName: data.certificateName,
+        certificateSent: data.certificateSent || false,
     };
 }
 

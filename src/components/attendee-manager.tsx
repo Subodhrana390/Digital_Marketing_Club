@@ -4,7 +4,13 @@
 import { useState, useEffect, useTransition, useRef, useActionState } from "react";
 import type { Event, Registration } from "@/lib/types";
 import { getRegistrationsForEvent } from "@/services/events";
-import { addRegistrationAction, updateAttendanceAction, deleteRegistrationAction, sendCertificatesAction } from "@/app/actions";
+import { 
+    addRegistrationAction, 
+    updateAttendanceAction, 
+    deleteRegistrationAction, 
+    uploadAttendeeCertificateAction,
+    sendAttendeeCertificateAction
+} from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, UserPlus, Trash2, Award, Mail } from "lucide-react";
+import { Loader2, UserPlus, Trash2, Mail, Upload, CheckCircle2, AlertTriangle, Send } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
@@ -22,11 +28,136 @@ interface AttendeeManagerProps {
 
 const initialState = { message: "", errors: {} };
 
+function AttendeeRow({ event, registration: initialRegistration }: { event: Event, registration: Registration }) {
+  const [registration, setRegistration] = useState(initialRegistration);
+  const [isProcessing, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setRegistration(initialRegistration);
+  }, [initialRegistration]);
+
+  const handleAttendanceChange = (attended: boolean) => {
+    startTransition(async () => {
+      const result = await updateAttendanceAction(event.id, registration.id, attended);
+      if (result.success) {
+        setRegistration(prev => ({ ...prev, attended }));
+        toast({ description: result.message });
+      } else {
+        toast({ description: result.message, variant: "destructive" });
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      if(confirm("Are you sure you want to remove this registration?")) {
+        // This action should trigger a re-fetch in the parent, so we don't need to update state here.
+        await deleteRegistrationAction(event.id, registration.id);
+      }
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const result = await uploadAttendeeCertificateAction(event.id, registration.id, formData);
+        if (result.success) {
+          toast({ description: result.message });
+          // Parent component will re-fetch and update the state.
+        } else {
+          toast({ description: result.message, variant: "destructive" });
+        }
+      });
+    }
+  };
+  
+  const handleSendEmail = () => {
+      if (!registration.certificateUrl) {
+          toast({ description: "No certificate uploaded for this attendee.", variant: "destructive" });
+          return;
+      }
+      startTransition(async () => {
+          const result = await sendAttendeeCertificateAction(event.id, registration);
+           if (result.success) {
+              setRegistration(prev => ({ ...prev, certificateSent: true }));
+              toast({ description: result.message });
+          } else {
+              toast({ description: result.message, variant: "destructive" });
+          }
+      });
+  }
+
+  const getStatus = () => {
+    if (registration.certificateSent) {
+      return <span className="flex items-center text-xs text-green-600"><CheckCircle2 className="h-3 w-3 mr-1"/> Sent</span>;
+    }
+    if (registration.certificateUrl) {
+      return <span className="flex items-center text-xs text-blue-600"><Upload className="h-3 w-3 mr-1"/> Uploaded</span>;
+    }
+    return <span className="flex items-center text-xs text-muted-foreground"><AlertTriangle className="h-3 w-3 mr-1"/> Not Uploaded</span>;
+  };
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">
+        <div>{registration.studentName}</div>
+        <div className="text-xs text-muted-foreground sm:hidden">{registration.studentEmail}</div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell text-muted-foreground">
+        <div>URN: {registration.urn}</div>
+        <div>CRN: {registration.crn}</div>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        <Switch
+          checked={registration.attended}
+          onCheckedChange={handleAttendanceChange}
+          disabled={isProcessing}
+        />
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col items-start gap-2">
+            <div>{getStatus()}</div>
+            {registration.certificateUrl && !registration.certificateSent && (
+                <a href={registration.certificateUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">
+                    View
+                </a>
+            )}
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex items-center justify-end gap-1">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/png, image/jpeg, application/pdf"
+          />
+          <Button variant="outline" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
+            <Upload className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={handleSendEmail} disabled={isProcessing || !registration.certificateUrl || registration.certificateSent}>
+            <Send className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={isProcessing}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+
 export function AttendeeManager({ event }: AttendeeManagerProps) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSending, setIsSending] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -41,7 +172,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
       setIsLoading(false);
     };
     fetchRegistrations();
-  }, [event.id]);
+  }, [event.id, state.success]); // Re-fetch on successful addition
 
   useEffect(() => {
     if (state.message) {
@@ -53,61 +184,15 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
       }
     }
   }, [state, toast]);
-
-  const handleAttendanceChange = (registrationId: string, attended: boolean) => {
-    startTransition(async () => {
-      const result = await updateAttendanceAction(event.id, registrationId, attended);
-      if (result.success) {
-        setRegistrations(regs => regs.map(r => r.id === registrationId ? { ...r, attended } : r));
-        toast({ description: result.message });
-      } else {
-        toast({ description: result.message, variant: "destructive" });
-      }
-    });
-  };
-
-  const handleDelete = (registrationId: string) => {
-    startTransition(async () => {
-      if(confirm("Are you sure you want to remove this registration?")) {
-        const result = await deleteRegistrationAction(event.id, registrationId);
-        if (result.success) {
-          setRegistrations(regs => regs.filter(r => r.id !== registrationId));
-          toast({ description: result.message });
-        } else {
-          toast({ description: result.message, variant: "destructive" });
-        }
-      }
-    });
-  };
-
-  const handleSendCertificates = () => {
-    startTransition(async () => {
-        setIsSending(true);
-        const result = await sendCertificatesAction(event.id);
-        if (result.success) {
-            toast({ title: "Success", description: result.message });
-        } else {
-            toast({ title: "Error", description: result.message, variant: "destructive" });
-        }
-        setIsSending(false);
-    });
-  };
   
-  const attendeesCount = registrations.filter(r => r.attended).length;
 
   return (
     <Card className="mt-6">
       <CardHeader>
-        <div className="flex justify-between items-start">
-            <div>
-                <CardTitle>Attendance & Certificates</CardTitle>
-                <CardDescription>Manage registered students for this event.</CardDescription>
-            </div>
-             <Button onClick={handleSendCertificates} disabled={isPending || isSending || attendeesCount === 0 || !event.attendanceCertificateUrl}>
-                {isSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
-                Send to {attendeesCount} Attendee{attendeesCount !== 1 ? 's' : ''}
-            </Button>
-        </div>
+        <CardTitle>Attendance & Certificates</CardTitle>
+        <CardDescription>
+            Manage student registrations. Mark attendance, then upload and send a unique certificate for each attendee.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 border rounded-lg items-end">
@@ -158,7 +243,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
           </div>
           
           <div className="flex justify-end mt-4">
-            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+            <Button type="submit" disabled={formAction.pending} className="w-full sm:w-auto">
                 <UserPlus className="mr-2 h-4 w-4" />
                 Add Registrant
             </Button>
@@ -171,8 +256,8 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
               <TableRow>
                 <TableHead>Student Name</TableHead>
                 <TableHead className="hidden sm:table-cell">URN / CRN</TableHead>
-                <TableHead className="hidden md:table-cell">Year</TableHead>
-                <TableHead>Attended</TableHead>
+                <TableHead className="hidden md:table-cell">Attended</TableHead>
+                <TableHead>Certificate Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -185,30 +270,7 @@ export function AttendeeManager({ event }: AttendeeManagerProps) {
                 </TableRow>
               ) : registrations.length > 0 ? (
                 registrations.map(reg => (
-                  <TableRow key={reg.id}>
-                    <TableCell className="font-medium">
-                      <div>{reg.studentName}</div>
-                      <div className="text-xs text-muted-foreground sm:hidden">{reg.studentEmail}</div>
-                      </TableCell>
-                    <TableCell className="hidden sm:table-cell text-muted-foreground">
-                      <div>URN: {reg.urn}</div>
-                      <div>CRN: {reg.crn}</div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell text-muted-foreground">{reg.year}</TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={reg.attended}
-                        onCheckedChange={(checked) => handleAttendanceChange(reg.id, checked)}
-                        disabled={isPending}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                       <Button variant="ghost" size="icon" onClick={() => handleDelete(reg.id)} disabled={isPending}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete</span>
-                       </Button>
-                    </TableCell>
-                  </TableRow>
+                  <AttendeeRow key={reg.id} event={event} registration={reg} />
                 ))
               ) : (
                 <TableRow>

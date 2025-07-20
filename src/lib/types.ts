@@ -24,8 +24,6 @@ export interface Event {
   registrationLink?: string;
   reportUrl?: string;
   reportName?: string;
-  attendanceCertificateUrl?: string;
-  attendanceCertificateName?: string;
   registrationCount?: number;
   bannerUrl?: string;
   bannerHint?: string;
@@ -44,6 +42,8 @@ export interface Registration {
   crn: string;
   attended: boolean;
   certificateUrl?: string;
+  certificateName?: string;
+  certificateSent?: boolean;
 }
 
 export interface MemberRegistration {
