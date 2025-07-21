@@ -1,8 +1,8 @@
-# MarketVerse: Digital Marketing Club Platform
+# DMC: Digital Marketing Club Platform
 
-MarketVerse is a comprehensive, feature-rich web platform built for the **Digital Marketing Club** at GNDEC, Ludhiana. It serves as a central hub for members, students, and the public to engage with the club's activities, resources, and content. The platform includes a public-facing website and a powerful, secure admin panel for managing all aspects of the club's digital marketing operations.
+DMC is a comprehensive, feature-rich web platform built for the **Digital Marketing Club** at GNDEC, Ludhiana. It serves as a central hub for members, students, and the public to engage with the club's activities, resources, and content. The platform includes a public-facing website and a powerful, secure admin panel for managing all aspects of the club's digital marketing operations.
 
-<!-- ![MarketVerse Homepage](https://placehold.co/1200x600.png?text=MarketVerse+Screenshot) -->
+![MarketVerse Homepage](/public/home.png)
 
 ## ✨ Key Features
 
