@@ -19,7 +19,8 @@ import {
   Quote,
   GraduationCap,
   Newspaper,
-  PartyPopper
+  PartyPopper,
+  Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +36,7 @@ import { MemberRegistrationForm } from "@/components/member-registration-form";
 import { getTestimonials } from "@/services/testimonials";
 import { getBlogPosts } from "@/services/blogs";
 import { getEvents } from "@/services/events";
+import { getActiveAnnouncement } from "@/services/announcements";
 import { Badge } from "@/components/ui/badge";
 
 
@@ -123,6 +125,7 @@ export default async function HomePage() {
   const testimonials = await getTestimonials();
   const allPosts = await getBlogPosts();
   const allEvents = await getEvents();
+  const activeAnnouncement = await getActiveAnnouncement();
 
   const latestPosts = allPosts.slice(0, 3);
   
@@ -181,6 +184,37 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Announcement Section */}
+      {activeAnnouncement && (
+        <section className="relative z-10 pb-20 -mt-24">
+          <div className="container mx-auto px-4">
+            <div className="relative overflow-hidden rounded-2xl bg-slate-800/50 p-8 border border-white/10 backdrop-blur-md">
+              <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 opacity-20 blur-2xl"></div>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-shrink-0 p-4 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl shadow-lg">
+                  <Megaphone className="h-8 w-8 text-white" />
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-xl font-bold text-white mb-1">
+                    Latest Announcement
+                  </h3>
+                  <p className="text-slate-300">
+                    {activeAnnouncement.message}
+                  </p>
+                </div>
+                {activeAnnouncement.link && (
+                  <Button asChild>
+                    <Link href={activeAnnouncement.link} target="_blank" rel="noopener noreferrer">
+                      Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* What We Do Section */}
       <section className="relative z-10 py-20">
