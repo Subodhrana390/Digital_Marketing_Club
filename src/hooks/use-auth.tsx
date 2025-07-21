@@ -6,11 +6,10 @@ import { onAuthStateChanged } from '@/services/auth';
 import type { User } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import Loading from '@/app/loading';
-import { checkIfUserIsAdmin } from '@/services/admins';
 
 interface AuthContextType {
   user: User | null;
-  isAdmin: boolean;
+  isAdmin: boolean; // Keep for compatibility, but will always be true if user exists
   loading: boolean;
 }
 
@@ -18,23 +17,19 @@ const AuthContext = createContext<AuthContextType>({ user: null, isAdmin: false,
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(async (user) => {
       setUser(user);
-      if (user && user.email) {
-        const adminStatus = await checkIfUserIsAdmin(user.email);
-        setIsAdmin(adminStatus);
-      } else {
-        setIsAdmin(false);
-      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Simplified logic: if a user is logged in, they are considered an admin.
+  const isAdmin = !!user;
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, loading }}>
@@ -48,9 +43,11 @@ export const useAuth = () => {
 };
 
 export const AuthGuard = ({ children }: { children: ReactNode }) => {
-    const { user, isAdmin, loading } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
+
+    const isAccessingAdminRoute = pathname.startsWith('/admin');
 
     useEffect(() => {
         // Don't do anything while auth state is loading
@@ -58,20 +55,14 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
             return;
         }
 
-        // Check if the current route is an admin route
-        const isAccessingAdminRoute = pathname.startsWith('/admin');
-
-        // If trying to access an admin route...
-        if (isAccessingAdminRoute) {
-            // and is not a logged-in admin, redirect to login page.
-            if (!user || !isAdmin) {
-                router.push('/market-verse-admin-login');
-            }
+        // If trying to access an admin route and is not logged in, redirect to login page.
+        if (isAccessingAdminRoute && !user) {
+            router.push('/market-verse-admin-login');
         }
-    }, [user, isAdmin, loading, router, pathname]);
+    }, [user, loading, router, pathname, isAccessingAdminRoute]);
 
     // While loading, or if the user is not yet authenticated for an admin route, show a loading screen.
-    if (loading || (pathname.startsWith('/admin') && (!user || !isAdmin))) {
+    if (loading || (isAccessingAdminRoute && !user)) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <Loading />

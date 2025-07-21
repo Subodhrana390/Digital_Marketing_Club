@@ -16,7 +16,6 @@ import {
   UserPlus,
   Contact,
   MessageSquare,
-  ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -42,7 +41,6 @@ const adminNavLinks = [
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/registrations", label: "Registrations", icon: UserPlus },
   { href: "/admin/contacts", label: "Contacts", icon: Contact },
-  { href: "/admin/admins", label: "Admins", icon: ShieldCheck },
 ];
 
 const reportLinks = [

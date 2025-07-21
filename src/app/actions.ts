@@ -24,7 +24,6 @@ import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import { addTestimonial, deleteTestimonial, updateTestimonial } from "@/services/testimonials";
 import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial, Registration } from "@/lib/types";
-import { addAdmin, Admin } from "@/services/admins";
 
 
 const contactFormSchema = z.object({
@@ -803,29 +802,4 @@ export async function deleteTestimonialAction(id: string) {
         console.error(e);
         return { message: "Failed to delete testimonial: " + e.message };
     }
-}
-
-// Admin Actions
-const adminSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-});
-
-export async function addAdminAction(prevState: FormState, formData: FormData): Promise<FormState> {
-  const validatedFields = adminSchema.safeParse(Object.fromEntries(formData.entries()));
-
-  if (!validatedFields.success) {
-    return {
-      message: "Please correct the errors below.",
-      errors: validatedFields.error.flatten().fieldErrors,
-      success: false,
-    };
-  }
-  
-  try {
-    await addAdmin(validatedFields.data.email);
-    revalidatePath("/admin/admins");
-    return { message: `Admin privileges granted to ${validatedFields.data.email}.`, errors: {}, success: true };
-  } catch (e: any) {
-    return { message: "Failed to add admin: " + e.message, errors: {}, success: false };
-  }
 }
