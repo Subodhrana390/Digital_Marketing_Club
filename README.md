@@ -1,36 +1,36 @@
 # MarketVerse: Digital Marketing Club Platform
 
-MarketVerse is a comprehensive, feature-rich web platform built for the Digital Marketing Club at GNDEC, Ludhiana. It serves as a central hub for members, students, and the public to engage with the club's activities, resources, and content. The platform includes a public-facing website and a powerful, secure admin panel for managing all aspects of the club's operations.
+MarketVerse is a comprehensive, feature-rich web platform built for the **Digital Marketing Club** at GNDEC, Ludhiana. It serves as a central hub for members, students, and the public to engage with the club's activities, resources, and content. The platform includes a public-facing website and a powerful, secure admin panel for managing all aspects of the club's digital marketing operations.
 
 <!-- ![MarketVerse Homepage](https://placehold.co/1200x600.png?text=MarketVerse+Screenshot) -->
 
 ## ✨ Key Features
 
 ### Public-Facing Website
-- **Homepage:** A stunning, animated landing page introducing the club and its mission.
-- **Events Showcase:** View upcoming and past events with a clean, modern UI and session-based filtering.
-- **Event Details & Registration:** Detailed event pages with banners, photo galleries, and a seamless on-page registration pop-up form.
-- **Blog Platform:** A fully-featured blog with search functionality, beautifully rendered articles with a dynamic table of contents, and an optimized reading experience.
-- **Resource Library:** A curated collection of marketing tools, templates, and learning resources, categorized for easy access.
+- **Homepage:** A stunning, animated landing page introducing the club and its mission in the world of digital marketing.
+- **Events Showcase:** View upcoming and past digital marketing workshops and events with a clean, modern UI and session-based filtering.
+- **Event Details & Registration:** Detailed event pages with banners, photo galleries, and a seamless on-page registration pop-up form for marketing events.
+- **Blog Platform:** A fully-featured blog with search functionality, beautifully rendered articles on digital marketing topics with a dynamic table of contents, and an optimized reading experience.
+- **Resource Library:** A curated collection of digital marketing tools, templates, and learning resources, categorized for easy access.
 - **Team Pages:** Separate, dedicated pages for the **Core Team** (with detailed profiles) and the **Active Team** (with member lists), including session-based filtering.
-- **Public Analytics:** A transparent reports page showcasing club statistics like event attendance and content engagement.
+- **Public Analytics:** A transparent reports page showcasing club statistics like event attendance and content engagement, highlighting our marketing impact.
 - **Contact Form:** A functional contact page that stores submissions for admin review.
-- **AI Ideation Tool:** A public tool for generating blog post ideas using Genkit.
+- **AI Ideation Tool:** A public tool for generating blog post ideas using Genkit, focused on digital marketing keywords.
 - **Responsive Design:** A fully responsive and mobile-friendly experience across all public pages.
 
 ### Admin Panel
-- **Secure Authentication:** Admin login via Email/Password or Google Sign-In, protected by an authentication guard.
+- **Secure Authentication:** Admin login via Email/Password, protected by an authentication guard.
 - **Dashboard:** An at-a-glance overview of key club metrics (total members, upcoming events, etc.).
 - **Content Management (CRUD):**
-  - **Blogs:** Create, edit, and delete blog posts. Features AI-powered content and title generation.
-  - **Events:** Create, edit, and delete events.
+  - **Blogs:** Create, edit, and delete blog posts. Features AI-powered content and title generation for digital marketing articles.
+  - **Events:** Create, edit, and delete digital marketing events.
   - **Members:** Manage the Core and Active team members list.
-  - **Resources:** Manage the resource library.
+  - **Resources:** Manage the digital marketing resource library.
 - **Event & Attendee Management:**
   - View, add, and manage student registrations for each event.
   - Track student attendance.
   - Upload and manage event reports (e.g., PDFs), which are also deleted from cloud storage when an event is deleted.
-  - **Certificate Generation:** Upload a certificate template, and automatically generate and email participation certificates to attendees using Cloudinary for image overlays and Resend for email delivery.
+  - **Certificate Generation:** Upload a certificate template, and automatically generate and email participation certificates to attendees using Cloudinary for image overlays and an email service.
 - **Member Application Management:**
   - View and review new member applications submitted through the public site.
   - **Approve or Reject** applications directly from the admin panel. Approved applicants are automatically added to the "Active Team".
@@ -50,7 +50,7 @@ MarketVerse is a comprehensive, feature-rich web platform built for the Digital 
 - **Generative AI:** Google AI with Genkit for AI flows (content generation).
 - **Backend & Database:** Firebase (Firestore, Authentication, Storage).
 - **Image & Asset Management:** Cloudinary for certificate generation and transformations.
-- **Transactional Emails:** Resend
+- **Transactional Emails:** Nodemailer
 - **Form Management:** React Hook Form with Zod for validation.
 - **Icons:** Lucide React
 
@@ -72,7 +72,7 @@ npm install
 ```
 
 ### 3. Set Up Environment Variables
-Create a `.env` file in the root of the project and add the following environment variables. These are required for Firebase, Cloudinary, and Resend to function correctly.
+Create a `.env` file in the root of the project and add the following environment variables. These are required for Firebase, Cloudinary, and your email service to function correctly.
 
 ```env
 # Firebase Configuration
@@ -89,9 +89,12 @@ CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 
-# Resend Configuration (for sending emails)
-RESEND_API_KEY=
-FROM_EMAIL=
+# Nodemailer Configuration (for sending emails)
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_USER=
+EMAIL_PASS=
+EMAIL_FROM=
 ```
 
 ### 4. Run the Development Server
@@ -137,7 +140,7 @@ src
 │   ├── blogs.ts          # Firestore services for blogs
 │   ├── events.ts         # Firestore services for events
 │   ├── members.ts        # Firestore services for members
-│   ├── email.ts          # Resend email service
+│   ├── email.ts          # Email service (Nodemailer)
 │   ├── storage.ts        # Cloudinary services
 │   └── ...               # Other data services
 └── lib/

@@ -225,7 +225,7 @@ export function Header() {
                 {/* Mobile Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/10">
                   <Link href="/" className="flex items-center space-x-3" onClick={() => setIsOpen(false)}>
-                    <Image src="/images/Logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
+                    <Image src="/images/logo.png" alt="Digital Marketing Club Logo" width={48} height={48} />
                     <div className="flex flex-col">
                       <span className="font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                         Digital Marketing Club
