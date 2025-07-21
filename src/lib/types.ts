@@ -101,3 +101,10 @@ export interface Testimonial {
     avatarUrl: string;
     avatarHint?: string;
 }
+
+export interface Admin {
+  id: string;
+  email: string;
+  role: 'admin';
+  createdAt: string;
+}
