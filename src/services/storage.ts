@@ -7,12 +7,18 @@ config();
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+function checkAndConfigureCloudinary() {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        console.warn("Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.");
+        throw new Error("Cloudinary service is not configured on the server.");
+    }
+
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
 
 async function uploadStream(buffer: Buffer, options: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -30,14 +36,8 @@ async function uploadStream(buffer: Buffer, options: any): Promise<any> {
   });
 }
 
-function checkConfiguration() {
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-        throw new Error("Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.");
-    }
-}
-
 export async function uploadImage(file: File, folder: string): Promise<{ downloadUrl: string, publicId: string }> {
-    checkConfiguration();
+    checkAndConfigureCloudinary();
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const response = await uploadStream(buffer, {
@@ -57,7 +57,7 @@ export async function uploadImage(file: File, folder: string): Promise<{ downloa
 
 
 export async function uploadEventReport(file: File): Promise<{ downloadUrl: string, fileName: string }> {
-  checkConfiguration();
+  checkAndConfigureCloudinary();
   
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -78,13 +78,13 @@ export async function uploadEventReport(file: File): Promise<{ downloadUrl: stri
 }
 
 export async function uploadAttendeeCertificate(file: File): Promise<{ downloadUrl: string; fileName: string }> {
-    checkConfiguration();
+    checkAndConfigureCloudinary();
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const response = await uploadStream(buffer, {
         folder: 'attendee-certificates',
-        resource_type: 'auto', // Allow PDF, JPG, PNG
+        resource_type: 'auto',
         public_id: file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now(),
     });
     
@@ -100,13 +100,11 @@ export async function uploadAttendeeCertificate(file: File): Promise<{ downloadU
 
 
 export async function deleteFileByPublicId(publicId: string): Promise<{ result: string }> {
-    checkConfiguration();
+    checkAndConfigureCloudinary();
     try {
-        const response = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-        // Also try destroying as an image in case the resource_type was different
-        if (response.result === 'not found') {
-            return await cloudinary.uploader.destroy(publicId);
-        }
+        // By not specifying resource_type, Cloudinary will attempt to auto-detect
+        // and delete images, videos, or raw files.
+        const response = await cloudinary.uploader.destroy(publicId, {});
         return response;
     } catch (error: any) {
         console.error(`Failed to delete file from Cloudinary (publicId: ${publicId}):`, error);
