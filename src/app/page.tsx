@@ -187,7 +187,7 @@ export default async function HomePage() {
 
       {/* Announcement Section */}
       {activeAnnouncement && (
-        <section className="relative z-10 pb-20 -mt-24">
+        <section className="relative z-10 py-20 -mt-24">
           <div className="container mx-auto px-4">
             <div className="relative overflow-hidden rounded-2xl bg-slate-800/50 p-8 border border-white/10 backdrop-blur-md">
               <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 opacity-20 blur-2xl"></div>
