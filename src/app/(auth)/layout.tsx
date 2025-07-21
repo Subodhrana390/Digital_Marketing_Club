@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/hooks/use-auth";
 
 export const metadata: Metadata = {
   title: "Login - Digital Marketing Club",
@@ -11,8 +12,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-        {children}
-    </>
+    <AuthProvider>
+      {children}
+    </AuthProvider>
   );
 }

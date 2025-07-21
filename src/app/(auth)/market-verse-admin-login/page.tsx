@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,14 +9,23 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { signInWithGoogle, signInWithEmail } from '@/services/auth';
+import { useAuth } from '@/hooks/use-auth';
+import Loading from '@/app/loading';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && user && isAdmin) {
+      router.push('/admin');
+    }
+  }, [user, isAdmin, authLoading, router]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +33,9 @@ export default function LoginPage() {
     setError(null);
     try {
       await signInWithEmail(email, password);
-      router.push('/admin');
+      // The useEffect will handle the redirect
     } catch (error: any) {
       setError(error.message.replace('Firebase: ', ''));
-    } finally {
       setLoading(false);
     }
   };
@@ -37,13 +45,16 @@ export default function LoginPage() {
     setError(null);
     try {
       await signInWithGoogle();
-      router.push('/admin');
+      // The useEffect will handle the redirect
     } catch (error: any) {
       setError(error.message.replace('Firebase: ', ''));
-    } finally {
       setGoogleLoading(false);
     }
   };
+
+  if (authLoading || (user && isAdmin)) {
+    return <Loading />;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">

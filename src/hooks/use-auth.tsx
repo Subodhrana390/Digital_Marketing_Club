@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(async (user) => {
       setUser(user);
       if (user) {
-        const adminStatus = await checkIfUserIsAdmin(user.uid);
+        const adminStatus = await checkIfUserIsAdmin(user.email ?? '');
         setIsAdmin(adminStatus);
       } else {
         setIsAdmin(false);
@@ -52,25 +52,36 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        if (loading) return;
+        if (loading) {
+            return; // Wait for authentication check to complete
+        }
 
-        if (!user) {
+        const isAuthRoute = pathname.startsWith('/market-verse-admin-login');
+
+        if (!user && !isAuthRoute) {
             router.push('/market-verse-admin-login');
             return;
         }
 
-        if (!isAdmin) {
-            // Allow access to the login page even if not admin, otherwise it's a loop
-            if (pathname !== '/market-verse-admin-login') {
-                console.log("Access denied. User is not an admin.");
-                router.push('/market-verse-admin-login');
-            }
+        if (user && !isAdmin && !isAuthRoute) {
+            console.log("Access denied. User is not an admin.");
+            router.push('/market-verse-admin-login'); // Redirect non-admins trying to access admin pages
+            return;
         }
 
     }, [user, isAdmin, loading, router, pathname]);
 
-    if (loading || !user || !isAdmin) {
+    if (loading) {
         return (
+            <div className="flex h-screen items-center justify-center">
+                <Loading />
+            </div>
+        );
+    }
+    
+    // If not admin and trying to access a protected route, show loading until redirect happens
+    if (!isAdmin && !pathname.startsWith('/market-verse-admin-login')) {
+         return (
             <div className="flex h-screen items-center justify-center">
                 <Loading />
             </div>
