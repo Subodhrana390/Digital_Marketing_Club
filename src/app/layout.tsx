@@ -30,6 +30,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         ></link>
+        <link rel="stylesheet" href="https://unpkg.com/@uiw/react-md-editor@4.0.4/markdown-editor.css" />
+        <link rel="stylesheet" href="https://unpkg.com/@uiw/react-markdown-preview@4.0.4/markdown.css" />
         <meta name="apple-mobile-web-app-title" content="MyWebSite" />
       </head>
       <body className="font-body antialiased">

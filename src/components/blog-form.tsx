@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useState, useTransition, useEffect } from "react";
 import type { BlogPost } from "@/lib/types";
 import { addBlogPostAction, generateBlogPostContentAction, updateBlogPostAction } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Sparkles } from "lucide-react";
+import MDEditor from "@uiw/react-md-editor";
 
 interface BlogFormProps {
   post?: BlogPost | null;
@@ -35,6 +36,23 @@ export function BlogForm({ post }: BlogFormProps) {
   const [excerpt, setExcerpt] = useState(post?.excerpt || "");
   const [content, setContent] = useState(post?.content || "");
   const [isGenerating, startTransition] = useTransition();
+
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    setTheme(isDarkMode ? "dark" : "light");
+    
+    const observer = new MutationObserver(() => {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        setTheme(isDarkMode ? "dark" : "light");
+    });
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
   
   const slugify = (str: string) => str.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
   
@@ -61,6 +79,7 @@ export function BlogForm({ post }: BlogFormProps) {
 
   return (
     <form action={formAction} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <input type="hidden" name="content" value={content} />
       
       {/* Main Content Column */}
       <div className="lg:col-span-2 space-y-6">
@@ -84,8 +103,13 @@ export function BlogForm({ post }: BlogFormProps) {
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent>
-                <Textarea id="content" name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={20} required placeholder="Write your amazing blog post here..."/>
+            <CardContent data-color-mode={theme}>
+                <MDEditor
+                    value={content}
+                    onChange={(val) => setContent(val || "")}
+                    height={400}
+                    preview="live"
+                />
                 <p className="text-xs text-muted-foreground mt-2">Use Markdown for formatting. Headings (e.g., ## Section Title) create sections for the Table of Contents. You can also add lists, links, tables, and images using `![alt text](image_url)`.</p>
                 {state.errors?.content && <p className="text-sm font-medium text-destructive mt-2">{state.errors.content[0]}</p>}
             </CardContent>
