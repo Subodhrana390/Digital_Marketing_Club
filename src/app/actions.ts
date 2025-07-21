@@ -23,7 +23,8 @@ import { uploadEventReport, uploadImage, deleteFileByPublicId, uploadAttendeeCer
 import { sendCertificateEmail } from "@/services/email";
 import { addContactSubmission, deleteContactSubmission } from "@/services/contact";
 import { addTestimonial, deleteTestimonial, updateTestimonial } from "@/services/testimonials";
-import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial, Registration } from "@/lib/types";
+import { addAnnouncement, deleteAnnouncement, updateAnnouncement } from "@/services/announcements";
+import type { BlogPost, Event, Member, Resource, MemberRegistration, Testimonial, Registration, Announcement } from "@/lib/types";
 
 
 const contactFormSchema = z.object({
@@ -801,5 +802,80 @@ export async function deleteTestimonialAction(id: string) {
     } catch (e: any) {
         console.error(e);
         return { message: "Failed to delete testimonial: " + e.message };
+    }
+}
+
+
+// Announcement Actions
+const announcementSchema = z.object({
+  message: z.string().min(10, "Message must be at least 10 characters."),
+  link: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  isActive: z.preprocess((val) => val === 'on', z.boolean()).optional(),
+});
+
+export async function addAnnouncementAction(prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = announcementSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await addAnnouncement(validatedFields.data as Omit<Announcement, 'id' | 'createdAt'>);
+  } catch (e: any) {
+    return { message: "Failed to create announcement: " + e.message, errors: {} };
+  }
+
+  revalidatePath("/admin/announcements");
+  revalidatePath("/");
+  redirect("/admin/announcements");
+}
+
+export async function updateAnnouncementAction(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+  const validatedFields = announcementSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      message: "Please correct the errors below.",
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await updateAnnouncement(id, validatedFields.data);
+  } catch (e: any) {
+    return { message: "Failed to update announcement: " + e.message, errors: {} };
+  }
+
+  revalidatePath("/admin/announcements");
+  revalidatePath("/");
+  redirect("/admin/announcements");
+}
+
+
+export async function toggleAnnouncementActiveAction(id: string, isActive: boolean) {
+    try {
+        await updateAnnouncement(id, { isActive: isActive });
+        revalidatePath('/admin/announcements');
+        revalidatePath('/');
+        return { success: true, message: `Announcement status updated.` };
+    } catch (e: any) {
+        return { success: false, message: "Failed to update announcement status: " + e.message };
+    }
+}
+
+
+export async function deleteAnnouncementAction(id: string) {
+    try {
+        await deleteAnnouncement(id);
+        revalidatePath("/admin/announcements");
+        revalidatePath("/");
+        return { success: true, message: "Announcement deleted successfully." };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, message: "Failed to delete announcement: " + e.message };
     }
 }

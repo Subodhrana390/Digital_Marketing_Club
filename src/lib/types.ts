@@ -102,6 +102,15 @@ export interface Testimonial {
     avatarHint?: string;
 }
 
+export interface Announcement {
+  id: string;
+  message: string;
+  link?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+
 export interface Admin {
   id: string;
   email: string;

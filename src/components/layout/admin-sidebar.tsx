@@ -16,6 +16,7 @@ import {
   UserPlus,
   Contact,
   MessageSquare,
+  Megaphone,
 } from "lucide-react";
 
 import {
@@ -34,6 +35,7 @@ import { useState } from "react";
 
 const adminNavLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/blogs", label: "Blogs", icon: Newspaper },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
