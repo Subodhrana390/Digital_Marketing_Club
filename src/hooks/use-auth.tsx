@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
@@ -23,8 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(async (user) => {
       setUser(user);
-      if (user) {
-        const adminStatus = await checkIfUserIsAdmin(user.email ?? '');
+      if (user && user.email) {
+        const adminStatus = await checkIfUserIsAdmin(user.email);
         setIsAdmin(adminStatus);
       } else {
         setIsAdmin(false);
@@ -52,26 +53,25 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname();
 
     useEffect(() => {
+        // Don't do anything while auth state is loading
         if (loading) {
-            return; // Wait for authentication check to complete
-        }
-
-        const isAuthRoute = pathname.startsWith('/market-verse-admin-login');
-
-        if (!user && !isAuthRoute) {
-            router.push('/market-verse-admin-login');
             return;
         }
 
-        if (user && !isAdmin && !isAuthRoute) {
-            console.log("Access denied. User is not an admin.");
-            router.push('/market-verse-admin-login'); // Redirect non-admins trying to access admin pages
-            return;
-        }
+        // Check if the current route is an admin route
+        const isAccessingAdminRoute = pathname.startsWith('/admin');
 
+        // If trying to access an admin route...
+        if (isAccessingAdminRoute) {
+            // and is not a logged-in admin, redirect to login page.
+            if (!user || !isAdmin) {
+                router.push('/market-verse-admin-login');
+            }
+        }
     }, [user, isAdmin, loading, router, pathname]);
 
-    if (loading) {
+    // While loading, or if the user is not yet authenticated for an admin route, show a loading screen.
+    if (loading || (pathname.startsWith('/admin') && (!user || !isAdmin))) {
         return (
             <div className="flex h-screen items-center justify-center">
                 <Loading />
@@ -79,14 +79,6 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
         );
     }
     
-    // If not admin and trying to access a protected route, show loading until redirect happens
-    if (!isAdmin && !pathname.startsWith('/market-verse-admin-login')) {
-         return (
-            <div className="flex h-screen items-center justify-center">
-                <Loading />
-            </div>
-        );
-    }
-
+    // Once checks are passed, render the children
     return <>{children}</>;
 }
