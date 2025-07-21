@@ -2,8 +2,6 @@
 
 import { 
   getAuth, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
   onAuthStateChanged as _onAuthStateChanged,
   signOut,
   signInWithEmailAndPassword,
@@ -12,7 +10,6 @@ import {
 import { app } from '@/lib/firebase';
 
 const auth = app ? getAuth(app) : null;
-const googleProvider = new GoogleAuthProvider();
 
 export function onAuthStateChanged(callback: (user: User | null) => void) {
   if (!auth) {
@@ -20,12 +17,6 @@ export function onAuthStateChanged(callback: (user: User | null) => void) {
     return () => {};
   }
   return _onAuthStateChanged(auth, callback);
-}
-
-export async function signInWithGoogle() {
-  if (!auth) throw new Error("Firebase not initialized");
-  const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
 }
 
 export async function signInWithEmail(email: string, password: string) {
