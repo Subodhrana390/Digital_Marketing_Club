@@ -57,7 +57,7 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
 
         // If trying to access an admin route and is not logged in, redirect to login page.
         if (isAccessingAdminRoute && !user) {
-            router.push('/market-verse-admin-login');
+            router.push('/dmc/login');
         }
     }, [user, loading, router, pathname, isAccessingAdminRoute]);
 
