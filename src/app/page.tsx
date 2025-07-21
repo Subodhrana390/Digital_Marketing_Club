@@ -17,7 +17,9 @@ import {
   Linkedin,
   Youtube,
   Quote,
-  GraduationCap
+  GraduationCap,
+  Newspaper,
+  PartyPopper
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +33,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MemberRegistrationForm } from "@/components/member-registration-form";
 import { getTestimonials } from "@/services/testimonials";
+import { getBlogPosts } from "@/services/blogs";
+import { getEvents } from "@/services/events";
+import { Badge } from "@/components/ui/badge";
 
 
 const services = [
@@ -116,6 +121,17 @@ const featuredProjects = [
 
 export default async function HomePage() {
   const testimonials = await getTestimonials();
+  const allPosts = await getBlogPosts();
+  const allEvents = await getEvents();
+
+  const latestPosts = allPosts.slice(0, 3);
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcomingEvents = allEvents
+    .filter(event => new Date(event.date) >= today)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white overflow-x-hidden">
@@ -212,6 +228,66 @@ export default async function HomePage() {
                 <p className="mt-1 text-slate-400">{stat.label}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Updates Section */}
+      <section className="relative z-10 py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl">Latest Updates</h2>
+            <p className="mt-4 text-slate-400">
+              Stay in the loop with our latest articles and upcoming events.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Latest Articles */}
+            <div className="space-y-6">
+              <h3 className="flex items-center gap-3 text-2xl font-bold text-white">
+                <Newspaper className="text-sky-400" />
+                From the Blog
+              </h3>
+              <div className="space-y-4">
+                {latestPosts.map(post => (
+                  <Link href={`/blog/${post.slug}`} key={post.id} className="block group">
+                    <div className="bg-white/5 p-4 rounded-xl border border-transparent hover:border-sky-500/50 hover:bg-white/10 transition-all duration-300">
+                       <p className="text-sm text-slate-400 mb-1">{new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric" })}</p>
+                      <h4 className="font-semibold text-white group-hover:text-sky-300 transition-colors">{post.title}</h4>
+                      <p className="text-sm text-slate-400 line-clamp-2 mt-1">{post.excerpt}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <Button asChild variant="link" className="text-sky-400 p-0">
+                <Link href="/blog">Read all articles <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </div>
+            
+            {/* Upcoming Events */}
+            <div className="space-y-6">
+              <h3 className="flex items-center gap-3 text-2xl font-bold text-white">
+                <PartyPopper className="text-pink-400" />
+                Upcoming Events
+              </h3>
+              <div className="space-y-4">
+                {upcomingEvents.map(event => (
+                  <Link href={`/events/${event.id}`} key={event.id} className="block group">
+                    <div className="bg-white/5 p-4 rounded-xl border border-transparent hover:border-pink-500/50 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex justify-between items-center text-sm text-slate-400 mb-1">
+                        <span>{new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric" })}</span>
+                        <span>{event.time}</span>
+                      </div>
+                      <h4 className="font-semibold text-white group-hover:text-pink-300 transition-colors">{event.title}</h4>
+                       <p className="text-sm text-slate-400 mt-1">{event.location}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+               <Button asChild variant="link" className="text-pink-400 p-0">
+                <Link href="/events">See all events <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
